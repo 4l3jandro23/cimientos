@@ -221,3 +221,14 @@ label.f > small { display: block; color: var(--muted); font-size: 13px; margin: 
 .gl { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 8px; font-size: 16.5px; line-height: 1.5; }
 .gej { display: grid; gap: 6px; margin: 4px 0 12px; }
 .gej div { background: var(--bg); border-radius: 14px; padding: 10px 14px; font-family: var(--serif); font-size: 17px; }
+
+/* tengo un plan */
+.sos.plan { background: var(--card); border: 1px solid var(--line); box-shadow: var(--sh); }
+.sos.plan .ic { background: var(--soft); color: var(--ink); }
+.plan-box { background: var(--bg); border-radius: 18px; padding: 14px; margin-top: 18px; }
+.checks { display: grid; gap: 6px; }
+.ck { display: flex; align-items: center; gap: 10px; border: 0; background: var(--card); border-radius: 12px; padding: 10px 12px; text-align: left; font-size: 15px; }
+.ck span { width: 22px; height: 22px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); display: grid; place-items: center; font-size: 12px; font-weight: 800; flex: none; }
+.ck.on span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pdate { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--card); color: var(--ink); font-size: 14px; }
+.plan-box .scale button { background: var(--card); }

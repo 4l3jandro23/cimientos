@@ -7,7 +7,8 @@ const K = {
   propios: 'cimientosRetosPropios',
   foco: 'cimientosFoco',
   terapia: 'cimientosTerapia',
-  lecciones: 'cimientosLeccionesCompletadas'
+  lecciones: 'cimientosLeccionesCompletadas',
+  salidas: 'cimientosSalidas'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -30,10 +31,18 @@ const planes = () => load(K.planes, {}) || {};
 const propios = () => load(K.propios, []) || [];
 const terapia = () => load(K.terapia, []) || [];
 const leidas = () => load(K.lecciones, {}) || {};
+const salidas = () => { const l = load(K.salidas, []); return Array.isArray(l) ? l : []; };
+const tipoPlan = id => PLAN_TIPOS.find(t => t.id === id) || PLAN_TIPOS[PLAN_TIPOS.length - 1];
+// Planes ya pasados y sin cerrar (preguntamos «¿qué tal fue?») y el próximo plan.
+const planPendiente = () => salidas().filter(x => !x.fin && x.cuando < hoyKey()).sort((a, b) => a.cuando < b.cuando ? -1 : 1)[0];
+const planProximo = () => salidas().filter(x => !x.fin && x.cuando >= hoyKey()).sort((a, b) => a.cuando < b.cuando ? -1 : 1)[0];
+const cuandoTxt = d => d === hoyKey() ? 'hoy' : d === dayKey(Date.now() + 864e5) ? 'mañana' : new Date(d + 'T12:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
 const allRetos = () => RETOS_BASE.concat(propios().map(r => Object.assign({ etapa: 'propio' }, r)));
 // Cada reto hecho guarda sus veces; los antiguos (de la primera versión) cuentan como una vez sin números.
 const veces = id => { const h = retosHechos()[id]; if (!h) return []; return Array.isArray(h.veces) && h.veces.length ? h.veces : [{ fecha: h.fecha, nota: h.nota || '' }]; };
-const conNumeros = () => allRetos().flatMap(r => veces(r.id).filter(v => v.antes != null && v.despues != null).map(v => Object.assign({ r }, v))).sort((a, b) => a.fecha < b.fecha ? 1 : -1);
+const conNumeros = () => allRetos().flatMap(r => veces(r.id).filter(v => v.antes != null && v.despues != null).map(v => Object.assign({ r }, v)))
+  .concat(salidas().filter(x => x.fin && x.fue && x.antes != null && x.despues != null).map(x => ({ r: { titulo: tipoPlan(x.tipo).titulo }, fecha: x.fin, antes: x.antes, despues: x.despues })))
+  .sort((a, b) => a.fecha < b.fecha ? 1 : -1);
 
 // ---------- avisos ----------
 function toast(txt, undo) {
@@ -90,6 +99,7 @@ function vHoy() {
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
+    ${planHoyHTML()}
     <div class="card"><h2>¿Cómo estás ahora?</h2><p class="sub">Un toque basta. Queda en tu diario.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
       <button class="reto ${pl ? 'plan' : ''} foco" data-reto="${r.id}" style="margin:0"><span class="chk">${retosHechos()[r.id] ? '✓' : ''}</span><span class="b"><b>${esc(r.titulo)}</b><small>${esc(r.descripcion || '')}</small>${pl && pl.antes != null ? `<span class="meta"><span class="tag warm">Crees que te dará ${pl.antes} de 10 de miedo</span></span>` : ''}</span></button>
@@ -99,6 +109,91 @@ function vHoy() {
       ${ter.length > 4 ? `<p class="small muted">Y ${ter.length - 4} más en tu diario.</p>` : ''}
       <form data-form="terapia" style="display:flex;gap:8px;margin-top:10px"><input type="text" name="t" placeholder="Algo que quieras contar o preguntar…" autocomplete="off" enterkeyhint="done"><button class="btn" style="flex:none">Añadir</button></form></div>
     ${sinLeer ? `<p class="sec-h">Para leer con calma</p><button class="lec" data-lec="${sinLeer.id}"><span class="ic">${sinLeer.icono}</span><span class="b"><b>${esc(sinLeer.titulo)}</b><small>${esc(sinLeer.sub)} · ${sinLeer.tarjetas.length} tarjetas</small></span><span class="go">›</span></button>` : ''}`;
+}
+
+// ---------- TENGO UN PLAN ----------
+function planHoyHTML() {
+  const p = planPendiente(), n = planProximo();
+  if (p) { const t = tipoPlan(p.tipo); return `<button class="sos plan" data-plancierre="${p.id}"><span class="ic">${t.icono}</span><span><b>¿Qué tal fue?</b><small>${esc(t.titulo)}${p.cuando === dayKey(Date.now() - 864e5) ? ' de ayer' : ', ' + cuandoTxt(p.cuando)}. Dos toques.</small></span><span class="go">›</span></button>`; }
+  if (n) { const t = tipoPlan(n.tipo); return `<button class="sos plan" data-planver="${n.id}"><span class="ic">${t.icono}</span><span><b>${esc(t.titulo)}</b><small>Tu plan es ${cuandoTxt(n.cuando)}. Toca para repasar la guía.</small></span><span class="go">›</span></button>`; }
+  return `<button class="sos plan" data-act="plan"><span class="ic">🗓️</span><span><b>Tengo un plan</b><small>Fiesta, quedada, una cita… Qué saber y cómo ir preparado</small></span><span class="go">›</span></button>`;
+}
+const listaHTML = c => Array.isArray(c) ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c)}</p>`;
+function openPlan(existente) {
+  const prev = existente ? salidas().find(x => x.id === existente) : null;
+  const st = { tipo: prev ? prev.tipo : null, cuando: prev ? prev.cuando : hoyKey(), antes: prev ? prev.antes : null, check: prev ? (prev.check || []).slice() : [] };
+  const v = sheet('', 'guia');
+  const paint = () => {
+    const sh = v.querySelector('.sheet');
+    if (!st.tipo) {
+      sh.innerHTML = `<div class="grab"></div><h2>¿Qué plan tienes?</h2><p class="muted">Te enseño qué saber y cómo ir preparado.</p>
+        ${PLAN_TIPOS.map(t => `<button class="lrow" data-ptipo="${t.id}"><span class="ic">${t.icono}</span><span class="b"><b>${esc(t.titulo)}</b></span><span class="go">›</span></button>`).join('')}
+        <div class="acts"><button class="btn ghost" data-close>Cerrar</button></div>`;
+      return;
+    }
+    const t = tipoPlan(st.tipo), m = dayKey(Date.now() + 864e5);
+    sh.innerHTML = `<div class="grab"></div><span class="small muted">${t.icono} Tengo un plan</span><h2>${esc(t.titulo)}</h2>
+      <h3 class="gh">Antes de cualquier plan</h3>${listaHTML(PLAN_GENERAL.antes)}
+      ${t.secciones.map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${listaHTML(c)}`).join('')}
+      <h3 class="gh">Al volver a casa</h3>${listaHTML(PLAN_GENERAL.despues)}
+      <div class="plan-box">
+        <h3 class="gh" style="margin-top:0">Para ir preparado</h3>
+        <div class="checks">${PLAN_GENERAL.check.map((c, i) => `<button type="button" class="ck ${st.check.includes(i) ? 'on' : ''}" data-pck="${i}"><span>${st.check.includes(i) ? '✓' : ''}</span>${esc(c)}</button>`).join('')}</div>
+        <label class="f"><span>¿Cuándo es?</span><span class="pills">${[[hoyKey(), 'Hoy'], [m, 'Mañana']].map(([d, n]) => `<button type="button" class="pill ${st.cuando === d ? 'on' : ''}" data-pcuando="${d}">${n}</button>`).join('')}<input type="date" id="pfecha" value="${st.cuando}" min="${hoyKey()}" class="pdate"></span></label>
+        <label class="f"><span>¿Cuánto miedo crees que te dará?</span>${scaleHTML('pantes', st.antes, 0, 10, ['Nada', 'Muchísimo'])}</label>
+      </div>
+      <div class="acts"><button class="btn soft" data-pcalma>🌊 Calma ahora</button><span class="sp"></span><button class="btn" data-pguardar>${prev ? 'Guardar' : 'Guardar mi plan'}</button></div>
+      ${prev ? '<div class="row-btns"><button class="pill" data-pborrar>Ya no hay plan</button></div>' : `<div class="row-btns"><button class="pill" data-ptipo="">Cambiar de plan</button></div>`}`;
+  };
+  paint();
+  v.addEventListener('click', e => {
+    let x;
+    if ((x = e.target.closest('[data-ptipo]'))) { st.tipo = x.dataset.ptipo || null; v.querySelector('.sheet').scrollTop = 0; return paint(); }
+    if ((x = e.target.closest('[data-pck]'))) { const i = +x.dataset.pck; st.check = st.check.includes(i) ? st.check.filter(z => z !== i) : st.check.concat(i); const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; return; }
+    if ((x = e.target.closest('[data-pcuando]'))) { st.cuando = x.dataset.pcuando; const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; return; }
+    if ((x = e.target.closest('[data-scale="pantes"]'))) { st.antes = +x.dataset.v; const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; return; }
+    if (e.target.closest('[data-pcalma]')) return openSOS();
+    if (e.target.closest('[data-pborrar]')) { store(K.salidas, salidas().filter(z => z.id !== existente)); v.remove(); render(); return toast('Quitado. No pasa nada.'); }
+    if (e.target.closest('[data-pguardar]')) {
+      const l = salidas(), o = { id: prev ? prev.id : uid('s'), tipo: st.tipo, cuando: st.cuando, antes: st.antes, check: st.check, creado: prev ? prev.creado : new Date().toISOString() };
+      store(K.salidas, prev ? l.map(z => z.id === o.id ? Object.assign({}, z, o) : z) : l.concat(o));
+      v.remove(); render(); toast(prev ? 'Guardado' : 'Apuntado. Al día siguiente te pregunto qué tal fue.');
+    }
+  });
+  v.addEventListener('change', e => { if (e.target.id === 'pfecha' && e.target.value) { st.cuando = e.target.value; const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; } });
+}
+function openPlanCierre(id) {
+  const p = salidas().find(x => x.id === id); if (!p) return;
+  const t = tipoPlan(p.tipo), st = { fue: null, despues: null };
+  const v = sheet('');
+  const paint = () => {
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><span class="small muted">${t.icono} ${esc(t.titulo)} · ${cuandoTxt(p.cuando)}</span><h2>¿Qué tal fue?</h2>
+      <label class="f"><span>¿Fuiste?</span><span class="pills"><button type="button" class="pill ${st.fue === true ? 'on' : ''}" data-pfue="1">Sí, fui</button><button type="button" class="pill ${st.fue === false ? 'on' : ''}" data-pfue="0">Al final no</button></span></label>
+      ${st.fue === true ? `<label class="f"><span>¿Cuánto miedo hubo de verdad?</span>${p.antes != null ? `<small>Antes creías que ${p.antes} de 10.</small>` : ''}${scaleHTML('pdesp', st.despues, 0, 10, ['Nada', 'Muchísimo'])}</label>
+        <label class="f"><span>Una cosa que salió bien</span><input type="text" id="pbien" placeholder="Aunque sea pequeña" autocomplete="off"></label>
+        <label class="f"><span>Algo que quieras probar la próxima vez (si quieres)</span><input type="text" id="pprox" autocomplete="off"></label>` : ''}
+      ${st.fue === false ? '<p class="quiet" style="margin-top:12px">No pasa nada. A veces no se puede, o no es el día. Que lo hayas pensado ya es un paso. Habrá más planes.</p>' : ''}
+      <div class="acts"><button class="btn ghost" data-close>Ahora no</button><span class="sp"></span>${st.fue != null ? '<button class="btn" data-pfin>Guardar</button>' : ''}</div>`;
+  };
+  paint();
+  v.addEventListener('click', e => {
+    let x;
+    const keep = () => { const a = v.querySelector('#pbien'), b = v.querySelector('#pprox'); return [a && a.value, b && b.value]; };
+    const put = k => { if (k[0] != null && v.querySelector('#pbien')) v.querySelector('#pbien').value = k[0]; if (k[1] != null && v.querySelector('#pprox')) v.querySelector('#pprox').value = k[1]; };
+    if ((x = e.target.closest('[data-pfue]'))) { const k = keep(); st.fue = x.dataset.pfue === '1'; paint(); put(k); return; }
+    if ((x = e.target.closest('[data-scale="pdesp"]'))) { const k = keep(); st.despues = +x.dataset.v; paint(); put(k); return; }
+    if (e.target.closest('[data-pfin]')) {
+      const bien = (v.querySelector('#pbien') || {}).value || '', prox = (v.querySelector('#pprox') || {}).value || '';
+      const fin = new Date().toISOString();
+      store(K.salidas, salidas().map(z => z.id === id ? Object.assign({}, z, { fin, fue: st.fue, despues: st.despues, bien: bien.trim(), prox: prox.trim() }) : z));
+      if (st.fue) {
+        const texto = [t.titulo + '.', bien.trim() ? 'Salió bien: ' + bien.trim() : '', prox.trim() ? 'Para la próxima: ' + prox.trim() : ''].filter(Boolean).join(' ');
+        store(K.diario, [{ id: uid('d'), fecha: fin, tipo: 'victoria', animo: null, ansiedad: null, texto }].concat(diario()));
+      }
+      v.remove(); render();
+      toast(!st.fue ? 'Apuntado. Otra vez será.' : p.antes != null && st.despues != null ? (st.despues < p.antes ? `Fuiste. Temías ${p.antes} y fue ${st.despues}.` : `Fuiste, aunque daba miedo. Eso es lo que cuenta.`) : 'Fuiste. Apuntado como victoria.');
+    }
+  });
 }
 
 // ---------- DIARIO ----------
@@ -244,6 +339,7 @@ function vAprender() {
     <p class="sec-h">Herramientas</p>
     <div class="card" style="padding:4px 16px">
       <button class="lrow" data-act="sos"><span class="ic">🌊</span><span class="b"><b>Calma ahora</b><small>Respirar, aterrizar y recordar</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="plan"><span class="ic">🗓️</span><span class="b"><b>Tengo un plan</b><small>Fiesta, quedada, una cita… cómo ir preparado</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="pensar"><span class="ic">🧠</span><span class="b"><b>Revisar un pensamiento</b><small>Mirarlo con un poco de distancia</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="trampas"><span class="ic">🪤</span><span class="b"><b>Trampas del pensamiento</b><small>Las más típicas, con ejemplos</small></span><span class="go">›</span></button>
     </div>
@@ -354,6 +450,7 @@ function vProgreso() {
   const tl = [];
   d.filter(e => e.tipo === 'victoria').forEach(e => tl.push([e.fecha, '⭐', e.texto || 'Una victoria']));
   allRetos().forEach(r => veces(r.id).forEach(v => tl.push([v.fecha, '✓', r.titulo])));
+  salidas().filter(x => x.fin && x.fue).forEach(x => tl.push([x.fin, tipoPlan(x.tipo).icono, 'Fuiste: ' + tipoPlan(x.tipo).titulo.toLowerCase()]));
   Object.keys(leidas()).forEach(id => { const l = LECCIONES.find(x => x.id === id) || GUIA.flatMap(g => g.items).find(x => x.id === id); if (l) tl.push([leidas()[id], '📖', 'Leíste «' + l.titulo + '»']); });
   tl.sort((a, b) => a[0] < b[0] ? 1 : -1);
   return `<div class="top"><h1>Recorrido</h1><p>Para mirar atrás y ver lo que ya has hecho. No para compararte con nadie.</p></div>
@@ -412,6 +509,8 @@ document.addEventListener('click', e => {
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
+  if ((x = t.closest('#app [data-planver]'))) return openPlan(x.dataset.planver);
+  if ((x = t.closest('#app [data-plancierre]'))) return openPlanCierre(x.dataset.plancierre);
   if ((x = t.closest('[data-ter]'))) {
     const id = x.dataset.ter, l = terapia().map(z => z.id === id ? Object.assign({}, z, { hecho: true }) : z); store(K.terapia, l); render();
     return toast('Marcado como hablado', () => { store(K.terapia, terapia().map(z => z.id === id ? Object.assign({}, z, { hecho: false }) : z)); render(); });
@@ -430,6 +529,7 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-act]'))) {
     const a = x.dataset.act;
     if (a === 'sos') return openSOS();
+    if (a === 'plan') return openPlan();
     if (a === 'otro') { ui.otro = true; return render(); }
     if (a === 'nootro') { ui.otro = false; ui.cara = ui.nivel = null; return render(); }
     if (a === 'checkin') {

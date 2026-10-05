@@ -160,3 +160,48 @@ const GUIA = [
   ]},
   { bloque:'Lo que venga después', items:[] }
 ];
+
+/* «Tengo un plan»: qué saber antes de ir. Vale para cualquier plan, más lo propio de cada tipo. */
+const PLAN_GENERAL = {
+  antes: [
+    'No tienes que brillar. Un objetivo realista: ir, hablar con una o dos personas y volver a casa sabiendo que fuiste. Con eso ya ha salido bien.',
+    'Llévate tres temas comodín: algo que hayas hecho esta semana, algo que estés viendo o escuchando, y una pregunta que te salga fácil, como «¿qué tal la semana?» o «¿de qué conoces a…?».',
+    'Ve descansado y habiendo comido. El hambre y el cansancio suben la ansiedad.',
+    'Decide un mínimo, por ejemplo una hora, y a partir de ahí puedes irte sin dar explicaciones. Saber que tienes salida quita mucho miedo.',
+    'Con el alcohol, una o dos copas como mucho. Beber más no quita la ansiedad: la retrasa y te deja peor al día siguiente. Si tomas medicación, pregúntale a tu médico por el alcohol.',
+    'Justo antes, cinco respiraciones soltando el aire largo.'
+  ],
+  despues: [
+    'Apúntalo aquí: qué temías y qué pasó. Aunque saliera regular, ir ya es la victoria.',
+    'No repases cada frase que dijiste. Quédate con una cosa que salió bien y otra que quieras probar la próxima vez.',
+    'Es normal estar agotado al día siguiente. La ansiedad cansa mucho, así que descansa sin culpa.'
+  ],
+  check: ['He comido algo', 'Sé cuánto rato me quedo como mínimo', 'Llevo mis tres temas comodín', 'He hecho cinco respiraciones']
+};
+const PLAN_TIPOS = [
+  { id:'fiesta', icono:'🎶', titulo:'Salir de fiesta', secciones:[
+    ['Lo que es', 'Mucho ruido, mucha gente y poco espacio para conversaciones largas. En una discoteca casi nadie habla de nada profundo, y es normal sentirse un poco fuera al principio.'],
+    ['Qué hacer', ['Si puedes, ve con alguien, y al principio quédate cerca de tu grupo.', 'Las conversaciones son cortas y sencillas: «¿de qué conoces a…?» o un comentario sobre la música. Si no oyes, acércate un poco y pide que te lo repita; le pasa a todo el mundo.', 'Para bailar basta con moverte un poco al ritmo. Nadie se fija tanto como crees.', 'Si te apetece hablar con una chica: fíjate en que esté accesible, no en plena conversación con sus amigas. Salúdala y comenta algo. Si contesta corto o se gira, dile «vale» y vete con naturalidad: no ha pasado nada.']],
+    ['Qué no hacer', ['Insistir.', 'Tocar a alguien sin confianza: ni la cintura ni el brazo.', 'Beber para atreverte.']],
+    ['Si te agobias', 'Sal a la puerta cinco minutos y respira. Luego vuelve o vete a casa; las dos cosas están bien.']
+  ]},
+  { id:'grupo', icono:'👥', titulo:'Una quedada en grupo', secciones:[
+    ['Qué hacer', ['Al llegar, saluda a quien conozcas y deja que te presente, o preséntate tú: «Hola, soy ___, amigo de ___».', 'Repite el nombre al saludar, por ejemplo «encantado, Laura». Así se te queda.', '«¿Y tú de qué conoces a ___?» funciona siempre.', 'En grupo no hace falta hablar mucho. Escucha, ríete cuando algo te haga gracia y aporta algo de vez en cuando. Con una intervención ya cuenta.', 'Si te quedas solo un momento, acércate a un grupito de dos o tres personas y escucha. Cuando haya hueco, haz una pregunta.']],
+    ['Qué no hacer', ['Estar con el móvil todo el rato, porque te aísla.', 'Compararte con el más gracioso del grupo.']],
+    ['Si te agobias', 'Sal un momento: al baño, a la calle, a por algo de beber. Respira y vuelve cuando quieras. Nadie lo va a notar.']
+  ]},
+  { id:'cita', icono:'☕', titulo:'Primera cita (Tinder u otra app)', secciones:[
+    ['Antes', ['Habla un poco por la app, pero no durante semanas. A los pocos días, propón quedar.', 'Elige un sitio público y tranquilo donde se pueda hablar: un café o unas cañas. Para una primera vez, una hora es perfecto.', 'Mira bien cómo llegar y llega cinco minutos antes.', 'Prepara tres o cuatro preguntas sobre cosas de su perfil.', 'Es normal que en persona sea un poco distinta a las fotos, igual que tú para ella.']],
+    ['Durante', ['Al saludar, dos besos o lo que salga. Si dudas, sigue lo que haga ella.', 'Interésate por ella y cuenta también cosas tuyas.', 'Puedes decir que estás nervioso: «Te confieso que estoy un poco nervioso». Suele caer bien y relaja a los dos.', 'No es una entrevista ni un examen: solo se trata de ver si estáis a gusto.', 'La cuenta: lo más sencillo es pagar a medias, o «esta la pago yo y la próxima tú». Sin darle más vueltas.']],
+    ['El contacto físico', ['En la primera cita no tiene por qué pasar nada, y está perfecto así.', 'Si te apetece darle un beso, fíjate en si ella está cerca, cómoda y busca el contacto. Si dudas, pregúntaselo: «¿Te puedo dar un beso?». Preguntar no es cortarse: es respeto.', 'Solo vale un sí claro. Si duda o dice que no, contesta «vale» y sigue con normalidad.']],
+    ['Seguridad para los dos', 'Un sitio público, cada uno vuelve a casa como quiera, y si te quedas más tranquilo, avisa a alguien de dónde estás.'],
+    ['Después', ['Si te ha gustado, escríbele ese día o al siguiente: «Me lo pasé muy bien, ¿repetimos?».', 'Si no contesta o no quiere repetir, se respeta.', 'Si eres tú quien no quiere repetir, díselo con amabilidad. No desaparezcas sin más.']]
+  ]},
+  { id:'amigos', icono:'🤝', titulo:'Conocer a una chica a través de amigos', secciones:[
+    ['Qué hacer', ['La ventaja: ya hay algo de confianza y tenéis temas en común, empezando por los amigos que compartís.', 'Trátala como a cualquiera del grupo, y habla también con los demás.', 'Si os entendéis, seguir en contacto sale solo: «Agrégame a Instagram y te paso lo de…».']],
+    ['Qué no hacer', ['Si ella no muestra interés, no crear un ambiente incómodo en el grupo: se respeta y ya.', 'Pedirles a tus amigos que hagan de intermediarios.']]
+  ]},
+  { id:'otro', icono:'✨', titulo:'Otro plan', secciones:[
+    ['Qué hacer', ['Piensa qué es lo que más te preocupa de este plan y mira si alguna situación de la guía lo cubre.', 'Ponte un objetivo pequeño y concreto: saludar a alguien, hacer una pregunta, quedarte una hora.']]
+  ]}
+];
