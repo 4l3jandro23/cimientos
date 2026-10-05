@@ -2,7 +2,7 @@
    Todo es genérico (nada personal). Las etapas y lecciones siguientes se escriben más adelante, paso a paso. */
 'use strict';
 
-/* Etapas de retos. Las siguientes (más allá de la 2) se construyen juntos, a su ritmo. */
+/* Etapas de retos: 0-2 base, 3-5 enlazan con la guía de situaciones. */
 const RETOS_BASE = [
   { id:'r-respirar', etapa:0, titulo:'Pararte a respirar antes de una situación que te cuesta', descripcion:'Unos segundos antes de entrar, sin más objetivo que notar el cuerpo.' },
   { id:'r-hablarte-bien', etapa:0, titulo:'Hablarte como hablarías a un amigo', descripcion:'La próxima vez que algo te salga mal, prueba a decirte lo que le dirías a otra persona en tu lugar.' },
@@ -15,9 +15,20 @@ const RETOS_BASE = [
 
   { id:'r-conversacion-corta', etapa:2, titulo:'Aguantar 1-2 minutos hablando con un conocido', descripcion:'De lo que sea, sin buscar que sea interesante.' },
   { id:'r-pregunta-seguimiento', etapa:2, titulo:'Hacer una pregunta de seguimiento', descripcion:'Cuando alguien te cuente algo, pregunta un poco más sobre eso.' },
-  { id:'r-grupo', etapa:2, titulo:'Decir algo una vez en una conversación de grupo', descripcion:'Una vez basta.' }
+  { id:'r-grupo', etapa:2, titulo:'Decir algo una vez en una conversación de grupo', descripcion:'Una vez basta.' },
+
+  { id:'r-comentar-sitio', etapa:3, titulo:'Hacer un comentario sobre el sitio a alguien con quien coincida', descripcion:'En la cola, en el trabajo, en una actividad. Algo que estáis compartiendo.' },
+  { id:'r-pregunta-ella', etapa:3, titulo:'Preguntar por algo que alguien me ha contado', descripcion:'Con quien sea. Si es alguien que te gusta, igual que con cualquiera.' },
+  { id:'r-cerrar', etapa:3, titulo:'Cerrar yo una conversación con una frase amable', descripcion:'«Bueno, te dejo, ¡hasta luego!». Sin excusas largas.' },
+
+  { id:'r-contacto', etapa:4, titulo:'Pedir el contacto (Instagram o WhatsApp) a alguien', descripcion:'Con un motivo natural y fácil de rechazar. Si dice que no, «sin problema».' },
+  { id:'r-plan', etapa:4, titulo:'Proponer un plan concreto, con día y hora', descripcion:'A un amigo, a un compañero o a alguien que te guste. Algo corto y sencillo.' },
+  { id:'r-escribir-primero', etapa:4, titulo:'Escribir yo primero a alguien, sin motivo', descripcion:'Preguntando por algo que te contó.' },
+
+  { id:'r-no-sin-problema', etapa:5, titulo:'Contestar «vale, sin problema» cuando alguien me diga que no a algo', descripcion:'Un favor, un plan, lo que sea. Con calma.' },
+  { id:'r-dia-siguiente', etapa:5, titulo:'Mandar un mensaje al día siguiente de un plan', descripcion:'«Me lo pasé bien ayer». Aunque sea con un amigo.' }
 ];
-const ETAPAS = ['Contigo mismo', 'Con cualquiera, sin objetivo', 'Mantener una conversación corta'];
+const ETAPAS = ['Contigo mismo', 'Con cualquiera, sin objetivo', 'Mantener una conversación corta', 'Empezar a conocer a alguien', 'Dar pasos', 'Aceptar la respuesta'];
 
 /* Una frase por día. Tono: amable, nada de «tú puedes con todo». */
 const FRASES = [
@@ -92,11 +103,20 @@ const LECCIONES = [
     ['Lo que no funciona (aunque lo diga internet)', 'Hay mucho contenido en redes, vídeos y foros que promete «trucos» para gustar: ser frío a propósito, jugar con la otra persona, hacerse el interesante, «dominar», tratar a las chicas como un juego o como una puntuación.\n\nNo funciona como lo cuentan, y cuando parece funcionar suele ser con relaciones frágiles. Hace daño: a ti, que acabas más ansioso y desconfiando, y a las otras personas.\n\nTratar a alguien como un objetivo que hay que «conseguir» es justo lo contrario de conocerla. Una persona no es un premio. Si algo te dice que tienes que ser otra persona para gustar, desconfía.\n\nLo que dura es mucho más simple: ser tú, tratar bien a la otra persona y ver si encajáis.'],
     ['La química no se puede forzar', 'A veces hay conexión desde el primer día y a veces no, por mucho que te guste alguien y por bien que lo hagas. No es un fallo tuyo ni de ella.\n\nPuedes crear las condiciones (hablar, coincidir, ser amable y sincero), pero no decidir lo que siente la otra persona.\n\nSi la química no está, no se arregla insistiendo, ni con regalos, ni con «ser más». Lo que toca es aceptarlo, y esto cuesta, y es normal que cueste.\n\nMuchas relaciones que funcionan empezaron con una amistad o con «no nos fijamos el uno en el otro al principio».'],
     ['Sobre ti, con realismo y con cariño', 'Que seas más tímido o no tengas experiencia no es un defecto. Mucha gente, de todas las edades, empieza tarde o ha tenido poca experiencia. Se aprende, y vas por buen camino.\n\nEl miedo y la vergüenza no se notan tanto como crees. Y a mucha gente le resulta atractivo que alguien sea sincero, tranquilo y amable.\n\nNo necesitas gustar a muchas personas: solo a alguien con quien encajes. Ese «alguien» aparece más fácil si estás en sitios donde se hacen cosas que te gustan.\n\nQue te cueste no significa que no vaya a pasar. Significa que estás aprendiendo algo que a otros les salió «solo» por práctica, no por talento.']
+  ]},
+  { id:'l-sexual', icono:'🌱', titulo:'Educación sexual básica', sub:'Lo esencial, explicado con calma y sin presión', tarjetas:[
+    ['Antes de nada', 'Casi nadie ha recibido una buena educación sexual, así que es normal tener dudas o lagunas. No es algo de lo que avergonzarse: es algo que se aprende.\n\nNo hay prisa ni un «calendario correcto». Hay gente que tiene su primera experiencia a los 16 y gente que la tiene a los 30 o más. Ninguna es mejor ni peor.\n\nY nunca es una obligación: puedes querer, no querer o querer más adelante.'],
+    ['El consentimiento', 'Consentir es decir sí de forma libre, clara y con ganas. Sin presión, sin chantajes y sin que la otra persona esté demasiado borracha o dormida.\n\nUn «sí» vale para eso y para ese momento. Puede cambiar en cualquier momento, y entonces se para. Siempre.\n\nEl silencio, la duda o «no sé» no son un sí. Si no estás seguro, pregunta: «¿Te apetece?», «¿Seguimos?». Preguntar no corta el ambiente: te muestra como alguien en quien se puede confiar.\n\nY vale para ti también: tú puedes decir no o parar cuando quieras, aunque ya hayas empezado.'],
+    ['Cómo funciona el cuerpo', 'La excitación es una reacción del cuerpo que depende de la mente, del ambiente y de lo cómodo que estés. No se puede forzar, y no siempre aparece cuando uno quiere.\n\nEn los hombres, la erección no es una prueba de nada: puede aparecer sin ganas y faltar con muchas. En las mujeres, gran parte del placer está en el clítoris, que se encuentra en la parte externa y es muy sensible; la penetración sola no es lo que más placer da a muchas.\n\nCada cuerpo y cada persona es distinta. Lo que le gusta a una no tiene por qué gustarle a otra, y por eso se pregunta y se habla.'],
+    ['Lo que enseña el porno y no es real', 'El porno es ficción hecha para el espectáculo: cuerpos, duraciones, posturas y reacciones que casi nunca se parecen al sexo real.\n\nEn la vida real: se habla, se ríe, hay torpeza y se hacen pausas. No todo el mundo llega al orgasmo siempre, y no pasa nada. Durar «una hora» no es el objetivo. Lo bueno es que los dos estéis a gusto.\n\nSi lo ves, ten presente que es un guion. Compararte con eso solo genera ansiedad.'],
+    ['Hablar de ello', 'Hablar antes y durante es lo normal, aunque en las películas no pase. Algunas frases útiles:\n\n«¿Te apetece?»  ·  «¿Así te gusta?»  ·  «Vamos despacio»  ·  «Prefiero parar»  ·  «Tengo condones, ¿te parece bien usarlos?»\n\nSi te da vergüenza, puedes decirlo: «Estoy un poco nervioso». Casi siempre ayuda y relaja a los dos. Lo que no ayuda es adivinar o dar por hecho.'],
+    ['Protección: infecciones y embarazo', 'El preservativo (condón) es el método que protege a la vez de la mayoría de las infecciones de transmisión sexual y del embarazo. Mejor tenerlos tú siempre a mano.\n\nBásicos: comprobar la fecha de caducidad, ponerlo antes de cualquier contacto genital, apretar la punta al colocarlo para que no quede aire, y no reutilizarlo. Si usas lubricante, que sea de base agua o silicona.\n\nSi alguna vez hay un fallo o no hubo protección, existen la anticoncepción de emergencia (en farmacias) y las pruebas de infecciones. No hay que esperar ni tener miedo a preguntar.\n\nEn Cataluña los centros ASSIR y el médico de cabecera atienden estas consultas con confidencialidad.'],
+    ['Los nervios y que el cuerpo no responda', 'Es muy común que, con nervios, la erección falle o que todo vaya más rápido de lo que querías. Les pasa a casi todos alguna vez, sobre todo las primeras. No dice nada de ti.\n\nLo que ayuda: respirar y bajar el ritmo, centrarte en el contacto y en la otra persona y no en «rendir», decirlo («estoy nervioso, vamos con calma») y recordar que hay muchas formas de disfrutar que no dependen de la erección.\n\nAlgunos medicamentos, entre ellos algunos antidepresivos, pueden afectar al deseo, a la erección o al orgasmo. Si lo notas, díselo a tu médico: suele tener solución, y no dejes la medicación por tu cuenta.'],
+    ['La primera vez y las expectativas', 'No tiene por qué ser perfecta, ni «mágica», ni durar. Suele ser torpe, con risas y con nervios, y eso es normal.\n\nEstás preparado cuando quieras de verdad, con una persona en la que confías, sin presión y sabiendo cómo protegerte. No porque «ya toque» ni por demostrar nada.\n\nSi no sale bien, no es un fracaso: es práctica. Y si prefieres esperar, también está bien.'],
+    ['Dónde seguir informándote', 'Tu médico de cabecera y los centros ASSIR (en Cataluña) resuelven dudas sobre sexualidad, protección y salud sexual, de forma confidencial y gratuita.\n\nSi tienes un psicólogo o psicóloga, también es un buen lugar para hablar de esto, incluidos los nervios o los miedos. Puedes apuntar en «Para la próxima sesión» lo que quieras llevar.\n\nSi buscas información por internet, mejor webs de sanidad o de organizaciones de salud sexual que foros o vídeos de gente sin formación.']
   ]}
 ];
-const PROXIMAMENTE = [
-  ['🌱', 'Educación sexual básica']
-];
+const PROXIMAMENTE = [];
 
 /* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los 4 bloques. */
 const GUIA = [

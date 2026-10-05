@@ -265,7 +265,7 @@ function vRetos() {
     <div class="etapa"><h3>Tuyos</h3>${pr.length ? `<span>${pr.filter(r => hechos[r.id]).length} de ${pr.length}</span>` : ''}</div>
     ${pr.map(r => retoHTML(Object.assign({ etapa: 'propio' }, r))).join('')}
     <button class="btn soft full" data-act="nuevoreto">＋ Añadir un reto mío</button>
-    <p class="quiet" style="margin-top:18px">Las siguientes etapas las construimos juntos cuando quieras, a tu ritmo.</p>`;
+    <p class="quiet" style="margin-top:18px">No tienes que hacerlos todos ni en orden. Si uno te da demasiado miedo, prueba antes con uno más pequeño.</p>`;
 }
 function openReto(id) {
   const r = allRetos().find(x => x.id === id); if (!r) return;
@@ -340,9 +340,7 @@ function vAprender() {
       <button class="lrow" data-act="pensar"><span class="ic">🧠</span><span class="b"><b>Revisar un pensamiento</b><small>Mirarlo con un poco de distancia</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="trampas"><span class="ic">🪤</span><span class="b"><b>Trampas del pensamiento</b><small>Las más típicas, con ejemplos</small></span><span class="go">›</span></button>
     </div>
-    <p class="sec-h">Más adelante</p>
-    ${PROXIMAMENTE.map(([i, t]) => `<div class="lec soon"><span class="ic">${i}</span><span class="b"><b>${esc(t)}</b></span></div>`).join('')}
-    <p class="quiet" style="margin-top:6px">Esto lo escribimos juntos, paso a paso, cuando quieras. Sin prisa.</p>`;
+    ${PROXIMAMENTE.length ? `<p class="sec-h">Más adelante</p>${PROXIMAMENTE.map(([i, t]) => `<div class="lec soon"><span class="ic">${i}</span><span class="b"><b>${esc(t)}</b></span></div>`).join('')}` : ''}`;
 }
 function openLeccion(id) {
   const l = LECCIONES.find(x => x.id === id); if (!l) return;

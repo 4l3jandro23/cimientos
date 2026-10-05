@@ -1,6 +1,6 @@
 /* Al cambiar el contenido de la app, sube este número:
    es lo que hace saltar el aviso de "hay una versión nueva". */
-const CACHE_VERSION = 'cimientos-v10';
+const CACHE_VERSION = 'cimientos-v11';
 
 const APP_SHELL = [
   './',
