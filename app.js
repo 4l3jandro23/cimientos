@@ -20,7 +20,6 @@ const fCorta = iso => new Date(iso).toLocaleDateString('es-ES', { day: 'numeric'
 const fLarga = d => { const s = new Date(d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
-const CARAS = [['😞', 'Fatal'], ['😕', 'Regular'], ['😐', 'Normal'], ['🙂', 'Bien'], ['😄', 'Genial']];
 const NIVELES = [['Nada', 1], ['Poca', 3], ['Algo', 5], ['Bastante', 7], ['Mucha', 9]];
 const TIPOS = { checkin: 'Check-in', victoria: 'Victoria', dificil: 'Difícil', patron: 'Patrón', pensamiento: 'Pensamiento' };
 
@@ -66,7 +65,7 @@ function sheet(html, cls) {
 
 // ---------- estado de la pantalla ----------
 let tab = 'hoy';
-const ui = { cara: null, nivel: null, tipo: 'checkin', animo: null, ansiedad: null, filtro: 'todo', pens: {}, trampas: [] };
+const ui = { nivel: null, cknota: '', tipo: 'checkin', animo: null, ansiedad: null, filtro: 'todo', pens: {}, trampas: [] };
 
 function render() {
   document.querySelectorAll('#tabnav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -88,19 +87,18 @@ function vHoy() {
   const sinLeer = LECCIONES.find(l => !leidas()[l.id]);
   let ck;
   if (ult && !ui.otro) {
-    const c = ult.animo != null ? CARAS[Math.max(0, Math.min(4, Math.round(ult.animo / 2) - 1))] : null;
-    ck = `<div class="done-today">${c ? `<span class="big">${c[0]}</span>` : ''}<div><b>Hoy: ${c ? c[1].toLowerCase() : 'apuntado'}</b><div class="small muted">${ult.ansiedad != null ? 'Ansiedad ' + ult.ansiedad + ' de 10 · ' : ''}${new Date(ult.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div></div></div>
+    const n = NIVELES.slice().reverse().find(x => ult.ansiedad != null && ult.ansiedad >= x[1]);
+    ck = `<div class="done-today"><span class="big">${ult.ansiedad == null ? '📝' : ult.ansiedad <= 3 ? '🌿' : ult.ansiedad <= 6 ? '🌤️' : '🌊'}</span><div><b>${ult.ansiedad != null ? 'Ansiedad: ' + (n ? n[0].toLowerCase() : 'apuntada') : 'Apuntado'}</b><div class="small muted">${new Date(ult.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}${ult.texto ? ' · ' + esc(ult.texto.slice(0, 40)) : ''}</div></div></div>
       <div class="row-btns"><button class="pill" data-act="otro">Apuntar otro momento</button></div>`;
   } else {
-    ck = `<div class="faces">${CARAS.map(([f, n], i) => `<button data-cara="${i}" class="${ui.cara === i ? 'on' : ''}"><span>${f}</span><small>${n}</small></button>`).join('')}</div>
-      <p class="small muted" style="margin:12px 0 6px">Ansiedad ahora (si quieres)</p>
-      <div class="pills">${NIVELES.map(([n, v]) => `<button class="pill ${ui.nivel === v ? 'on' : ''}" data-nivel="${v}">${n}</button>`).join('')}</div>
-      <div class="row-btns"><button class="btn" data-act="checkin" ${ui.cara == null && ui.nivel == null ? 'disabled style="opacity:.45"' : ''}>Guardar</button>${ui.otro ? '<button class="btn ghost" data-act="nootro">Cancelar</button>' : ''}</div>`;
+    ck = `<div class="pills">${NIVELES.map(([n, v]) => `<button class="pill ${ui.nivel === v ? 'on' : ''}" data-nivel="${v}">${n}</button>`).join('')}</div>
+      <input type="text" id="cknota" style="margin-top:12px" placeholder="Algo que quieras apuntar (si quieres)" autocomplete="off" enterkeyhint="done" value="${esc(ui.cknota || '')}">
+      <div class="row-btns"><button class="btn" data-act="checkin" ${ui.nivel == null ? 'disabled style="opacity:.45"' : ''}>Guardar</button>${ui.otro ? '<button class="btn ghost" data-act="nootro">Cancelar</button>' : ''}</div>`;
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${planHoyHTML()}
-    <div class="card"><h2>¿Cómo estás ahora?</h2><p class="sub">Un toque basta. Queda en tu diario.</p>${ck}</div>
+    <div class="card"><h2>¿Cuánta ansiedad tienes ahora?</h2><p class="sub">Un toque basta. Tu ánimo del día lo marcas en Mi Espacio; aquí solo la ansiedad.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
       <button class="reto ${pl ? 'plan' : ''} foco" data-reto="${r.id}" style="margin:0"><span class="chk">${retosHechos()[r.id] ? '✓' : ''}</span><span class="b"><b>${esc(r.titulo)}</b><small>${esc(r.descripcion || '')}</small>${pl && pl.antes != null ? `<span class="meta"><span class="tag warm">Crees que te dará ${pl.antes} de 10 de miedo</span></span>` : ''}</span></button>
       <div class="row-btns"><button class="pill" data-act="otroreto">Otro reto</button></div></div>` : ''}
@@ -209,8 +207,7 @@ function vDiario() {
       <label class="f"><span>¿Hay alguna trampa?</span><small>Toca las que veas. No hace falta acertar.</small><span class="pills">${TRAMPAS.map(([k, n]) => `<button type="button" class="pill ${ui.trampas.includes(k) ? 'on' : ''}" data-trampa="${k}">${n}</button>`).join('')}</span></label>
       <label class="f"><span>¿Qué le dirías a un amigo que pensara eso?</span><textarea data-pens="amigo" rows="3" placeholder="Con cariño, como se lo dirías a él">${esc(p.amigo || '')}</textarea></label>
       <label class="f"><span>Y ahora, ¿cuánto te lo crees?</span>${scaleHTML('ahora', p.ahora, 0, 10, ['Nada', 'Del todo'])}</label>`
-    : `<p class="small muted" style="margin:14px 0 6px">Ánimo (opcional)</p>${scaleHTML('animo', ui.animo, 1, 10)}
-      <p class="small muted" style="margin:12px 0 6px">Ansiedad (opcional)</p>${scaleHTML('ansiedad', ui.ansiedad, 1, 10)}
+    : `<p class="small muted" style="margin:14px 0 6px">Ansiedad (opcional)</p>${scaleHTML('ansiedad', ui.ansiedad, 1, 10)}
       <textarea id="txt" style="margin-top:12px" placeholder="${{ checkin: 'Lo que quieras dejar por escrito.', victoria: 'Algo que has hecho, por pequeño que sea.', dificil: 'Lo que ha pasado y cómo te has sentido.', patron: 'Algo que se repite y has notado.' }[ui.tipo]}">${esc(ui.txt || '')}</textarea>`;
   return `<div class="top"><h1>Diario</h1><p>Solo lo ves tú. Puede ser una palabra o una página.</p></div>
     <div class="card"><div class="pills scroll">${Object.entries(TIPOS).map(([k, n]) => `<button class="pill ${ui.tipo === k ? 'on' : ''}" data-tipo="${k}">${n}</button>`).join('')}</div>
@@ -439,8 +436,8 @@ function chartHTML() {
   if (l.length < 2) return '<p class="vacio" style="padding:10px 0">Cuando tengas unos cuantos check-ins con números, aquí verás cómo van.</p>';
   const W = 300, H = 110, x = i => 6 + i * (W - 12) / (l.length - 1), y = v => H - 8 - (v - 1) * (H - 16) / 9;
   const line = (k, c) => { const pts = l.map((e, i) => e[k] != null ? `${x(i).toFixed(1)},${y(e[k]).toFixed(1)}` : null).filter(Boolean); return pts.length > 1 ? `<polyline points="${pts.join(' ')}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''; };
-  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Ánimo y ansiedad en tus últimos registros"><line x1="0" x2="${W}" y1="${y(5.5)}" y2="${y(5.5)}" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 4"/>${line('ansiedad', 'var(--warm)')}${line('animo', 'var(--accent)')}</svg>
-    <div class="leg"><span><i style="background:var(--accent)"></i>Ánimo</span><span><i style="background:var(--warm)"></i>Ansiedad</span><span style="margin-left:auto">${fCorta(l[0].fecha)} – ${fCorta(l[l.length - 1].fecha)}</span></div></div>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Tu ansiedad en los últimos registros"><line x1="0" x2="${W}" y1="${y(5.5)}" y2="${y(5.5)}" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 4"/>${line('ansiedad', 'var(--warm)')}${line('animo', 'var(--accent)')}</svg>
+    <div class="leg"><span><i style="background:var(--warm)"></i>Ansiedad</span>${l.some(e => e.animo != null) ? '<span><i style="background:var(--accent)"></i>Ánimo (registros antiguos)</span>' : ''}<span style="margin-left:auto">${fCorta(l[0].fecha)} – ${fCorta(l[l.length - 1].fecha)}</span></div></div>`;
 }
 function vProgreso() {
   const d = diario(), vs = conNumeros();
@@ -460,7 +457,7 @@ function vProgreso() {
         ${vs.slice(0, 5).map(v => `<div class="tf"><span>${esc(v.r.titulo)}</span><span>${v.antes} → ${v.despues}</span></div>`).join('')}
         <p class="small muted" style="margin:10px 0 0">${avg('despues') < avg('antes') ? 'De media, el miedo de antes ha sido más grande que lo que pasó. Acuérdate cuando dudes.' : 'Has hecho cosas aunque daban miedo. Eso es lo que cuenta.'}</p>`
       : '<p class="sub" style="margin:0">Cuando hagas un reto apuntando el miedo de antes y el de después, aquí verás la diferencia.</p>'}</div>
-    <div class="card"><h2>Ánimo y ansiedad</h2>${chartHTML()}</div>
+    <div class="card"><h2>Tu ansiedad</h2>${chartHTML()}</div>
     <div class="card"><h2>Lo que has hecho</h2>${tl.length ? tl.slice(0, 25).map(([f, i, t]) => `<div class="tl"><span class="d">${fCorta(f)}</span><span>${i} ${esc(t)}</span></div>`).join('') : '<p class="vacio">Aquí irán apareciendo tus victorias, retos y lecturas.</p>'}</div>
     <div class="card"><h2>Tus datos</h2><p class="sub">Todo se queda en este móvil. Si cambias de móvil o borras Safari, se pierde: guarda una copia de vez en cuando.</p>
       <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="exportar">Descargar copia</button><button class="btn soft" data-act="importar">Restaurar copia</button><input type="file" id="fimp" accept=".json,application/json" hidden></div></div>`;
@@ -490,8 +487,7 @@ document.addEventListener('click', e => {
   const t = e.target;
   let x;
   if ((x = t.closest('#tabnav [data-tab]'))) return goTab(x.dataset.tab);
-  if ((x = t.closest('[data-cara]'))) { ui.cara = ui.cara === +x.dataset.cara ? null : +x.dataset.cara; return render(); }
-  if ((x = t.closest('[data-nivel]'))) { ui.nivel = ui.nivel === +x.dataset.nivel ? null : +x.dataset.nivel; return render(); }
+  if ((x = t.closest('[data-nivel]'))) { const n = $('cknota'); if (n) ui.cknota = n.value; ui.nivel = ui.nivel === +x.dataset.nivel ? null : +x.dataset.nivel; return render(); }
   if ((x = t.closest('#app [data-scale]'))) {
     const k = x.dataset.scale, v = +x.dataset.v;
     const tx = $('txt'); if (tx) ui.txt = tx.value;
@@ -531,11 +527,12 @@ document.addEventListener('click', e => {
     if (a === 'sos') return openSOS();
     if (a === 'plan') return openPlan();
     if (a === 'otro') { ui.otro = true; return render(); }
-    if (a === 'nootro') { ui.otro = false; ui.cara = ui.nivel = null; return render(); }
+    if (a === 'nootro') { ui.otro = false; ui.nivel = null; ui.cknota = ''; return render(); }
     if (a === 'checkin') {
-      if (ui.cara == null && ui.nivel == null) return;
-      const e2 = { id: uid('d'), fecha: new Date().toISOString(), tipo: 'checkin', animo: ui.cara == null ? null : (ui.cara + 1) * 2, ansiedad: ui.nivel, texto: '' };
-      store(K.diario, [e2].concat(diario())); ui.cara = ui.nivel = null; ui.otro = false; render();
+      if (ui.nivel == null) return;
+      const nota = ($('cknota') || {}).value || '';
+      const e2 = { id: uid('d'), fecha: new Date().toISOString(), tipo: 'checkin', animo: null, ansiedad: ui.nivel, texto: nota.trim() };
+      store(K.diario, [e2].concat(diario())); ui.nivel = null; ui.cknota = ''; ui.otro = false; render();
       return toast('Apuntado', () => { store(K.diario, diario().filter(z => z.id !== e2.id)); render(); });
     }
     if (a === 'otroreto') {
