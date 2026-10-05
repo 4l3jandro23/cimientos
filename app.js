@@ -14,7 +14,7 @@ const K = {
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
-const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const store = (k, v) => { const old = load(k, null); try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} if (typeof CS !== 'undefined') CS.touch(k, old, v); };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const dayKey = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
@@ -556,6 +556,7 @@ function vProgreso() {
       : '<p class="sub" style="margin:0">Cuando hagas un reto apuntando el miedo de antes y el de después, aquí verás la diferencia.</p>'}</div>
     <div class="card"><h2>Tu ansiedad</h2>${chartHTML()}</div>
     <div class="card"><h2>Lo que has hecho</h2>${tl.length ? tl.slice(0, 25).map(([f, i, t]) => `<div class="tl"><span class="d">${fCorta(f)}</span><span>${i} ${esc(t)}</span></div>`).join('') : '<p class="vacio">Aquí irán apareciendo tus victorias, retos y lecturas.</p>'}</div>
+    ${syncCardHTML()}
     <div class="card"><h2>PIN</h2><p class="sub">${load(K.pin, null) ? 'Cimientos pide el PIN al abrirla y al volver después de un minuto fuera.' : 'Para que nadie más pueda abrir Cimientos en tu móvil.'}</p>
       <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="pinset">${load(K.pin, null) ? 'Cambiar PIN' : 'Poner un PIN'}</button>${load(K.pin, null) ? '<button class="btn ghost" data-act="pinquitar">Quitar</button>' : ''}</div></div>
     <div class="card"><h2>Tus datos</h2><p class="sub">Todo se queda en este móvil. Si cambias de móvil o borras Safari, se pierde: guarda una copia de vez en cuando.</p>
@@ -627,6 +628,12 @@ document.addEventListener('click', e => {
     if (a === 'sos') return openSOS();
     if (a === 'plan') return openPlan();
     if (a === 'parati') return openParaTi();
+    if (a === 'syncme') return syncLink(CS.fromMiEspacio());
+    if (a === 'syncscan') return syncScan();
+    if (a === 'syncnow') { CS.sync(); const el = $('syncst'); if (el) el.textContent = 'Sincronizando…'; return; }
+    if (a === 'synclink') return syncShowQR();
+    if (a === 'synccopy') { const i = $('synccodeout'); try { navigator.clipboard.writeText(i.value); toast('Copiado'); } catch (e) { i.select(); } return; }
+    if (a === 'syncoff') { if (!confirm('¿Dejar de sincronizar en este dispositivo? Tus datos se quedan aquí.')) return; CS.off(); render(); return; }
     if (a === 'pinset') return pinSetup();
     if (a === 'pinquitar') { if (!confirm('¿Quitar el PIN?')) return; store(K.pin, null); render(); return toast('PIN quitado'); }
     if (a === 'otro') { ui.otro = true; return render(); }
@@ -657,11 +664,79 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => { if (e.target.id === 'fimp' && e.target.files[0]) { importar(e.target.files[0]); e.target.value = ''; } });
 document.addEventListener('submit', e => {
+  if (e.target.dataset.form === 'synccode') { e.preventDefault(); const p = CS.parseCode(e.target.querySelector('input').value); if (!p) return toast('Ese código no es válido. Cópialo entero del otro dispositivo.'); return syncLink(p); }
   if (e.target.dataset.form !== 'terapia') return;
   e.preventDefault(); const i = e.target.querySelector('input'), v = i.value.trim(); if (!v) return;
   store(K.terapia, terapia().concat({ id: uid('t'), fecha: new Date().toISOString(), texto: v })); render();
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { const s = document.querySelector('.sos-full'); if (s) { clearTimeout(sosTimer); s.remove(); document.body.style.overflow = ''; return; } const v = [...document.querySelectorAll('.veil')].pop(); if (v) v.remove(); } });
+
+// ---------- SINCRONIZAR ----------
+function syncTxt() {
+  const st = CS.status();
+  if (st.busy) return 'Sincronizando…';
+  if (st.msg) return '⚠️ ' + st.msg;
+  return st.last ? 'Sincronizado ' + new Date(st.last).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+}
+function syncCardHTML() {
+  const st = CS.status();
+  if (st.on) return `<div class="card"><h2>Sincronizar</h2><p class="sub">Lo que hagas aquí aparece en tus otros dispositivos, cifrado. <span id="syncst">${esc(syncTxt())}</span></p>
+    <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="syncnow">Sincronizar ahora</button><button class="btn soft" data-act="synclink">Vincular otro dispositivo</button><button class="btn ghost" data-act="syncoff">Desconectar</button></div><div id="synclinkbox"></div></div>`;
+  const me = CS.fromMiEspacio();
+  return `<div class="card"><h2>Sincronizar</h2><p class="sub">Para ver lo mismo en el iPhone y en el PC. Va cifrado con una clave que solo tienen tus dispositivos: GitHub solo guarda un bloque ilegible.</p>
+    ${me ? '<button class="btn full" data-act="syncme">Activar con la sincronización de Mi Espacio</button><p class="small muted" style="margin:8px 0 0">Usa la misma cuenta que ya tienes en Mi Espacio. Lo de Cimientos va en un archivo aparte.</p>' : `
+    <p class="small" style="margin:0 0 8px"><b>En el otro dispositivo</b> (Cimientos o Mi Espacio, donde ya esté activada): <i>Vincular otro dispositivo</i>. Luego aquí, escanea el QR o pega el código.</p>
+    <div class="row-btns" style="margin-top:0"><button class="btn" data-act="syncscan">📷 Escanear QR</button></div>
+    <form data-form="synccode" style="display:flex;gap:8px;margin-top:10px"><input type="text" name="c" placeholder="O pega el código: MD1.…" autocomplete="off"><button class="btn soft" style="flex:none">Vincular</button></form>
+    <p class="small muted" style="margin:8px 0 0">¿No la tienes en ningún sitio? Actívala primero en Mi Espacio (Ajustes › Sincronizar) y vuelve aquí.</p>`}</div>`;
+}
+async function syncLink(o) {
+  toast('Vinculando…');
+  try { await CS.link(o); render(); toast('¡Listo! Ya se sincroniza.'); }
+  catch (e) { render(); toast(e.message); }
+}
+const lazy = src => new Promise((ok, ko) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = () => ko(new Error('Sin conexión')); document.head.appendChild(t); });
+async function syncShowQR() {
+  const box = $('synclinkbox'); if (!box) return;
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  let svg = '';
+  try { await lazy('vendor/qrcode.min.js'); const q = qrcode(0, 'M'); q.addData(CS.code()); q.make(); svg = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } catch (e) {}
+  box.innerHTML = `<div class="plan-box" style="text-align:center"><p class="small" style="margin:0 0 10px">En el otro dispositivo, abre Cimientos › Recorrido › Sincronizar › <b>Escanear QR</b> y apunta aquí.</p>
+    ${svg ? `<div class="qr">${svg}</div>` : ''}
+    <div style="display:flex;gap:8px;margin-top:10px"><input type="text" readonly id="synccodeout" value="${esc(CS.code())}"><button class="btn soft" style="flex:none" data-act="synccopy">Copiar</button></div>
+    <p class="small muted" style="margin:8px 0 0">🔑 Este código da acceso a tus datos: no se lo pases a nadie.</p></div>`;
+}
+let scanStream = null;
+async function syncScan() {
+  const o = document.createElement('div'); o.className = 'lock scan';
+  o.innerHTML = `<div class="lock-in"><h2>Escanear QR</h2><p id="scanmsg">Apunta al QR del otro dispositivo…</p><video id="scanv" playsinline muted></video><button class="lock-x" id="scanx">Cancelar</button></div>`;
+  document.body.appendChild(o);
+  const close = () => { if (scanStream) scanStream.getTracks().forEach(t => t.stop()); scanStream = null; o.remove(); };
+  o.querySelector('#scanx').onclick = close;
+  try { await lazy('vendor/jsQR.min.js'); } catch (e) { o.querySelector('#scanmsg').textContent = 'Sin conexión: pega el código a mano.'; return; }
+  try { scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); }
+  catch (e) { o.querySelector('#scanmsg').textContent = 'No puedo usar la cámara. Dale permiso o pega el código a mano.'; return; }
+  const video = o.querySelector('#scanv'); video.srcObject = scanStream; await video.play().catch(() => {});
+  const cv = document.createElement('canvas'), ctx = cv.getContext('2d', { willReadFrequently: true });
+  const tick = () => {
+    if (!scanStream) return;
+    if (video.readyState >= 2) {
+      const w = Math.min(640, video.videoWidth), hh = Math.round(video.videoHeight * w / video.videoWidth);
+      cv.width = w; cv.height = hh; ctx.drawImage(video, 0, 0, w, hh);
+      const c = jsQR(ctx.getImageData(0, 0, w, hh).data, w, hh, { inversionAttempts: 'dontInvert' });
+      const p = c && CS.parseCode(c.data);
+      if (p) { close(); return syncLink(p); }
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+CS.onChange = st => {
+  const el = $('syncst'); if (el) el.textContent = syncTxt();
+  // Si han llegado cambios del otro dispositivo, se pinta de nuevo (sin cerrar lo que tengas abierto).
+  if (st === 'changed' && !document.querySelector('.veil, .sos-full, .lock')) { const y = scrollY; render(); scrollTo(0, y); }
+};
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') CS.sync(); });
 
 // ---------- PIN ----------
 async function pinHash(pin, salt) {
@@ -686,6 +761,7 @@ function pinPad(titulo, sub, onDone, opts) {
     if (k === 'olvido') {
       if (!confirm('Sin el PIN no se puede entrar. La única opción es borrar todos los datos de Cimientos de este móvil (si tienes una copia descargada, podrás restaurarla). ¿Borrar todo?')) return;
       Object.values(K).forEach(key => { try { localStorage.removeItem(key); } catch (e) {} });
+      CS.off(); // sin esto, la sincronización devolvería los datos sin pedir el PIN
       close(); render(); return toast('Datos borrados');
     }
     if (k === '⌫') { v = v.slice(0, -1); return paint(); }
@@ -723,6 +799,7 @@ document.addEventListener('visibilitychange', () => {
 // ---------- arranque ----------
 render();
 pinLock();
+CS.sync();
 
 if ('serviceWorker' in navigator) {
   const habia = !!navigator.serviceWorker.controller;
