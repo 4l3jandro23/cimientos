@@ -147,7 +147,7 @@ label.f > small { display: block; color: var(--muted); font-size: 13px; margin: 
 .lcard { min-height: 260px; display: flex; flex-direction: column; }
 .lcard .n { font-size: 13px; color: var(--muted); font-weight: 650; }
 .lcard h3 { font-size: 24px; margin: 6px 0 10px; }
-.lcard p { font-size: 17px; line-height: 1.6; }
+.lcard p { font-size: 17px; line-height: 1.6; white-space: pre-line; }
 .dots { display: flex; gap: 5px; justify-content: center; margin-top: 8px; }
 .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
 .dots i.on { background: var(--accent); width: 18px; border-radius: 4px; }

@@ -76,9 +76,17 @@ const LECCIONES = [
     ['La pregunta del amigo', '¿Qué le dirías a un amigo que pensara eso de sí mismo? Casi siempre somos mucho más justos con los demás que con nosotros. Esa respuesta suele estar más cerca de la verdad.'],
     ['Probar en vez de discutir', 'No hace falta convencerte de que el pensamiento es falso. Puedes comprobarlo: haces el reto, y miras qué pasó de verdad. Por eso los retos te preguntan lo que temías y lo que pasó.']
   ]}
+,
+  { id:'l-noverbal', icono:'👀', titulo:'Comunicación y lenguaje no verbal', sub:'Mirada, postura, voz y cómo leer a los demás, sin examen', tarjetas:[
+    ['Lo que ya comunicas sin hablar', 'Mucho de lo que se transmite en una conversación no son las palabras: es el tono, la cara, la postura y la distancia. Lo hacemos todos sin darnos cuenta.\n\nCasi nunca se interpreta un gesto suelto. Lo que cuenta es el conjunto y lo que se repite.\n\nNo hace falta vigilar tu cuerpo todo el rato. Eso solo te distrae de la conversación, y no tienes que hacerlo perfecto: basta con no estorbarte.'],
+    ['La mirada', 'Lo normal es mirar a los ojos mientras alguien habla y apartar la vista de vez en cuando. Mirar sin parar incomoda, y no mirar nunca puede parecer desinterés.\n\nUn truco sencillo: mira a los ojos unos 3 segundos, aparta un momento hacia un lado (no hacia el suelo) y vuelve. Si los ojos te cuestan, mira entre las cejas o a la nariz: casi nadie lo nota.\n\nAl escuchar se suele mirar más que al hablar. Mientras piensas lo que vas a decir, es normal mirar hacia otro lado.'],
+    ['Si mirar a los ojos se te hace muy difícil', 'Es normal con ansiedad, y también si tienes rasgos del espectro, donde mirar a los ojos puede ser incómodo o agotador. Lo importante es que la otra persona note que la escuchas, por ejemplo con lo que contestas o asintiendo. No te fuerces a algo que te duele.'],
+    ['Postura y espacio', 'Postura abierta: hombros sueltos, brazos sin cruzar si puedes, cara hacia la otra persona. No tienes que ponerte «seguro»: relajar los hombros y soltar el aire ya cambia mucho.\n\nDistancia: más o menos un brazo de separación en una conversación normal. Si das un paso hacia delante y la otra persona retrocede, vuelve a tu sitio.\n\nTocar: al principio, solo lo mínimo (un apretón de manos o dos besos al saludar). Si dudas, deja que lo marque la otra persona.'],
+    ['La voz y los silencios', 'Habla un poco más despacio de lo que te sale cuando estás nervioso, y deja pequeñas pausas. Tu voz se oye mejor y tú te calmas.\n\nSi hablas bajo, pon un poco más de aire en la frase, o acércate. No hace falta gritar.\n\nUna sonrisa corta al saludar y al despedirte ayuda mucho. No hace falta sonreír todo el rato.\n\nLos silencios no son malos. Una pausa no es un fallo.'],
+    ['Leer a los demás, con cuidado', 'Señales de que alguien está a gusto: te mira, se gira hacia ti, asiente y hace preguntas.\n\nSeñales de que quiere cortar: mira alrededor o el móvil, da respuestas cortas, se gira hacia otro lado.\n\nPero un gesto suelto no dice casi nada. Puede estar cansada, tener frío o estar pensando en otra cosa.\n\nSi dudas, pregunta con palabras: «¿Te apetece que sigamos?» o «¿Prefieres que lo dejemos para otro día?». Preguntar no es un fallo, es lo más claro, y a mucha gente le gusta que le pregunten.']
+  ]}
 ];
 const PROXIMAMENTE = [
-  ['👀', 'Comunicación y lenguaje no verbal'],
   ['💬', 'Cómo funciona la atracción, de forma realista'],
   ['🌱', 'Educación sexual básica']
 ];
