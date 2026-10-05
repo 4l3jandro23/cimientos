@@ -83,7 +83,7 @@ const PROXIMAMENTE = [
   ['🌱', 'Educación sexual básica']
 ];
 
-/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los bloques 1, 2 y 3. */
+/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los 4 bloques. */
 const GUIA = [
   { bloque:'Conversar, con cualquiera', items:[
     { id:'g-empezar', titulo:'Empezar una conversación',
@@ -158,7 +158,37 @@ const GUIA = [
       sale:'Proponer algo claro y aceptar la respuesta es justo lo que había que hacer, salga como salga.',
       practica:'Proponer un plan concreto, con día y hora, a un amigo o a un compañero' }
   ]},
-  { bloque:'Lo que venga después', items:[] }
+  { bloque:'Lo que venga después', items:[
+    { id:'g-no', titulo:'Si te dice que no',
+      pasa:'Le pides el número o quedar y te dice que no, o pone una excusa. Duele, y la cabeza enseguida saca conclusiones: «es por mí», «nunca le voy a gustar a nadie».',
+      hacerTitulo:'Lo que de verdad significa',
+      hacer:['Un «no» solo dice que ahora, con esa persona, no encaja. No dice nada de lo que vales. Puede que tenga pareja, que no busque nada, que no esté en su momento o que simplemente no haya chispa. A todo el mundo le dicen que no muchas veces, también a la gente que parece que lo tiene fácil.'],
+      ejemplos:[], cierre:'',
+      extra:[
+        ['Qué hacer en el momento', ['«Vale, sin problema», con una sonrisa, y seguir con normalidad o despedirte con amabilidad.', 'No insistir, no pedir explicaciones y no hacerte la víctima.', 'Si la vas a seguir viendo (en el trabajo o en el grupo de amigos), trátala igual que antes. Con eso la incomodidad se pasa enseguida para los dos.']],
+        ['Qué hacer después', ['Es normal sentirte mal un rato o un par de días. No hace falta hacerse el fuerte.', 'Escríbelo en el diario como victoria, no como fracaso: has hecho algo que hace unos meses te parecía imposible.', 'Si la cabeza dice «nunca le voy a gustar a nadie», revísalo con «Revisar un pensamiento»: es la trampa de adivinar el futuro.', 'Si quieres, llévalo a terapia.']],
+        ['Lo que no ayuda', ['Repasar mil veces lo que dijiste buscando el error. Muchas veces no hubo ninguno.', 'Decidir no volver a intentarlo nunca.']]
+      ],
+      sale:'Si te quedas mal unos días, es normal y pasa. Lo que cuenta es que lo intentaste.',
+      practica:'Contestar «vale, sin problema» con calma la próxima vez que alguien me diga que no a algo pequeño' },
+    { id:'g-despues-quedada', titulo:'Después de la primera quedada',
+      pasa:'Habéis quedado una vez y no sabes qué toca ahora: si escribir, cuánto esperar, si le has gustado o qué significa cada cosa que hace.',
+      hacer:['Si te ha gustado, díselo ese día o al siguiente, sin esperar a ver quién escribe primero: «Me lo pasé muy bien ayer. ¿Repetimos?».', 'Si contesta con ganas y propone fechas, genial. Para la segunda quedada puede estar bien un plan un poco más largo o distinto: dar un paseo, cenar, ir a algo que os guste a los dos.', 'Si contesta corto, tarda mucho o no concreta nada, es probable que no tenga el mismo interés. Puedes proponer una vez algo concreto. Si sigue igual, déjalo estar con elegancia.', 'Si eres tú quien no quiere repetir, díselo con amabilidad: «Me lo pasé bien, pero no siento que vaya a más. Te deseo lo mejor». Es mejor que desaparecer.'],
+      ejemplos:[], cierre:'',
+      extra:[['Ir poco a poco', ['No hay prisa por ponerle nombre a nada ni por que pase nada físico. Cada uno lleva su ritmo, y lo bueno es ir cómodos los dos.', 'Lo que dijimos del contacto físico sigue valiendo: solo vale un sí claro, y preguntar es respeto.']]],
+      sale:'Si no sale como esperabas, has ganado experiencia. Cada quedada te enseña algo, aunque no acabe en nada.',
+      practica:'Mandar un mensaje corto al día siguiente de cualquier plan, aunque sea con un amigo: «Me lo pasé bien ayer»' },
+    { id:'g-mensajes', titulo:'Escribirse por mensajes',
+      pasa:'Los mensajes dan mucha ansiedad: cuánto tardar en contestar, qué decir, si pones demasiados emojis o si ella tarda en responder. Se le dan demasiadas vueltas.',
+      hacer:['Contesta cuando puedas y te apetezca. No hace falta esperar a propósito para parecer interesante: eso son juegos, y no ayudan.', 'Mensajes normales, como hablas. Pregunta por algo que te contó («¿Qué tal te fue el examen?») y comparte cosas tuyas: una foto de algo que te ha hecho gracia, una canción o un plan.', 'Más o menos al mismo ritmo que ella. Si ella escribe mensajes cortos, no le mandes testamentos. Si escribe con ganas, sigue la conversación.', 'Los mensajes sirven para quedar, no para sustituirlo. Si lleváis unos días escribiéndoos bien, propón veros.'],
+      ejemplos:[], cierre:'',
+      extra:[
+        ['Lo que no ayuda', ['Mandar varios mensajes seguidos si no contesta. Con uno basta. Si no responde en unos días, no insistas.', 'Leer cada mensaje buscando significados ocultos, o enseñarle cada mensaje a todos tus amigos para que lo interpreten.', 'Discutir o hablar de cosas serias por mensaje. Eso mejor en persona.']],
+        ['Si tarda en contestar', 'Puede estar trabajando, cansada o con su vida. No es una respuesta sobre ti. Sigue con lo tuyo.']
+      ],
+      sale:'Si mandaste algo y te arrepientes, no pasa nada: casi nadie le da tantas vueltas como tú.',
+      practica:'Escribir yo primero a un amigo, sin motivo, preguntándole por algo que me contó' }
+  ]}
 ];
 
 /* «Tengo un plan»: qué saber antes de ir. Vale para cualquier plan, más lo propio de cada tipo. */
