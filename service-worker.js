@@ -1,6 +1,5 @@
-/* Al cambiar el contenido de la app, sube este número:
-   es lo que hace saltar el aviso de "hay una versión nueva". */
-const CACHE_VERSION = 'cimientos-v11';
+/* Al cambiar el contenido de la app, sube este número: la app se actualiza sola al abrirla. */
+const CACHE_VERSION = 'cimientos-v12';
 
 const APP_SHELL = [
   './',
@@ -11,46 +10,37 @@ const APP_SHELL = [
   './icon-180.png',
   './app.css',
   './app.js',
-  './contenido.js'
+  './contenido.js',
+  './contenido2.js'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_VERSION)
-      .then(cache => cache.addAll(APP_SHELL))
-      /* Sin skipWaiting aquí: la versión nueva espera a que toques "Actualizar"
-         o a que abras la app desde cero. */
+      .then(cache => cache.addAll(APP_SHELL.map(f => new Request(f, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(key => key !== CACHE_VERSION).map(key => caches.delete(key)))
+      Promise.all(keys.filter(key => key.startsWith('cimientos-') && key !== CACHE_VERSION).map(key => caches.delete(key)))
     ).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
+// Primero la red (para tener siempre lo último); si no hay conexión, lo guardado.
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (new URL(event.request.url).origin !== self.location.origin) return;
-
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(response => {
-        if (response && response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_VERSION).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request).then(response => {
+      if (response && response.ok) {
+        const clone = response.clone();
+        caches.open(CACHE_VERSION).then(cache => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => caches.match(event.request).then(c => c || caches.match('./index.html')))
   );
 });

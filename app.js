@@ -8,7 +8,10 @@ const K = {
   foco: 'cimientosFoco',
   terapia: 'cimientosTerapia',
   lecciones: 'cimientosLeccionesCompletadas',
-  salidas: 'cimientosSalidas'
+  salidas: 'cimientosSalidas',
+  perfil: 'cimientosPerfil',
+  yo: 'cimientosYo',
+  pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -97,7 +100,9 @@ function vHoy() {
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
+    ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
     ${planHoyHTML()}
+    ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
     <div class="card"><h2>¿Cuánta ansiedad tienes ahora?</h2><p class="sub">Un toque basta. Tu ánimo del día lo marcas en Mi Espacio; aquí solo la ansiedad.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
       <button class="reto ${pl ? 'plan' : ''} foco" data-reto="${r.id}" style="margin:0"><span class="chk">${retosHechos()[r.id] ? '✓' : ''}</span><span class="b"><b>${esc(r.titulo)}</b><small>${esc(r.descripcion || '')}</small>${pl && pl.antes != null ? `<span class="meta"><span class="tag warm">Crees que te dará ${pl.antes} de 10 de miedo</span></span>` : ''}</span></button>
@@ -327,20 +332,114 @@ function nuevoReto() {
 }
 
 // ---------- APRENDER ----------
+let aq = '';
+const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const docTexto = d => d.titulo + ' ' + d.sub + ' ' + d.secciones.map(([h, c]) => h + ' ' + [].concat(c).join(' ')).join(' ');
+const guiaTexto = g => [g.titulo, g.pasa, g.hacer.join(' '), g.ejemplos.join(' '), g.cierre, (g.extra || []).map(([h, c]) => h + ' ' + [].concat(c).join(' ')).join(' '), g.sale].join(' ');
+const lecTexto = l => l.titulo + ' ' + l.sub + ' ' + l.tarjetas.map(t => t.join(' ')).join(' ');
+const okOr = id => leidas()[id] ? '<span class="ok">✓</span>' : '<span class="go">›</span>';
+const docBtn = d => `<button class="lec" data-doc="${d.id}"><span class="ic">${d.icono}</span><span class="b"><b>${esc(d.titulo)}</b><small>${esc(d.sub)}</small></span>${okOr(d.id)}</button>`;
+const lecBtn = l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l.icono}</span><span class="b"><b>${esc(l.titulo)}</b><small>${esc(l.sub)}</small></span>${okOr(l.id)}</button>`;
+const guiaBtn = s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${okOr(s.id)}</button>`;
+function aprenderLista() {
+  const q = norm(aq.trim());
+  if (q.length < 2) return '';
+  const hits = [].concat(
+    DOCS.filter(d => norm(docTexto(d)).includes(q)).map(docBtn),
+    GUIA.flatMap(g => g.items).filter(g => norm(guiaTexto(g)).includes(q)).map(guiaBtn),
+    LECCIONES.filter(l => norm(lecTexto(l)).includes(q)).map(lecBtn));
+  return hits.length ? hits.join('') : '<p class="vacio">No hay nada con esa palabra.</p>';
+}
 function vAprender() {
-  const L = leidas();
-  return `<div class="top"><h1>Aprender</h1><p>Lecturas cortas, en tarjetas. Sin examen.</p></div>
-    ${LECCIONES.map(l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l.icono}</span><span class="b"><b>${esc(l.titulo)}</b><small>${esc(l.sub)}</small></span>${L[l.id] ? '<span class="ok">✓</span>' : '<span class="go">›</span>'}</button>`).join('')}
-    <p class="sec-h">Guía de situaciones</p>
-    ${GUIA.map((g, i) => g.items.length ? `<p class="small muted" style="margin:0 4px 6px">${i + 1}. ${esc(g.bloque)}</p>${g.items.map(s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${L[s.id] ? '<span class="ok">✓</span>' : '<span class="go">›</span>'}</button>`).join('')}` : `<div class="lec soon"><span class="ic">${i + 1}</span><span class="b"><b>${esc(g.bloque)}</b></span></div>`).join('')}
+  const perfil = load(K.perfil, []) || [];
+  const busq = aprenderLista();
+  return `<div class="top"><h1>Aprender</h1><p>Todo lo que necesitas saber, corto y claro.</p></div>
+    <input type="text" id="aq" class="aq" placeholder="Buscar: mensajes, cita, nervios, beso…" value="${esc(aq)}" autocomplete="off" enterkeyhint="search">
+    <div id="aqres">${busq}</div>
+    <div id="aqall" ${busq ? 'hidden' : ''}>
+    <button class="parati" data-act="parati"><span class="ic">✨</span><span class="b"><b>Para ti</b><small>${perfil.length ? `Consejos según ${perfil.length === 1 ? 'lo que has elegido' : 'las ' + perfil.length + ' cosas que has elegido'}` : 'Elige lo que va contigo y te doy consejos a tu medida'}</small></span><span class="go">›</span></button>
+    <p class="sec-h">Ligar, de principio a fin</p>
+    ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
+    <p class="sec-h">Qué hacer en cada situación</p>
+    ${GUIA.map((g, i) => `<p class="small muted" style="margin:${i ? 14 : 0}px 4px 6px">${i + 1}. ${esc(g.bloque)}</p>${g.items.map(guiaBtn).join('')}`).join('')}
+    <p class="sec-h">Barcelona y tu edad</p>
+    ${DOCS.filter(d => d.grupo === 'bcn').map(docBtn).join('')}
+    <p class="sec-h">Conócete</p>
+    ${DOCS.filter(d => d.grupo === 'yo').map(docBtn).join('')}
+    <p class="sec-h">Lecciones</p>
+    ${LECCIONES.map(lecBtn).join('')}
     <p class="sec-h">Herramientas</p>
     <div class="card" style="padding:4px 16px">
       <button class="lrow" data-act="sos"><span class="ic">🌊</span><span class="b"><b>Calma ahora</b><small>Respirar, aterrizar y recordar</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="plan"><span class="ic">🗓️</span><span class="b"><b>Tengo un plan</b><small>Fiesta, quedada, una cita… cómo ir preparado</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="pensar"><span class="ic">🧠</span><span class="b"><b>Revisar un pensamiento</b><small>Mirarlo con un poco de distancia</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="trampas"><span class="ic">🪤</span><span class="b"><b>Trampas del pensamiento</b><small>Las más típicas, con ejemplos</small></span><span class="go">›</span></button>
-    </div>
-    ${PROXIMAMENTE.length ? `<p class="sec-h">Más adelante</p>${PROXIMAMENTE.map(([i, t]) => `<div class="lec soon"><span class="ic">${i}</span><span class="b"><b>${esc(t)}</b></span></div>`).join('')}` : ''}`;
+    </div></div>`;
+}
+function openDoc(id) {
+  const d = DOCS.find(x => x.id === id); if (!d) return;
+  const v = sheet(`<span class="small muted">${d.icono} ${esc(d.sub)}</span><h2>${esc(d.titulo)}</h2>
+    ${d.secciones.map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? (c.length > 1 ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c[0])}</p>`) : `<p>${esc(c)}</p>`}`).join('')}
+    ${d.herramienta ? '<div id="yobox"></div>' : ''}
+    <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-dleido>Leído</button></div>`, 'guia');
+  if (d.herramienta) paintYo(v);
+  v.addEventListener('click', e => {
+    if (e.target.closest('[data-dleido]')) { const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); }
+  });
+}
+// «Conócete»: lo que eliges y apuntas se guarda solo aquí.
+function paintYo(v) {
+  const box = v.querySelector('#yobox'); if (!box) return;
+  const y = load(K.yo, {}) || {}, val = y.valores || [], fu = y.fuertes || [], pal = y.palabras || ['', '', ''];
+  box.innerHTML = `<div class="plan-box">
+    <h3 class="gh" style="margin-top:0">Tus valores <small class="muted">(${val.length} de 5)</small></h3>
+    <div class="pills">${VALORES.map(x => `<button type="button" class="pill ${val.includes(x) ? 'on' : ''}" data-yv="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+    <h3 class="gh">Tus puntos fuertes</h3>
+    <div class="pills">${FUERTES.map(x => `<button type="button" class="pill ${fu.includes(x) ? 'on' : ''}" data-yf="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+    <h3 class="gh">Cómo te ven (tres palabras de cada persona)</h3>
+    ${[0, 1, 2].map(i => `<input type="text" class="yop" data-yp="${i}" placeholder="Persona ${i + 1}: tres palabras" value="${esc(pal[i] || '')}" autocomplete="off" style="margin-bottom:6px">`).join('')}
+    <h3 class="gh">Lo que te gusta hacer y de lo que te gusta hablar</h3>
+    <textarea data-yg rows="3" placeholder="Música, cocinar, fútbol, una serie…">${esc(y.gustos || '')}</textarea>
+    <p class="small muted" style="margin:8px 0 0">Se guarda solo en este móvil, al momento.</p></div>`;
+  box.onclick = e => {
+    const a = e.target.closest('[data-yv]'), b = e.target.closest('[data-yf]'); if (!a && !b) return;
+    const y2 = load(K.yo, {}) || {};
+    if (a) { const l = y2.valores || [], x = a.dataset.yv; if (l.includes(x)) y2.valores = l.filter(z => z !== x); else if (l.length >= 5) return toast('Elige 5 como mucho. Quita uno antes.'); else y2.valores = l.concat(x); }
+    if (b) { const l = y2.fuertes || [], x = b.dataset.yf; y2.fuertes = l.includes(x) ? l.filter(z => z !== x) : l.concat(x); }
+    store(K.yo, y2); paintYo(v);
+  };
+  box.oninput = e => {
+    const y2 = load(K.yo, {}) || {};
+    if (e.target.dataset.yp != null) { const p = (y2.palabras || ['', '', '']).slice(); p[+e.target.dataset.yp] = e.target.value; y2.palabras = p; }
+    if (e.target.hasAttribute('data-yg')) y2.gustos = e.target.value;
+    store(K.yo, y2);
+  };
+}
+// «Para ti»: eliges lo que va contigo y salen los consejos de eso.
+function openParaTi() {
+  const v = sheet('', 'guia');
+  const paint = () => {
+    const sel = load(K.perfil, []) || [], els = PERFIL.filter(p => sel.includes(p.id));
+    const yo = load(K.yo, {}) || {};
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><h2>Para ti</h2><p class="muted">Toca lo que va contigo. Se guarda solo en este móvil y no sale de aquí.</p>
+      <div class="perfil">${PERFIL.map(p => `<button type="button" class="ck ${sel.includes(p.id) ? 'on' : ''}" data-perf="${p.id}"><span>${sel.includes(p.id) ? '✓' : ''}</span>${esc(p.n)}</button>`).join('')}</div>
+      ${els.length ? `<h3 class="gh" style="margin-top:20px">Tus consejos</h3>${els.map(p => `<div class="pt"><b>${esc(p.n)}</b><ul class="gl">${p.consejos.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>`).join('')}` : '<p class="quiet" style="margin-top:16px">Elige al menos una cosa y aquí salen tus consejos.</p>'}
+      ${(yo.valores || []).length || (yo.fuertes || []).length ? `<div class="pt"><b>Lo que eres (de «Conócete»)</b><p>${esc([(yo.fuertes || []).join(', '), (yo.valores || []).length ? 'Te importa: ' + yo.valores.join(', ').toLowerCase() : ''].filter(Boolean).join('. '))}.</p><p class="small muted">Léelo antes de un plan. Es verdad, aunque a veces se te olvide.</p></div>` : '<p class="small muted">Si rellenas «Conócete», aquí también te recordaré tus puntos fuertes.</p>'}
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Listo</button></div>`;
+  };
+  paint();
+  v.addEventListener('click', e => {
+    const b = e.target.closest('[data-perf]'); if (!b) return;
+    const sel = load(K.perfil, []) || [], id = b.dataset.perf;
+    store(K.perfil, sel.includes(id) ? sel.filter(z => z !== id) : sel.concat(id));
+    const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; render();
+  });
+}
+// Un consejo al día, de lo que has elegido en «Para ti».
+function consejoHoy() {
+  const sel = load(K.perfil, []) || [], all = PERFIL.filter(p => sel.includes(p.id)).flatMap(p => p.consejos);
+  if (!all.length) return null;
+  const d = new Date(); return all[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % all.length];
 }
 function openLeccion(id) {
   const l = LECCIONES.find(x => x.id === id); if (!l) return;
@@ -457,6 +556,8 @@ function vProgreso() {
       : '<p class="sub" style="margin:0">Cuando hagas un reto apuntando el miedo de antes y el de después, aquí verás la diferencia.</p>'}</div>
     <div class="card"><h2>Tu ansiedad</h2>${chartHTML()}</div>
     <div class="card"><h2>Lo que has hecho</h2>${tl.length ? tl.slice(0, 25).map(([f, i, t]) => `<div class="tl"><span class="d">${fCorta(f)}</span><span>${i} ${esc(t)}</span></div>`).join('') : '<p class="vacio">Aquí irán apareciendo tus victorias, retos y lecturas.</p>'}</div>
+    <div class="card"><h2>PIN</h2><p class="sub">${load(K.pin, null) ? 'Cimientos pide el PIN al abrirla y al volver después de un minuto fuera.' : 'Para que nadie más pueda abrir Cimientos en tu móvil.'}</p>
+      <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="pinset">${load(K.pin, null) ? 'Cambiar PIN' : 'Poner un PIN'}</button>${load(K.pin, null) ? '<button class="btn ghost" data-act="pinquitar">Quitar</button>' : ''}</div></div>
     <div class="card"><h2>Tus datos</h2><p class="sub">Todo se queda en este móvil. Si cambias de móvil o borras Safari, se pierde: guarda una copia de vez en cuando.</p>
       <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="exportar">Descargar copia</button><button class="btn soft" data-act="importar">Restaurar copia</button><input type="file" id="fimp" accept=".json,application/json" hidden></div></div>`;
 }
@@ -503,6 +604,7 @@ document.addEventListener('click', e => {
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
+  if ((x = t.closest('#app [data-doc]'))) return openDoc(x.dataset.doc);
   if ((x = t.closest('#app [data-planver]'))) return openPlan(x.dataset.planver);
   if ((x = t.closest('#app [data-plancierre]'))) return openPlanCierre(x.dataset.plancierre);
   if ((x = t.closest('[data-ter]'))) {
@@ -524,6 +626,9 @@ document.addEventListener('click', e => {
     const a = x.dataset.act;
     if (a === 'sos') return openSOS();
     if (a === 'plan') return openPlan();
+    if (a === 'parati') return openParaTi();
+    if (a === 'pinset') return pinSetup();
+    if (a === 'pinquitar') { if (!confirm('¿Quitar el PIN?')) return; store(K.pin, null); render(); return toast('PIN quitado'); }
     if (a === 'otro') { ui.otro = true; return render(); }
     if (a === 'nootro') { ui.otro = false; ui.nivel = null; ui.cknota = ''; return render(); }
     if (a === 'checkin') {
@@ -546,6 +651,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('input', e => {
+  if (e.target.id === 'aq') { aq = e.target.value; const r = aprenderLista(); $('aqres').innerHTML = r; $('aqall').hidden = !!r; return; }
   if (e.target.dataset && e.target.dataset.pens) ui.pens[e.target.dataset.pens] = e.target.value;
   if (e.target.id === 'txt') ui.txt = e.target.value;
 });
@@ -557,20 +663,74 @@ document.addEventListener('submit', e => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { const s = document.querySelector('.sos-full'); if (s) { clearTimeout(sosTimer); s.remove(); document.body.style.overflow = ''; return; } const v = [...document.querySelectorAll('.veil')].pop(); if (v) v.remove(); } });
 
+// ---------- PIN ----------
+async function pinHash(pin, salt) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+function pinPad(titulo, sub, onDone, opts) {
+  opts = opts || {};
+  const o = document.createElement('div'); o.className = 'lock'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', titulo);
+  let v = '';
+  const paint = (err) => {
+    o.innerHTML = `<div class="lock-in"><div class="lock-ic"><img src="icon-180.png" alt="" width="64" height="64"></div><h2>${esc(titulo)}</h2><p>${esc(err || sub)}</p>
+      <div class="lock-dots ${err ? 'err' : ''}">${[0, 1, 2, 3].map(i => `<i class="${i < v.length ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="lock-pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map(k => k === '' ? '<span></span>' : `<button type="button" data-k="${k}" aria-label="${k === '⌫' ? 'Borrar' : k}">${k}</button>`).join('')}</div>
+      ${opts.cancel ? '<button class="lock-x" data-k="x">Cancelar</button>' : ''}${opts.olvido ? '<button class="lock-x" data-k="olvido">He olvidado el PIN</button>' : ''}</div>`;
+  };
+  paint();
+  document.body.appendChild(o); document.body.style.overflow = 'hidden';
+  const close = () => { o.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', kd); };
+  const press = async k => {
+    if (k === 'x') return close();
+    if (k === 'olvido') {
+      if (!confirm('Sin el PIN no se puede entrar. La única opción es borrar todos los datos de Cimientos de este móvil (si tienes una copia descargada, podrás restaurarla). ¿Borrar todo?')) return;
+      Object.values(K).forEach(key => { try { localStorage.removeItem(key); } catch (e) {} });
+      close(); render(); return toast('Datos borrados');
+    }
+    if (k === '⌫') { v = v.slice(0, -1); return paint(); }
+    if (v.length >= 4) return;
+    v += k; paint();
+    if (v.length === 4) { const r = await onDone(v); if (r === true) close(); else { v = ''; paint(r || 'PIN incorrecto'); } }
+  };
+  o.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) press(b.dataset.k); });
+  const kd = e => { if (/^[0-9]$/.test(e.key)) press(e.key); else if (e.key === 'Backspace') press('⌫'); };
+  document.addEventListener('keydown', kd);
+  return o;
+}
+function pinSetup() {
+  let first = null;
+  const pad = pinPad('Elige un PIN', 'Cuatro números que recuerdes.', async v => {
+    if (!first) { first = v; pad.querySelector('h2').textContent = 'Repítelo'; return 'Escríbelo otra vez para confirmar'; }
+    if (v !== first) { first = null; pad.querySelector('h2').textContent = 'Elige un PIN'; return 'No coincide. Empieza de nuevo'; }
+    const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    store(K.pin, { salt, hash: await pinHash(v, salt) });
+    setTimeout(() => { render(); toast('PIN guardado'); }, 50);
+    return true;
+  }, { cancel: true });
+}
+function pinLock() {
+  const p = load(K.pin, null); if (!p || document.querySelector('.lock')) return;
+  document.querySelectorAll('.veil, .sos-full').forEach(x => x.remove());
+  pinPad('Cimientos', 'Escribe tu PIN', async v => (await pinHash(v, p.salt)) === p.hash, { olvido: true });
+}
+let pinFuera = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') pinFuera = Date.now();
+  else if (pinFuera && Date.now() - pinFuera > 60e3) pinLock();
+});
+
 // ---------- arranque ----------
 render();
+pinLock();
 
 if ('serviceWorker' in navigator) {
+  const habia = !!navigator.serviceWorker.controller;
+  let recargando = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (habia && !recargando) { recargando = true; location.reload(); } });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js').then(reg => {
-      reg.addEventListener('updatefound', () => {
-        const n = reg.installing; if (!n) return;
-        n.addEventListener('statechange', () => { if (n.state === 'installed' && navigator.serviceWorker.controller) $('banAct').style.display = 'flex'; });
-      });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
     }).catch(() => {});
   });
-  $('btnAct').onclick = () => {
-    navigator.serviceWorker.getRegistration().then(reg => { if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' }); });
-    navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
-  };
 }

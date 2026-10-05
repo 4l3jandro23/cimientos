@@ -232,3 +232,35 @@ label.f > small { display: block; color: var(--muted); font-size: 13px; margin: 
 .ck.on span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .pdate { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--card); color: var(--ink); font-size: 14px; }
 .plan-box .scale button { background: var(--card); }
+
+/* aprender ampliado */
+.aq { margin: 0 0 14px; border-radius: 999px; padding: 11px 16px; background: var(--card); }
+.parati { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; border-radius: 20px; padding: 16px; margin-bottom: 4px; background: linear-gradient(150deg, var(--soft), var(--card)); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
+.parati .ic { width: 48px; height: 48px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 24px; flex: none; }
+.parati .b { flex: 1; min-width: 0; }
+.parati b { display: block; font-family: var(--serif); font-size: 19px; }
+.parati small { color: var(--muted); font-size: 13.5px; }
+.perfil { display: grid; gap: 6px; margin-top: 10px; }
+.perfil .ck { background: var(--bg); }
+.pt { background: var(--bg); border-radius: 16px; padding: 12px 14px; margin-top: 10px; }
+.pt b { display: block; margin-bottom: 4px; }
+.pt .gl { margin: 0; font-size: 15.5px; }
+.pt p { margin: 4px 0 0; font-size: 15.5px; }
+.consejo p { font-family: var(--serif); font-size: 17px; line-height: 1.45; margin: 6px 0 0; }
+.guia .pills .pill { font-size: 13.5px; }
+
+/* PIN */
+.lock { position: fixed; inset: 0; z-index: 90; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)); }
+.lock-in { width: min(320px, 100%); text-align: center; }
+.lock-ic img { border-radius: 16px; }
+.lock h2 { font-size: 24px; margin: 12px 0 4px; }
+.lock p { color: var(--muted); margin: 0 0 18px; min-height: 1.5em; }
+.lock-dots { display: flex; gap: 16px; justify-content: center; margin-bottom: 26px; }
+.lock-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent); }
+.lock-dots i.on { background: var(--accent); }
+.lock-dots.err { animation: shake .35s; }
+.lock-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px 22px; justify-content: center; }
+.lock-pad button { width: 72px; height: 72px; border-radius: 50%; border: 0; background: var(--card); box-shadow: var(--sh); font-size: 26px; font-weight: 500; color: var(--ink); }
+.lock-pad button:active { background: var(--soft); }
+.lock-x { margin-top: 20px; border: 0; background: none; color: var(--muted); font-weight: 600; font-size: 15px; padding: 8px; display: block; margin-left: auto; margin-right: auto; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
