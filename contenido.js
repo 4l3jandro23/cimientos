@@ -79,7 +79,35 @@ const LECCIONES = [
 ];
 const PROXIMAMENTE = [
   ['👀', 'Comunicación y lenguaje no verbal'],
-  ['🧭', 'Guía de situaciones, explicadas desde cero'],
   ['💬', 'Cómo funciona la atracción, de forma realista'],
   ['🌱', 'Educación sexual básica']
+];
+
+/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: solo el bloque 1 está escrito. */
+const GUIA = [
+  { bloque:'Conversar, con cualquiera', items:[
+    { id:'g-empezar', titulo:'Empezar una conversación',
+      pasa:'Te bloqueas porque buscas la frase perfecta, algo ingenioso o interesante. Esa frase no existe. Casi todas las conversaciones empiezan con algo banal, y no pasa nada.',
+      hacer:['Comenta algo que estáis compartiendo en ese momento: el sitio, lo que pasa, lo que estáis haciendo.'],
+      ejemplos:['«Madre mía, qué cola hay hoy».', '«¿Sabes si esto es para el bus de las nueve?».', '«¿Qué tal el finde?» (con alguien que ya conoces un poco).'],
+      cierre:'Lo que dices importa poco. Lo que importa es el tono: tranquilo y sin esperar nada a cambio.',
+      sale:'Si te contestan con un «sí» seco y ya está, no es por ti: puede que tenga prisa o que esté en su mundo. Has hecho el intento, y eso era el reto.',
+      practica:'Hacer un comentario sobre el sitio a alguien con quien coincida' },
+    { id:'g-blanco', titulo:'Cuando te quedas en blanco',
+      pasa:'Hay un silencio y sientes que es culpa tuya y que se nota muchísimo. En realidad la otra persona suele notarlo mucho menos, y muchas veces también está buscando qué decir.',
+      hacer:['Vuelve a algo que ya se dijo: «Antes has dicho que estuviste en Valencia, ¿qué tal?». Es lo más fácil y funciona casi siempre.', 'Pregunta un poco más sobre lo último que te contaron: «¿Y eso cómo fue?».', 'Di lo que pasa, con naturalidad: «Me he quedado en blanco, jaja». Casi siempre quita tensión y la otra persona sigue.', 'Un silencio corto no es un desastre. Tres o cuatro segundos se hacen eternos por dentro y desde fuera apenas se notan.'],
+      ejemplos:[], cierre:'',
+      sale:'Si la conversación se apaga, no has fallado: a veces simplemente se acaba. Si quieres cerrarla tú, mira la siguiente: «Terminar una conversación».',
+      practica:'Volver una vez a algo que se dijo antes en una conversación' },
+    { id:'g-terminar', titulo:'Terminar una conversación sin que sea raro',
+      pasa:'No sabes cómo salir, así que o alargas la conversación sin ganas o te vas de golpe. Saber salir también quita miedo a entrar: si sabes que puedes irte cuando quieras, empezar cuesta menos.',
+      hacer:['Una frase de cierre y una despedida, nada más.'],
+      ejemplos:['«Bueno, te dejo, que tengo que ir a comprar. ¡Hasta luego!».', '«Me alegro de verte. Nos vemos por aquí».', 'Si te ha gustado hablar: «Me ha gustado hablar contigo». Es sencillo y deja buen sabor.'],
+      cierre:'No hace falta una excusa elaborada. Con «bueno, me voy» en tono amable basta.',
+      sale:'Si ha quedado un poco brusco, la otra persona lo olvida en un minuto. De verdad.',
+      practica:'Cerrar yo una conversación corta en vez de esperar a que la cierre el otro' }
+  ]},
+  { bloque:'Cuando alguien te gusta', items:[] },
+  { bloque:'Dar un paso', items:[] },
+  { bloque:'Lo que venga después', items:[] }
 ];

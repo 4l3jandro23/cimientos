@@ -239,6 +239,8 @@ function vAprender() {
   const L = leidas();
   return `<div class="top"><h1>Aprender</h1><p>Lecturas cortas, en tarjetas. Sin examen.</p></div>
     ${LECCIONES.map(l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l.icono}</span><span class="b"><b>${esc(l.titulo)}</b><small>${esc(l.sub)}</small></span>${L[l.id] ? '<span class="ok">✓</span>' : '<span class="go">›</span>'}</button>`).join('')}
+    <p class="sec-h">Guía de situaciones</p>
+    ${GUIA.map((g, i) => g.items.length ? `<p class="small muted" style="margin:0 4px 6px">${i + 1}. ${esc(g.bloque)}</p>${g.items.map(s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${L[s.id] ? '<span class="ok">✓</span>' : '<span class="go">›</span>'}</button>`).join('')}` : `<div class="lec soon"><span class="ic">${i + 1}</span><span class="b"><b>${esc(g.bloque)}</b></span></div>`).join('')}
     <p class="sec-h">Herramientas</p>
     <div class="card" style="padding:4px 16px">
       <button class="lrow" data-act="sos"><span class="ic">🌊</span><span class="b"><b>Calma ahora</b><small>Respirar, aterrizar y recordar</small></span><span class="go">›</span></button>
@@ -269,6 +271,22 @@ function openLeccion(id) {
   let x0 = null;
   v.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
   v.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) < 50) return; if (dx < 0 && i < l.tarjetas.length - 1) i++; else if (dx > 0 && i > 0) i--; else return; paint(); });
+}
+function openGuia(id) {
+  const s = GUIA.flatMap(g => g.items).find(x => x.id === id); if (!s) return;
+  const ya = propios().some(r => r.titulo === s.practica);
+  const v = sheet(`<span class="small muted">Guía de situaciones</span><h2>${esc(s.titulo)}</h2>
+    <h3 class="gh">Lo que suele pasar</h3><p>${esc(s.pasa)}</p>
+    <h3 class="gh">Qué puedes hacer</h3>${s.hacer.length > 1 ? `<ul class="gl">${s.hacer.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(s.hacer[0])}</p>`}
+    ${s.ejemplos.length ? `<div class="gej">${s.ejemplos.map(t => `<div>${esc(t)}</div>`).join('')}</div>` : ''}${s.cierre ? `<p>${esc(s.cierre)}</p>` : ''}
+    <h3 class="gh">Si sale regular</h3><p>${esc(s.sale)}</p>
+    <div class="quiet" style="margin-top:14px"><b>Para practicar:</b> ${esc(s.practica.charAt(0).toLowerCase() + s.practica.slice(1))}.</div>
+    <div class="acts"><button class="btn soft" data-g="reto" ${ya ? 'disabled style="opacity:.5"' : ''}>${ya ? 'Ya está en tus retos' : 'Añadirlo a mis retos'}</button><span class="sp"></span><button class="btn" data-g="leido">Leída</button></div>`, 'guia');
+  v.addEventListener('click', e => {
+    const b = e.target.closest('[data-g]'); if (!b || b.disabled) return;
+    if (b.dataset.g === 'reto') { store(K.propios, propios().concat({ id: uid('p'), titulo: s.practica, descripcion: 'De la guía: ' + s.titulo })); b.disabled = true; b.style.opacity = '.5'; b.textContent = 'Ya está en tus retos'; return toast('Añadido a tus retos'); }
+    const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render();
+  });
 }
 function openTrampas() {
   sheet(`<h2>Trampas del pensamiento</h2><p class="muted">Con ansiedad, la cabeza cae en estas. Ponerles nombre ya les quita fuerza.</p>
@@ -335,7 +353,7 @@ function vProgreso() {
   const tl = [];
   d.filter(e => e.tipo === 'victoria').forEach(e => tl.push([e.fecha, '⭐', e.texto || 'Una victoria']));
   allRetos().forEach(r => veces(r.id).forEach(v => tl.push([v.fecha, '✓', r.titulo])));
-  Object.keys(leidas()).forEach(id => { const l = LECCIONES.find(x => x.id === id); if (l) tl.push([leidas()[id], '📖', 'Leíste «' + l.titulo + '»']); });
+  Object.keys(leidas()).forEach(id => { const l = LECCIONES.find(x => x.id === id) || GUIA.flatMap(g => g.items).find(x => x.id === id); if (l) tl.push([leidas()[id], '📖', 'Leíste «' + l.titulo + '»']); });
   tl.sort((a, b) => a[0] < b[0] ? 1 : -1);
   return `<div class="top"><h1>Recorrido</h1><p>Para mirar atrás y ver lo que ya has hecho. No para compararte con nadie.</p></div>
     <div class="stats" style="margin-bottom:12px"><div><b>${totalVeces}</b><small>retos hechos</small></div><div><b>${d.filter(e => e.tipo === 'victoria').length}</b><small>victorias</small></div><div><b>${dias}</b><small>días escritos</small></div></div>
@@ -392,6 +410,7 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-filtro]'))) { const tx = $('txt'); if (tx) ui.txt = tx.value; ui.filtro = x.dataset.filtro; const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
+  if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
   if ((x = t.closest('[data-ter]'))) {
     const id = x.dataset.ter, l = terapia().map(z => z.id === id ? Object.assign({}, z, { hecho: true }) : z); store(K.terapia, l); render();
     return toast('Marcado como hablado', () => { store(K.terapia, terapia().map(z => z.id === id ? Object.assign({}, z, { hecho: false }) : z)); render(); });
