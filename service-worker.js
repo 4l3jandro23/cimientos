@@ -1,13 +1,17 @@
 /* Al cambiar el contenido de la app, sube este número:
    es lo que hace saltar el aviso de "hay una versión nueva". */
-const CACHE_VERSION = 'cimientos-v1';
+const CACHE_VERSION = 'cimientos-v2';
 
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-180.png',
+  './app.css',
+  './app.js',
+  './contenido.js'
 ];
 
 self.addEventListener('install', event => {
