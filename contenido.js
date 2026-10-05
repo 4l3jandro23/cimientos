@@ -83,7 +83,7 @@ const PROXIMAMENTE = [
   ['🌱', 'Educación sexual básica']
 ];
 
-/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los bloques 1 y 2. */
+/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los bloques 1, 2 y 3. */
 const GUIA = [
   { bloque:'Conversar, con cualquiera', items:[
     { id:'g-empezar', titulo:'Empezar una conversación',
@@ -129,6 +129,34 @@ const GUIA = [
       sale:'Si interpretaste algo mal, no es un fallo: le pasa a todo el mundo, porque nadie lee la mente.',
       practica:'Fijarme en si la otra persona me pregunta cosas de vuelta (solo observar)' }
   ]},
-  { bloque:'Dar un paso', items:[] },
+  { bloque:'Dar un paso', items:[
+    { id:'g-hablarle', titulo:'Hablar con alguien que te gusta como con cualquiera',
+      pasa:'Con ella, de repente, todo pesa más. Sientes que cada frase cuenta, y eso te bloquea o hace que hables de forma rara.',
+      hacer:['Usa lo del bloque 1. Comentar lo que compartís, preguntar y volver a algo que ha dicho funciona igual con ella que con cualquiera.', 'Interésate de verdad por lo que cuenta: qué le gusta, qué hace el finde, qué serie está viendo. La curiosidad sincera funciona muy bien, y además te quita la atención de ti mismo.', 'Cuenta también cosas tuyas, aunque sean pequeñas. Una conversación no es un interrogatorio.', 'Varias conversaciones cortas valen más que una larga perfecta. Cada saludo suma.'],
+      ejemplos:[], cierre:'',
+      extra:[['Lo que no ayuda', ['Llevar un guion preparado.', 'Intentar impresionarla.', 'Al principio, los cumplidos sobre su físico. Sin confianza pueden incomodar. Mejor algo sobre lo que ha hecho o dicho, como «qué bien lo has explicado».']]],
+      sale:'Una conversación sosa no cierra ninguna puerta. Mañana habrá otra.',
+      practica:'Hacerle una pregunta sobre algo que ella me haya contado' },
+    { id:'g-numero', titulo:'Pedir el número o el Instagram',
+      pasa:'Habéis hablado a gusto, te gustaría seguir en contacto y pedírselo te parece enorme, como declararte. No lo es: solo le estás pidiendo seguir hablando.',
+      hacerTitulo:'Cuándo',
+      hacer:['Cuando ya habéis hablado varias veces o la conversación ha ido bien, y mejor si hay un motivo natural: algo que mandarle o un plan del que habéis hablado.'],
+      ejemplos:['«Oye, ¿me pasas tu Instagram? Así te mando lo del concierto que te dije».', '«¿Tienes WhatsApp? Te paso la receta».', '«Me ha gustado mucho hablar contigo. ¿Te importa si te pido el número?».'],
+      cierre:'',
+      extra:[
+        ['Cómo', 'Con calma, directo y sin rodeos largos. Ponle fácil decir que no: si duda, dile «tranquila, no pasa nada» y sigue como si nada.'],
+        ['Si dice que no o pone una excusa', 'Contesta «vale, sin problema» y sigue la conversación con normalidad, o despídete con amabilidad. Eso dice mucho de ti. No insistas ni le pidas explicaciones.']
+      ],
+      sale:'El reto era pedirlo, sea cual sea la respuesta.',
+      practica:'Pedir el contacto a alguien con quien no me juego nada, para que la frase me salga sola' },
+    { id:'g-quedar', titulo:'Proponer quedar',
+      pasa:'Habláis o os escribís a gusto, pero no sabes cómo pasar a veros fuera, o te da miedo que sea «demasiado».',
+      hacer:['Propón algo concreto y sencillo: un café, una cerveza, un paseo o una exposición. Para empezar está bien algo corto y de día, porque es menos presión para los dos.', 'Mejor si sale de algo que habéis hablado: «Dijiste que nunca habías ido a ese mirador. ¿Te apetece ir el sábado?».', 'Di un día o una franja. Algo concreto es más fácil de contestar que «a ver si un día…».'],
+      ejemplos:['«¿Te apetece tomar un café esta semana? ¿El jueves por la tarde te va bien?».', '«Hay una exposición de fotografía que creo que te gustaría. ¿Vamos el sábado?».'],
+      cierre:'',
+      extra:[['Lo que puede contestar', ['Que sí: genial, quedad en la hora y el sitio.', '«Ese día no puedo, pero el viernes sí»: si propone otro día, es buena señal.', '«No puedo», sin proponer nada: puedes intentarlo otra vez con otro día. Si pasa lo mismo, mejor dejarlo ahí. Si a ella le apetece, ya lo propondrá.', 'Que no: contesta «vale, sin problema» y sigue tratándola con normalidad.']]],
+      sale:'Proponer algo claro y aceptar la respuesta es justo lo que había que hacer, salga como salga.',
+      practica:'Proponer un plan concreto, con día y hora, a un amigo o a un compañero' }
+  ]},
   { bloque:'Lo que venga después', items:[] }
 ];
