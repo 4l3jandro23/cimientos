@@ -83,7 +83,7 @@ const PROXIMAMENTE = [
   ['🌱', 'Educación sexual básica']
 ];
 
-/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: solo el bloque 1 está escrito. */
+/* Guía de situaciones, explicadas desde cero. Se escribe por bloques, paso a paso: están escritos los bloques 1 y 2. */
 const GUIA = [
   { bloque:'Conversar, con cualquiera', items:[
     { id:'g-empezar', titulo:'Empezar una conversación',
@@ -107,7 +107,28 @@ const GUIA = [
       sale:'Si ha quedado un poco brusco, la otra persona lo olvida en un minuto. De verdad.',
       practica:'Cerrar yo una conversación corta en vez de esperar a que la cierre el otro' }
   ]},
-  { bloque:'Cuando alguien te gusta', items:[] },
+  { bloque:'Cuando alguien te gusta', items:[
+    { id:'g-gusta', titulo:'Te gusta alguien: qué hacer con eso (y qué no)',
+      pasa:'Te gusta una chica y la cabeza se dispara: te imaginas cosas y analizas cada gesto. O al revés: la evitas porque te pones nervioso cerca de ella. Las dos cosas son muy normales, sobre todo las primeras veces.',
+      hacer:['Nada urgente. Que te guste alguien no te obliga a hacer nada ya. De momento basta con notarlo.', 'Trátala como a cualquiera con quien te apetece hablar: salúdala, pregúntale qué tal y escucha lo que cuenta. Con eso ya estás haciendo mucho.', 'No la evites. Si te escondes, no tiene forma de conocerte. Mejor un saludo con nervios que ningún saludo.', 'Que no sea tu único tema. Sigue con tu vida y tus planes. Eso te quita presión a ti y a ella.'],
+      ejemplos:[], cierre:'',
+      extra:[['Lo que no ayuda', ['Idealizarla: de momento conoces solo una parte pequeña de ella.', 'Pasarte horas analizando cada mensaje o cada mirada.', 'Intentar ser otra persona para gustarle.']]],
+      sale:'Si te pones rojo o se te traba una frase, lo más probable es que lo vea como nervios normales. Le pasa a muchísima gente y no te descalifica.',
+      practica:'Saludar a alguien que me guste igual que saludaría a cualquier otra persona' },
+    { id:'g-senales', titulo:'Señales de interés: qué significan y qué no',
+      pasa:'Buscas señales para saber si le gustas, y cualquier detalle te parece una prueba de que sí o de que no.',
+      hacerTitulo:'La verdad',
+      hacer:['Una señal sola dice muy poco. Lo que cuenta es un conjunto de cosas que se repite con el tiempo.'],
+      ejemplos:[], cierre:'',
+      extra:[
+        ['Señales de que suele estar a gusto contigo', ['Te busca para hablar, o se acerca ella también.', 'Te pregunta cosas sobre ti y se acuerda de lo que le contaste.', 'La conversación fluye y no tiene prisa por irse.', 'Te contesta con ganas y a veces es ella quien escribe primero.']],
+        ['Lo que no significa necesariamente interés', ['Que sea amable o simpática contigo. Puede serlo con todo el mundo, y eso está bien.', 'Una sonrisa o una mirada sueltas.', 'Que te conteste los mensajes.']],
+        ['Y al revés', 'Que un día tarde en contestar o esté más seca no quiere decir que no le gustes: puede estar cansada u ocupada. Pero si se repite siempre que contesta corto, cambia de tema o se aparta, eso sí es una señal clara, y lo que toca es respetarla.'],
+        ['Lo más importante', 'Las señales dan pistas, no certezas. La única forma de saberlo de verdad es dar un paso pequeño, que es justo el bloque 3. Mientras tanto, está bien no tenerlo claro.']
+      ],
+      sale:'Si interpretaste algo mal, no es un fallo: le pasa a todo el mundo, porque nadie lee la mente.',
+      practica:'Fijarme en si la otra persona me pregunta cosas de vuelta (solo observar)' }
+  ]},
   { bloque:'Dar un paso', items:[] },
   { bloque:'Lo que venga después', items:[] }
 ];
