@@ -14,6 +14,9 @@ const K = {
   carta: 'cimientosCarta',
   favs: 'cimientosFavs',
   notas: 'cimientosNotas',
+  semana: 'cimientosSemana',
+  frases: 'cimientosFrases',
+  mias: 'cimientosMias',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -65,7 +68,7 @@ function sheet(html, cls) {
   const v = document.createElement('div'); v.className = 'veil';
   v.innerHTML = `<div class="sheet ${cls || ''}" role="dialog"><div class="grab"></div>${html}</div>`;
   document.body.appendChild(v);
-  v.addEventListener('click', e => { if (e.target === v || e.target.closest('[data-close]')) { v.remove(); if (tab === 'aprender') { const y = scrollY; render(); scrollTo(0, y); } } });
+  v.addEventListener('click', e => { if (e.target === v || e.target.closest('[data-close]')) { vozParar(); v.remove(); if (tab === 'aprender') { const y = scrollY; render(); scrollTo(0, y); } } });
   return v;
 }
 
@@ -102,8 +105,10 @@ function vHoy() {
       <div class="row-btns"><button class="btn" data-act="checkin" ${ui.nivel == null ? 'disabled style="opacity:.45"' : ''}>Guardar</button>${ui.otro ? '<button class="btn ghost" data-act="nootro">Cancelar</button>' : ''}</div>`;
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
+    <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
+    ${semanaHTML()}
     ${planHoyHTML()}
     ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
     ${(() => { const all = GUIA.flatMap(g => g.items), pend = all.filter(x => !leidas()[x.id]), pool = pend.length ? pend : all, d = new Date(), g = pool[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % pool.length]; return `<p class="sec-h">Situación del día</p><button class="lec" data-guia="${g.id}"><span class="ic">💬</span><span class="b"><b>${esc(g.titulo)}</b><small>${esc(g.pasa.split('. ')[0])}.</small></span><span class="go">›</span></button>`; })()}
@@ -374,7 +379,16 @@ function vAprender() {
     <div id="aqall" ${busq ? 'hidden' : ''}>
     <button class="parati" data-act="parati"><span class="ic">✨</span><span class="b"><b>Para ti</b><small>${perfil.length ? `Consejos según ${perfil.length === 1 ? 'lo que has elegido' : 'las ' + perfil.length + ' cosas que has elegido'}` : 'Elige lo que va contigo y te doy consejos a tu medida'}</small></span><span class="go">›</span></button>
     ${fv.length ? `<p class="sec-h">★ Guardados</p>${fv.map(itemBtn).join('')}` : ''}
-    <button class="parati quiz" data-act="quiz"><span class="ic">🎯</span><span class="b"><b>¿Qué harías?</b><small>Ponte a prueba con situaciones reales (${QUIZ.length})</small></span><span class="go">›</span></button>
+    <p class="sec-h">Practicar</p>
+    <div class="juegos">
+      <button data-act="quiz"><span>🎯</span><b>¿Qué harías?</b><small>${QUIZ.length} situaciones</small></button>
+      <button data-act="senales"><span>👁️</span><b>¿Le interesa o no?</b><small>${QUIZ_SENALES.length} señales</small></button>
+      <button data-act="frases"><span>💬</span><b>La mejor frase</b><small>${QUIZ_FRASES.length} momentos</small></button>
+      <button data-act="ensayo"><span>✍️</span><b>Modo ensayo</b><small>Escribe qué harías</small></button>
+    </div>
+    <p class="sec-h">Mis situaciones</p>
+    ${(load(K.mias, []) || []).map(m => `<button class="lec" data-mia="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>${esc((m.prox || m.paso || '').slice(0, 70))}</small></span><span class="go">›</span></button>`).join('')}
+    <button class="btn soft full" data-act="mia">＋ Añadir una situación mía</button>
     <p class="sec-h">Carisma y confianza</p>
     ${DOCS.filter(d => d.grupo === 'carisma').map(docBtn).join('')}
     <p class="sec-h">Ligar, de principio a fin</p>
@@ -399,7 +413,7 @@ function vAprender() {
 }
 function openDoc(id) {
   const d = DOCS.find(x => x.id === id); if (!d) return;
-  const v = sheet(`<div class="sh-top"><span class="small muted">${d.icono} ${esc(d.sub)}</span>${favBtn(d.id)}</div><h2>${esc(d.titulo)}</h2>
+  const v = sheet(`<div class="sh-top"><span class="small muted">${d.icono} ${esc(d.sub)}</span><span>${vozBtn()}${favBtn(d.id)}</span></div><h2>${esc(d.titulo)}</h2>
     ${d.secciones.map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? (c.length > 1 ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c[0])}</p>`) : `<p>${esc(c)}</p>`}`).join('')}
     ${d.herramienta ? '<div id="yobox"></div>' : ''}
     <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-dleido>Leído</button></div>`, 'guia');
@@ -456,8 +470,11 @@ function openParaTi() {
     const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; render();
   });
 }
-function openQuiz() {
-  const orden = QUIZ.map((q, i) => i).sort(() => Math.random() - .5);
+const JUEGOS = { quiz: ['¿Qué harías?', () => QUIZ], senales: ['¿Le interesa o no?', () => QUIZ_SENALES], frases: ['La mejor frase', () => QUIZ_FRASES] };
+function openQuiz(tipo) {
+  tipo = JUEGOS[tipo] ? tipo : 'quiz';
+  const QS = JUEGOS[tipo][1](), nombre = JUEGOS[tipo][0];
+  const orden = QS.map((q, i) => i).sort(() => Math.random() - .5);
   let i = 0, bien = 0, elegida = null, mezcla = null;
   const v = sheet('');
   const paint = () => {
@@ -467,21 +484,177 @@ function openQuiz() {
         <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-q="otra">Otra vez</button></div>`;
       return;
     }
-    const q = QUIZ[orden[i]];
+    const q = QS[orden[i]];
     if (!mezcla) mezcla = q.o.map((o, k) => k).sort(() => Math.random() - .5);
-    sh.innerHTML = `<div class="grab"></div><span class="small muted">¿Qué harías? · ${i + 1} de ${orden.length}</span><h3 class="quiz-p">${esc(q.p)}</h3>
+    sh.innerHTML = `<div class="grab"></div><span class="small muted">${esc(nombre)} · ${i + 1} de ${orden.length}</span><h3 class="quiz-p">${esc(q.p)}</h3>
       <div class="quiz-o">${mezcla.map(k => { const o = q.o[k], st = elegida == null ? '' : o[1] ? 'ok' : k === elegida ? 'mal' : 'off'; return `<button class="${st}" data-qo="${k}" ${elegida != null ? 'disabled' : ''}><b>${esc(o[0])}</b>${elegida != null && (o[1] || k === elegida) ? `<small>${esc(o[2])}</small>` : ''}</button>`; }).join('')}</div>
       <div class="acts"><button class="btn ghost" data-close>Salir</button><span class="sp"></span>${elegida != null ? `<button class="btn" data-q="next">${i === orden.length - 1 ? 'Ver resultado' : 'Siguiente'}</button>` : ''}</div>`;
   };
   paint();
   v.addEventListener('click', e => {
     const o = e.target.closest('[data-qo]');
-    if (o && elegida == null) { elegida = +o.dataset.qo; if (QUIZ[orden[i]].o[elegida][1]) bien++; return paint(); }
+    if (o && elegida == null) { elegida = +o.dataset.qo; if (QS[orden[i]].o[elegida][1]) bien++; return paint(); }
     const b = e.target.closest('[data-q]'); if (!b) return;
     if (b.dataset.q === 'next') { i++; elegida = null; mezcla = null; return paint(); }
-    if (b.dataset.q === 'otra') { v.remove(); openQuiz(); }
+    if (b.dataset.q === 'otra') { v.remove(); openQuiz(tipo); }
   });
 }
+// ---------- voz ----------
+const vozActiva = () => 'speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending);
+const vozBtn = () => 'speechSynthesis' in window ? '<button class="fav" data-voz>🔊 Escuchar</button>' : '';
+function vozParar() { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {} }
+function vozLeer(sh, fin) {
+  vozParar();
+  const clon = sh.cloneNode(true); clon.querySelectorAll('button, textarea, input, .acts, .grab, .dots').forEach(n => n.remove());
+  const txt = clon.innerText.replace(/\s+\n/g, '\n').trim();
+  const voces = speechSynthesis.getVoices(), es = voces.find(x => x.lang === 'es-ES') || voces.find(x => /^es/.test(x.lang));
+  // Por frases: las voces del iPhone se cortan con textos largos.
+  const trozos = txt.split(/(?<=[.!?:])\s+|\n+/).filter(Boolean);
+  trozos.forEach((t, k) => { const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; if (es) u.voice = es; u.rate = 1; if (k === trozos.length - 1) u.onend = fin; speechSynthesis.speak(u); });
+}
+
+// ---------- tu semana: un reto, una situación y un tip ----------
+const lunes = () => { const d = new Date(); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return dayKey(d); };
+function semana() {
+  const w = load(K.semana, null), l = lunes();
+  if (w && w.semana === l) return w;
+  const n = Math.floor(Date.parse(l) / 6048e5);
+  const r = retoAhora(), pend = GUIA.flatMap(g => g.items).filter(x => !leidas()[x.id]), pool = pend.length ? pend : GUIA.flatMap(g => g.items);
+  const nueva = { semana: l, reto: r ? r.id : null, sit: pool[n % pool.length].id, tip: n % TIPS.length, hecho: {} };
+  store(K.semana, nueva); return nueva;
+}
+function semanaHTML() {
+  const w = semana(), r = allRetos().find(x => x.id === w.reto), g = GUIA.flatMap(b => b.items).find(x => x.id === w.sit), t = TIPS[w.tip];
+  const rh = r && veces(r.id).some(v => v.fecha >= w.semana), gh = g && !!leidas()[g.id], th = !!(w.hecho || {}).tip;
+  const fila = (ok, tag, cuerpo, attr) => `<div class="sem-f ${ok ? 'ok' : ''}"><span class="sem-c">${ok ? '✓' : ''}</span><span class="b"><small>${tag}</small>${cuerpo}</span>${attr}</div>`;
+  const hechas = [rh, gh, th].filter(Boolean).length;
+  return `<div class="card sem"><div class="sem-h"><h2>Tu semana</h2><small>${hechas} de 3</small></div><p class="sub">Tres cosas pequeñas. Se renuevan cada lunes.</p>
+    ${r ? fila(rh, 'Un reto', `<b>${esc(r.titulo)}</b>`, `<button class="pill" data-reto="${r.id}">Abrir</button>`) : ''}
+    ${g ? fila(gh, 'Una situación', `<b>${esc(g.titulo)}</b>`, `<button class="pill" data-guia="${g.id}">Leer</button>`) : ''}
+    ${fila(th, 'Un tip para probar', `<b>${esc(t[1])}</b>`, `<button class="pill ${th ? 'on' : ''}" data-semck="tip">${th ? 'Probado' : 'Lo he probado'}</button>`)}
+    ${hechas === 3 ? '<p class="small" style="margin:10px 0 0">Semana completa. Muy bien.</p>' : ''}</div>`;
+}
+
+// ---------- Voy a salir ya ----------
+function openSalir() {
+  const o = document.createElement('div'); o.className = 'sos-full'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Voy a salir ya');
+  document.body.appendChild(o); document.body.style.overflow = 'hidden';
+  const frases = (load(K.frases, null) || FRASES_SALIR).slice(0, 3);
+  let paso = 0, obj = '';
+  const close = () => { clearTimeout(sosTimer); o.remove(); document.body.style.overflow = ''; };
+  const paint = () => {
+    clearTimeout(sosTimer);
+    let body;
+    if (paso === 0) body = `<h3 class="sl-h">Tu objetivo de hoy</h3><p>Uno solo, pequeño y que dependa de ti.</p><div class="sl-obj">${OBJETIVOS_SALIR.map(x => `<button class="${obj === x ? 'on' : ''}" data-obj="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
+    else if (paso === 1) body = `<h3 class="sl-h">Tus tres frases</h3><p>Por si te quedas en blanco. Puedes cambiarlas.</p>${frases.map((f, k) => `<input class="sl-in" data-fr="${k}" value="${esc(f)}">`).join('')}`;
+    else if (paso === 2) body = `<div class="breath"><b>Prepárate</b></div><p id="ronda">Tres respiraciones</p>`;
+    else body = `<h3 class="sl-h">Vamos</h3><div class="recuerda">${obj ? `<div><b>Tu objetivo:</b> ${esc(obj)}</div>` : ''}<div>No tiene que salir perfecto. Con hacer tu objetivo, la noche ya ha salido bien.</div><div>Si te agobias: sal cinco minutos, respira y vuelve o vete. Las dos cosas están bien.</div><div>Mañana, apunta cómo fue.</div></div>`;
+    o.innerHTML = `<button class="x" data-sl="cerrar">Cerrar</button><div class="sos-body">${body}</div>
+      <div class="sos-foot"><button class="btn" data-sl="${paso < 3 ? 'sig' : 'fin'}">${paso < 3 ? 'Siguiente' : 'Me voy'}</button></div>`;
+    if (paso === 2) {
+      let k = 0, r = 0; const ph = [['Coge aire', 4000, 1], ['Aguanta', 2000, 1], ['Suéltalo despacio', 6000, .55]];
+      const step = () => { const c = o.querySelector('.breath'); if (!c) return; const [t, d, sc] = ph[k]; c.style.setProperty('--d', d + 'ms'); c.style.setProperty('--s', sc); c.querySelector('b').textContent = t; sosTimer = setTimeout(() => { k = (k + 1) % 3; if (!k) { r++; const el = o.querySelector('#ronda'); if (el) el.textContent = r < 3 ? `Respiración ${r + 1} de 3` : 'Ya está. Cuando quieras.'; if (r >= 3) return; } step(); }, d); };
+      setTimeout(step, 300);
+    }
+  };
+  paint();
+  o.addEventListener('click', e => {
+    const b = e.target.closest('[data-obj]'); if (b) { obj = b.dataset.obj; return paint(); }
+    const s2 = e.target.closest('[data-sl]'); if (!s2) return;
+    if (paso === 1) { o.querySelectorAll('[data-fr]').forEach(i => { frases[+i.dataset.fr] = i.value; }); store(K.frases, frases); }
+    if (s2.dataset.sl === 'cerrar') return close();
+    if (s2.dataset.sl === 'sig') { paso++; return paint(); }
+    close(); toast('Disfruta. Mañana apunta cómo fue.');
+  });
+}
+
+// ---------- modo ensayo ----------
+function openEnsayo() {
+  const todas = GUIA.flatMap(g => g.items);
+  let g = todas[Math.floor(Math.random() * todas.length)], visto = false;
+  const v = sheet('', 'guia');
+  const paint = (resp) => {
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><span class="small muted">✍️ Modo ensayo</span><h2>${esc(g.titulo)}</h2><p>${esc(g.pasa)}</p>
+      <label class="f"><span>¿Qué dirías o harías tú?</span><textarea id="ens" rows="4" placeholder="Escríbelo con tus palabras, como si estuvieras ahí">${esc(resp || '')}</textarea></label>
+      ${visto ? `<h3 class="gh">Lo que dice la guía</h3><ul class="gl">${g.hacer.map(t => `<li>${esc(t)}</li>`).join('')}</ul>${g.ejemplos.length ? `<div class="gej">${g.ejemplos.map(t => `<div>${esc(t)}</div>`).join('')}</div>` : ''}<p class="small muted">Tu respuesta se ha guardado en «Mi nota» de esta situación.</p>` : ''}
+      <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span>${visto ? '<button class="btn" data-ens="otra">Otra situación</button>' : '<button class="btn" data-ens="ver">Comparar con la guía</button>'}</div>`;
+  };
+  paint();
+  v.addEventListener('click', e => {
+    const b = e.target.closest('[data-ens]'); if (!b) return;
+    if (b.dataset.ens === 'ver') {
+      const r = v.querySelector('#ens').value.trim(); if (!r) return toast('Escribe primero qué harías.');
+      const n = load(K.notas, {}) || {}; n[g.id] = ((n[g.id] ? n[g.id] + '\n' : '') + 'Ensayo: ' + r).slice(-1500); store(K.notas, n);
+      visto = true; return paint(r);
+    }
+    g = todas[Math.floor(Math.random() * todas.length)]; visto = false; paint();
+  });
+}
+
+// ---------- mis situaciones ----------
+function openMia(id) {
+  const l = load(K.mias, []) || [], m = l.find(x => x.id === id) || {};
+  const v = sheet(`<h2>${id ? 'Mi situación' : 'Una situación mía'}</h2><p class="muted">Algo que te haya pasado de verdad, para aprender de ello. Solo lo ves tú.</p>
+    <label class="f"><span>¿Qué fue?</span><input type="text" id="mt" value="${esc(m.titulo || '')}" placeholder="Una noche de fiesta con amigos" autocomplete="off"></label>
+    <label class="f"><span>¿Qué pasó?</span><textarea id="mp" rows="3">${esc(m.paso || '')}</textarea></label>
+    <label class="f"><span>¿Qué hiciste y cómo te sentiste?</span><textarea id="mh" rows="3">${esc(m.hice || '')}</textarea></label>
+    <label class="f"><span>¿Qué harás la próxima vez?</span><small>Mira si alguna situación de la guía se parece.</small><textarea id="mx" rows="3">${esc(m.prox || '')}</textarea></label>
+    <div class="acts">${id ? '<button class="btn ghost" data-mdel>Borrar</button>' : '<button class="btn ghost" data-close>Cancelar</button>'}<span class="sp"></span><button class="btn" data-mok>Guardar</button></div>`);
+  v.addEventListener('click', e => {
+    if (e.target.closest('[data-mdel]')) { if (!confirm('¿Borrar esta situación?')) return; store(K.mias, l.filter(x => x.id !== id)); v.remove(); render(); return; }
+    if (!e.target.closest('[data-mok]')) return;
+    const t = v.querySelector('#mt').value.trim(); if (!t) return v.querySelector('#mt').focus();
+    const o = { id: id || uid('m'), fecha: m.fecha || new Date().toISOString(), titulo: t, paso: v.querySelector('#mp').value.trim(), hice: v.querySelector('#mh').value.trim(), prox: v.querySelector('#mx').value.trim() };
+    store(K.mias, id ? l.map(x => x.id === id ? o : x) : l.concat(o)); v.remove(); render(); toast('Guardada');
+  });
+}
+
+// ---------- resúmenes ----------
+function datosDesde(desde) {
+  const d = diario().filter(e => e.fecha >= desde);
+  const ans = d.filter(e => e.ansiedad != null).map(e => e.ansiedad);
+  const retos = allRetos().flatMap(r => veces(r.id).filter(v => v.fecha >= desde).map(v => Object.assign({ r }, v)));
+  const planes = salidas().filter(x => x.fin && x.fin >= desde);
+  const leido = Object.entries(leidas()).filter(([, f]) => f >= desde).length;
+  return { d, ans, media: ans.length ? Math.round(ans.reduce((a, b) => a + b, 0) / ans.length * 10) / 10 : null, retos, planes, leido };
+}
+function resumenSemanaHTML() {
+  const ahora = Date.now(), a = datosDesde(new Date(ahora - 7 * 864e5).toISOString()), b = datosDesde(new Date(ahora - 14 * 864e5).toISOString());
+  const prevMedia = (() => { const x = b.d.filter(e => e.fecha < new Date(ahora - 7 * 864e5).toISOString() && e.ansiedad != null).map(e => e.ansiedad); return x.length ? Math.round(x.reduce((p, q) => p + q, 0) / x.length * 10) / 10 : null; })();
+  const fila = (n, t) => `<div><b>${n}</b><small>${t}</small></div>`;
+  return `<div class="card"><h2>Últimos 7 días</h2><div class="stats" style="margin-top:8px">${fila(a.retos.length, 'retos')}${fila(a.planes.filter(x => x.fue).length, 'planes')}${fila(a.leido, 'lecturas')}${fila(a.media != null ? a.media : '–', 'ansiedad media')}</div>
+    ${a.media != null && prevMedia != null ? `<p class="small muted" style="margin:10px 0 0">${a.media < prevMedia ? `Tu ansiedad media ha bajado (antes ${prevMedia}).` : a.media > prevMedia ? `Esta semana la ansiedad ha estado algo más alta (antes ${prevMedia}). Es normal que haya semanas así.` : 'Tu ansiedad media está igual que la semana anterior.'}</p>` : ''}</div>`;
+}
+function textoResumen() {
+  const desde = new Date(Date.now() - 30 * 864e5).toISOString(), a = datosDesde(desde), L = [];
+  L.push('RESUMEN DE LOS ÚLTIMOS 30 DÍAS (Cimientos)', '');
+  L.push('Ansiedad media en los registros: ' + (a.media != null ? a.media + ' de 10' : 'sin datos'));
+  L.push('', 'Retos hechos (' + a.retos.length + '):');
+  a.retos.forEach(v => L.push('· ' + v.r.titulo + (v.antes != null && v.despues != null ? ` (miedo esperado ${v.antes}, real ${v.despues})` : '') + (v.temo ? ' · Temía: ' + v.temo : '') + (v.nota ? ' · ' + v.nota : '')));
+  L.push('', 'Planes (' + a.planes.length + '):');
+  a.planes.forEach(x => L.push('· ' + tipoPlan(x.tipo).titulo + ': ' + (x.fue ? 'fui' + (x.antes != null && x.despues != null ? ` (miedo esperado ${x.antes}, real ${x.despues})` : '') + (x.bien ? ' · Salió bien: ' + x.bien : '') : 'al final no fui')));
+  const pens = a.d.filter(e => e.pens);
+  if (pens.length) { L.push('', 'Pensamientos revisados:'); pens.forEach(e => L.push('· ' + (e.pens.situ || '') + ' → «' + (e.pens.pensado || '') + '»' + (e.pens.cree != null ? ` (me lo creía ${e.pens.cree}` + (e.pens.ahora != null ? `, luego ${e.pens.ahora}` : '') + ')' : ''))); }
+  const dif = a.d.filter(e => e.tipo === 'dificil' && e.texto);
+  if (dif.length) { L.push('', 'Momentos difíciles:'); dif.forEach(e => L.push('· ' + fCorta(e.fecha) + ': ' + e.texto)); }
+  const vic = a.d.filter(e => e.tipo === 'victoria' && e.texto);
+  if (vic.length) { L.push('', 'Victorias:'); vic.forEach(e => L.push('· ' + fCorta(e.fecha) + ': ' + e.texto)); }
+  const ter = terapia().filter(t => !t.hecho);
+  if (ter.length) { L.push('', 'Lo que quiero hablar en sesión:'); ter.forEach(t => L.push('· ' + t.texto)); }
+  return L.join('\n');
+}
+function openResumen() {
+  const t = textoResumen();
+  const v = sheet(`<h2>Resumen para tu psicóloga</h2><p class="muted">Los últimos 30 días. Revísalo antes: puedes borrar lo que no quieras compartir.</p>
+    <textarea id="rest" rows="14">${esc(t)}</textarea>
+    <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn soft" data-rcopy>Copiar</button>${navigator.share ? '<button class="btn" data-rshare>Compartir</button>' : ''}</div>`);
+  v.addEventListener('click', async e => {
+    const txt = v.querySelector('#rest').value;
+    if (e.target.closest('[data-rcopy]')) { try { await navigator.clipboard.writeText(txt); toast('Copiado'); } catch (er) { v.querySelector('#rest').select(); } }
+    if (e.target.closest('[data-rshare]')) { try { await navigator.share({ title: 'Resumen', text: txt }); } catch (er) {} }
+  });
+}
+
 function openCarta() {
   const v = sheet(`<h2>Carta para ti</h2><p class="muted">Escribe lo que ya has conseguido, lo que has superado y lo que te dirías en un mal día. Saldrá en «Un momento difícil» › Recordar.</p>
     <textarea id="cartat" rows="10" placeholder="Este año he conseguido…&#10;Me acuerdo de cuando…&#10;Si te sientes mal, recuerda que…">${esc(load(K.carta, '') || '')}</textarea>
@@ -500,7 +673,7 @@ function openLeccion(id) {
   const v = sheet('');
   const paint = () => {
     const [t, p] = l.tarjetas[i], last = i === l.tarjetas.length - 1;
-    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><div class="lcard"><span class="n">${l.icono} ${esc(l.titulo)} · ${i + 1} de ${l.tarjetas.length}</span><h3>${esc(t)}</h3><p>${esc(p)}</p></div>
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><div class="lcard"><div class="sh-top"><span class="n">${l.icono} ${esc(l.titulo)} · ${i + 1} de ${l.tarjetas.length}</span>${vozBtn()}</div><h3>${esc(t)}</h3><p>${esc(p)}</p></div>
       <div class="dots">${l.tarjetas.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
       <div class="acts">${i ? '<button class="btn ghost" data-l="prev">Atrás</button>' : '<button class="btn ghost" data-close>Cerrar</button>'}<span class="sp"></span><button class="btn" data-l="${last ? 'fin' : 'next'}">${last ? 'Terminar' : 'Siguiente'}</button></div>`;
   };
@@ -518,7 +691,7 @@ function openLeccion(id) {
 function openGuia(id) {
   const s = GUIA.flatMap(g => g.items).find(x => x.id === id); if (!s) return;
   const ya = propios().some(r => r.titulo === s.practica);
-  const v = sheet(`<div class="sh-top"><span class="small muted">Guía de situaciones</span>${favBtn(s.id)}</div><h2>${esc(s.titulo)}</h2>
+  const v = sheet(`<div class="sh-top"><span class="small muted">Guía de situaciones</span><span>${vozBtn()}${favBtn(s.id)}</span></div><h2>${esc(s.titulo)}</h2>
     <h3 class="gh">Lo que suele pasar</h3><p>${esc(s.pasa)}</p>
     <h3 class="gh">${esc(s.hacerTitulo || 'Qué puedes hacer')}</h3>${s.hacer.length > 1 ? `<ul class="gl">${s.hacer.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(s.hacer[0])}</p>`}
     ${s.ejemplos.length ? `<div class="gej">${s.ejemplos.map(t => `<div>${esc(t)}</div>`).join('')}</div>` : ''}${s.cierre ? `<p>${esc(s.cierre)}</p>` : ''}
@@ -608,7 +781,9 @@ function vProgreso() {
         ${vs.slice(0, 5).map(v => `<div class="tf"><span>${esc(v.r.titulo)}</span><span>${v.antes} → ${v.despues}</span></div>`).join('')}
         <p class="small muted" style="margin:10px 0 0">${avg('despues') < avg('antes') ? 'De media, el miedo de antes ha sido más grande que lo que pasó. Acuérdate cuando dudes.' : 'Has hecho cosas aunque daban miedo. Eso es lo que cuenta.'}</p>`
       : '<p class="sub" style="margin:0">Cuando hagas un reto apuntando el miedo de antes y el de después, aquí verás la diferencia.</p>'}</div>
+    ${resumenSemanaHTML()}
     <div class="card"><h2>Tu ansiedad</h2>${chartHTML()}</div>
+    <button class="btn soft full" data-act="resumen" style="margin-bottom:12px">📄 Resumen para tu psicóloga</button>
     <div class="card"><h2>Lo que has hecho</h2>${tl.length ? tl.slice(0, 25).map(([f, i, t]) => `<div class="tl"><span class="d">${fCorta(f)}</span><span>${i} ${esc(t)}</span></div>`).join('') : '<p class="vacio">Aquí irán apareciendo tus victorias, retos y lecturas.</p>'}</div>
     ${syncCardHTML()}
     <div class="card"><h2>PIN</h2><p class="sub">${load(K.pin, null) ? 'Cimientos pide el PIN al abrirla y al volver después de un minuto fuera.' : 'Para que nadie más pueda abrir Cimientos en tu móvil.'}</p>
@@ -658,6 +833,9 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-filtro]'))) { const tx = $('txt'); if (tx) ui.txt = tx.value; ui.filtro = x.dataset.filtro; const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
+  if ((x = t.closest('[data-voz]'))) { const sh = x.closest('.sheet'); if (vozActiva()) { vozParar(); x.textContent = '🔊 Escuchar'; } else { vozLeer(sh, () => { x.textContent = '🔊 Escuchar'; }); x.textContent = '⏹ Parar'; } return; }
+  if ((x = t.closest('#app [data-mia]'))) return openMia(x.dataset.mia);
+  if ((x = t.closest('[data-semck]'))) { const w = semana(); w.hecho = Object.assign({}, w.hecho, { [x.dataset.semck]: !(w.hecho || {})[x.dataset.semck] }); store(K.semana, w); const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('[data-fav]'))) { const id = x.dataset.fav, f = favs(); store(K.favs, f.includes(id) ? f.filter(z => z !== id) : f.concat(id)); x.outerHTML = favBtn(id); if (tab === 'aprender' && !document.querySelector('.veil')) render(); return; }
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
   if ((x = t.closest('#app [data-doc]'))) return openDoc(x.dataset.doc);
@@ -684,7 +862,11 @@ document.addEventListener('click', e => {
     if (a === 'plan') return openPlan();
     if (a === 'parati') return openParaTi();
     if (a === 'carta') return openCarta();
-    if (a === 'quiz') return openQuiz();
+    if (a === 'quiz' || a === 'senales' || a === 'frases') return openQuiz(a);
+    if (a === 'salir') return openSalir();
+    if (a === 'ensayo') return openEnsayo();
+    if (a === 'mia') return openMia();
+    if (a === 'resumen') return openResumen();
     if (a === 'syncme') return syncLink(CS.fromMiEspacio());
     if (a === 'syncscan') return syncScan();
     if (a === 'syncnow') { CS.sync(); const el = $('syncst'); if (el) el.textContent = 'Sincronizando…'; return; }

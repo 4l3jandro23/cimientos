@@ -297,3 +297,27 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .quiz-o button.mal { border-color: var(--warm); background: var(--warm-soft); }
 .quiz-o button.off { opacity: .5; }
 .quiz-res { font-family: var(--serif); font-size: 48px; margin: 8px 0; color: var(--accent); }
+
+/* v18 */
+.sos.salir { background: var(--soft); }
+.sos.salir .ic { background: var(--accent); }
+.juegos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.juegos button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 18px; padding: 14px; color: var(--ink); box-shadow: var(--sh); }
+.juegos span { font-size: 24px; margin-bottom: 4px; }
+.juegos b { font-size: 15px; }
+.juegos small { color: var(--muted); font-size: 12.5px; }
+.sem-h { display: flex; justify-content: space-between; align-items: baseline; }
+.sem-h small { color: var(--muted); font-weight: 650; }
+.sem-f { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.sem-f .b { flex: 1; min-width: 0; }
+.sem-f .b small { display: block; color: var(--muted); font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; }
+.sem-f .b b { font-weight: 600; font-size: 15px; }
+.sem-c { width: 24px; height: 24px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); display: grid; place-items: center; font-size: 12px; font-weight: 800; flex: none; color: transparent; }
+.sem-f.ok .sem-c { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sem-f.ok .b b { color: var(--muted); }
+.sl-h { font-family: var(--serif); font-size: 26px; color: #fff; margin: 0 0 6px; }
+.sl-obj { display: grid; gap: 8px; width: 100%; }
+.sl-obj button { border: 0; border-radius: 14px; padding: 12px 14px; background: rgba(255, 255, 255, .08); color: #EAF3EF; font-size: 16px; text-align: left; }
+.sl-obj button.on { background: #EAF3EF; color: #1B3B33; font-weight: 650; }
+.sl-in { width: 100%; margin-bottom: 8px; border: 0; border-radius: 14px; padding: 12px 14px; background: rgba(255, 255, 255, .1); color: #fff; font-size: 16px; }
+.sh-top > span { display: flex; gap: 6px; }
