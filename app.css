@@ -277,3 +277,23 @@ details.blq > summary::-webkit-details-marker { display: none; }
 details.blq > summary small { color: var(--muted); font-weight: 600; white-space: nowrap; }
 details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .recuerda .carta { background: rgba(111, 184, 163, .18); }
+
+/* mejoras v16 */
+.prog { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+.prog-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.prog small { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.sh-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fav { border: 0; border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 650; background: var(--bg); color: var(--muted); flex: none; }
+.fav.on { background: var(--warm-soft); color: var(--ink); }
+.parati.quiz { margin-top: 10px; background: linear-gradient(150deg, var(--warm-soft), var(--card)); }
+.parati.quiz .ic { background: var(--warm); color: #fff; }
+.quiz-p { font-family: var(--serif); font-size: 21px; line-height: 1.35; margin: 8px 0 14px; }
+.quiz-o { display: grid; gap: 8px; }
+.quiz-o button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 14px; padding: 12px 14px; color: var(--ink); }
+.quiz-o button b { font-weight: 600; display: block; }
+.quiz-o button small { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+.quiz-o button.ok { border-color: var(--accent); background: var(--soft); }
+.quiz-o button.mal { border-color: var(--warm); background: var(--warm-soft); }
+.quiz-o button.off { opacity: .5; }
+.quiz-res { font-family: var(--serif); font-size: 48px; margin: 8px 0; color: var(--accent); }

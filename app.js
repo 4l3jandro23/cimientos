@@ -12,6 +12,8 @@ const K = {
   perfil: 'cimientosPerfil',
   yo: 'cimientosYo',
   carta: 'cimientosCarta',
+  favs: 'cimientosFavs',
+  notas: 'cimientosNotas',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -63,7 +65,7 @@ function sheet(html, cls) {
   const v = document.createElement('div'); v.className = 'veil';
   v.innerHTML = `<div class="sheet ${cls || ''}" role="dialog"><div class="grab"></div>${html}</div>`;
   document.body.appendChild(v);
-  v.addEventListener('click', e => { if (e.target === v || e.target.closest('[data-close]')) v.remove(); });
+  v.addEventListener('click', e => { if (e.target === v || e.target.closest('[data-close]')) { v.remove(); if (tab === 'aprender') { const y = scrollY; render(); scrollTo(0, y); } } });
   return v;
 }
 
@@ -104,6 +106,7 @@ function vHoy() {
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
     ${planHoyHTML()}
     ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
+    ${(() => { const all = GUIA.flatMap(g => g.items), pend = all.filter(x => !leidas()[x.id]), pool = pend.length ? pend : all, d = new Date(), g = pool[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % pool.length]; return `<p class="sec-h">Situación del día</p><button class="lec" data-guia="${g.id}"><span class="ic">💬</span><span class="b"><b>${esc(g.titulo)}</b><small>${esc(g.pasa.split('. ')[0])}.</small></span><span class="go">›</span></button>`; })()}
     ${(() => { const d = new Date(), t = TIPS[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() * 7) % TIPS.length]; return `<div class="card consejo"><span class="small muted">💡 Tip del día · ${esc(t[0])}</span><p>${esc(t[1])}</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-doc="d-tips">Ver todos los tips</button></div></div>`; })()}
     <div class="card"><h2>¿Cuánta ansiedad tienes ahora?</h2><p class="sub">Un toque basta. Tu ánimo del día lo marcas en Mi Espacio; aquí solo la ansiedad.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
@@ -343,6 +346,14 @@ const okOr = id => leidas()[id] ? '<span class="ok">✓</span>' : '<span class="
 const docBtn = d => `<button class="lec" data-doc="${d.id}"><span class="ic">${d.icono}</span><span class="b"><b>${esc(d.titulo)}</b><small>${esc(d.sub)}</small></span>${okOr(d.id)}</button>`;
 const lecBtn = l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l.icono}</span><span class="b"><b>${esc(l.titulo)}</b><small>${esc(l.sub)}</small></span>${okOr(l.id)}</button>`;
 const guiaBtn = s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${okOr(s.id)}</button>`;
+const favs = () => load(K.favs, []) || [];
+const favBtn = id => `<button class="fav ${favs().includes(id) ? 'on' : ''}" data-fav="${id}" aria-label="Guardar">${favs().includes(id) ? '★ Guardado' : '☆ Guardar'}</button>`;
+function itemBtn(id) {
+  const d = DOCS.find(x => x.id === id); if (d) return docBtn(d);
+  const g = GUIA.flatMap(b => b.items).find(x => x.id === id); if (g) return guiaBtn(g);
+  const l = LECCIONES.find(x => x.id === id); if (l) return lecBtn(l);
+  return '';
+}
 function aprenderLista() {
   const q = norm(aq.trim());
   if (q.length < 2) return '';
@@ -355,11 +366,15 @@ function aprenderLista() {
 function vAprender() {
   const perfil = load(K.perfil, []) || [];
   const busq = aprenderLista();
-  return `<div class="top"><h1>Aprender</h1><p>Todo lo que necesitas saber, corto y claro.</p></div>
+  const todos = [...DOCS.map(d => d.id), ...GUIA.flatMap(g => g.items.map(x => x.id)), ...LECCIONES.map(l => l.id)], le = todos.filter(id => leidas()[id]).length, fv = favs().filter(id => itemBtn(id));
+  return `<div class="top"><h1>Aprender</h1><p>Todo lo que necesitas saber, corto y claro.</p>
+      <div class="prog"><div class="prog-bar"><i style="width:${Math.round(le / todos.length * 100)}%"></i></div><small>Has leído ${le} de ${todos.length}</small></div></div>
     <input type="text" id="aq" class="aq" placeholder="Buscar: mensajes, cita, nervios, beso…" value="${esc(aq)}" autocomplete="off" enterkeyhint="search">
     <div id="aqres">${busq}</div>
     <div id="aqall" ${busq ? 'hidden' : ''}>
     <button class="parati" data-act="parati"><span class="ic">✨</span><span class="b"><b>Para ti</b><small>${perfil.length ? `Consejos según ${perfil.length === 1 ? 'lo que has elegido' : 'las ' + perfil.length + ' cosas que has elegido'}` : 'Elige lo que va contigo y te doy consejos a tu medida'}</small></span><span class="go">›</span></button>
+    ${fv.length ? `<p class="sec-h">★ Guardados</p>${fv.map(itemBtn).join('')}` : ''}
+    <button class="parati quiz" data-act="quiz"><span class="ic">🎯</span><span class="b"><b>¿Qué harías?</b><small>Ponte a prueba con situaciones reales (${QUIZ.length})</small></span><span class="go">›</span></button>
     <p class="sec-h">Carisma y confianza</p>
     ${DOCS.filter(d => d.grupo === 'carisma').map(docBtn).join('')}
     <p class="sec-h">Ligar, de principio a fin</p>
@@ -376,6 +391,7 @@ function vAprender() {
     <div class="card" style="padding:4px 16px">
       <button class="lrow" data-act="sos"><span class="ic">🌊</span><span class="b"><b>Calma ahora</b><small>Respirar, aterrizar y recordar</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="plan"><span class="ic">🗓️</span><span class="b"><b>Tengo un plan</b><small>Fiesta, quedada, una cita… cómo ir preparado</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="quiz"><span class="ic">🎯</span><span class="b"><b>¿Qué harías?</b><small>Elige la mejor respuesta en situaciones reales</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="carta"><span class="ic">💌</span><span class="b"><b>Carta para ti</b><small>Lo que ya has conseguido, para leerlo cuando dudes</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="pensar"><span class="ic">🧠</span><span class="b"><b>Revisar un pensamiento</b><small>Mirarlo con un poco de distancia</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="trampas"><span class="ic">🪤</span><span class="b"><b>Trampas del pensamiento</b><small>Las más típicas, con ejemplos</small></span><span class="go">›</span></button>
@@ -383,7 +399,7 @@ function vAprender() {
 }
 function openDoc(id) {
   const d = DOCS.find(x => x.id === id); if (!d) return;
-  const v = sheet(`<span class="small muted">${d.icono} ${esc(d.sub)}</span><h2>${esc(d.titulo)}</h2>
+  const v = sheet(`<div class="sh-top"><span class="small muted">${d.icono} ${esc(d.sub)}</span>${favBtn(d.id)}</div><h2>${esc(d.titulo)}</h2>
     ${d.secciones.map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? (c.length > 1 ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c[0])}</p>`) : `<p>${esc(c)}</p>`}`).join('')}
     ${d.herramienta ? '<div id="yobox"></div>' : ''}
     <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-dleido>Leído</button></div>`, 'guia');
@@ -440,6 +456,32 @@ function openParaTi() {
     const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; render();
   });
 }
+function openQuiz() {
+  const orden = QUIZ.map((q, i) => i).sort(() => Math.random() - .5);
+  let i = 0, bien = 0, elegida = null, mezcla = null;
+  const v = sheet('');
+  const paint = () => {
+    const sh = v.querySelector('.sheet');
+    if (i >= orden.length) {
+      sh.innerHTML = `<div class="grab"></div><h2>¡Hecho!</h2><p class="quiz-res">${bien} de ${orden.length}</p><p class="muted">${bien >= orden.length - 2 ? 'Tienes muy claro cómo actuar. Ahora toca practicarlo.' : 'Cada respuesta tiene su explicación: con leerlas ya aprendes. Puedes repetirlo cuando quieras.'}</p>
+        <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-q="otra">Otra vez</button></div>`;
+      return;
+    }
+    const q = QUIZ[orden[i]];
+    if (!mezcla) mezcla = q.o.map((o, k) => k).sort(() => Math.random() - .5);
+    sh.innerHTML = `<div class="grab"></div><span class="small muted">¿Qué harías? · ${i + 1} de ${orden.length}</span><h3 class="quiz-p">${esc(q.p)}</h3>
+      <div class="quiz-o">${mezcla.map(k => { const o = q.o[k], st = elegida == null ? '' : o[1] ? 'ok' : k === elegida ? 'mal' : 'off'; return `<button class="${st}" data-qo="${k}" ${elegida != null ? 'disabled' : ''}><b>${esc(o[0])}</b>${elegida != null && (o[1] || k === elegida) ? `<small>${esc(o[2])}</small>` : ''}</button>`; }).join('')}</div>
+      <div class="acts"><button class="btn ghost" data-close>Salir</button><span class="sp"></span>${elegida != null ? `<button class="btn" data-q="next">${i === orden.length - 1 ? 'Ver resultado' : 'Siguiente'}</button>` : ''}</div>`;
+  };
+  paint();
+  v.addEventListener('click', e => {
+    const o = e.target.closest('[data-qo]');
+    if (o && elegida == null) { elegida = +o.dataset.qo; if (QUIZ[orden[i]].o[elegida][1]) bien++; return paint(); }
+    const b = e.target.closest('[data-q]'); if (!b) return;
+    if (b.dataset.q === 'next') { i++; elegida = null; mezcla = null; return paint(); }
+    if (b.dataset.q === 'otra') { v.remove(); openQuiz(); }
+  });
+}
 function openCarta() {
   const v = sheet(`<h2>Carta para ti</h2><p class="muted">Escribe lo que ya has conseguido, lo que has superado y lo que te dirías en un mal día. Saldrá en «Un momento difícil» › Recordar.</p>
     <textarea id="cartat" rows="10" placeholder="Este año he conseguido…&#10;Me acuerdo de cuando…&#10;Si te sientes mal, recuerda que…">${esc(load(K.carta, '') || '')}</textarea>
@@ -476,12 +518,13 @@ function openLeccion(id) {
 function openGuia(id) {
   const s = GUIA.flatMap(g => g.items).find(x => x.id === id); if (!s) return;
   const ya = propios().some(r => r.titulo === s.practica);
-  const v = sheet(`<span class="small muted">Guía de situaciones</span><h2>${esc(s.titulo)}</h2>
+  const v = sheet(`<div class="sh-top"><span class="small muted">Guía de situaciones</span>${favBtn(s.id)}</div><h2>${esc(s.titulo)}</h2>
     <h3 class="gh">Lo que suele pasar</h3><p>${esc(s.pasa)}</p>
     <h3 class="gh">${esc(s.hacerTitulo || 'Qué puedes hacer')}</h3>${s.hacer.length > 1 ? `<ul class="gl">${s.hacer.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(s.hacer[0])}</p>`}
     ${s.ejemplos.length ? `<div class="gej">${s.ejemplos.map(t => `<div>${esc(t)}</div>`).join('')}</div>` : ''}${s.cierre ? `<p>${esc(s.cierre)}</p>` : ''}
     ${(s.extra || []).map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c)}</p>`}`).join('')}
     <h3 class="gh">Si sale regular</h3><p>${esc(s.sale)}</p>
+    <label class="f"><span>Mi nota</span><textarea data-nota="${s.id}" rows="2" placeholder="Lo que quieras recordar de esto, o cómo te fue">${esc((load(K.notas, {}) || {})[s.id] || '')}</textarea></label>
     <div class="quiet" style="margin-top:14px"><b>Para practicar:</b> ${esc(s.practica.charAt(0).toLowerCase() + s.practica.slice(1))}.</div>
     <div class="acts"><button class="btn soft" data-g="reto" ${ya ? 'disabled style="opacity:.5"' : ''}>${ya ? 'Ya está en tus retos' : 'Añadirlo a mis retos'}</button><span class="sp"></span><button class="btn" data-g="leido">Leída</button></div>`, 'guia');
   v.addEventListener('click', e => {
@@ -615,6 +658,7 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-filtro]'))) { const tx = $('txt'); if (tx) ui.txt = tx.value; ui.filtro = x.dataset.filtro; const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
+  if ((x = t.closest('[data-fav]'))) { const id = x.dataset.fav, f = favs(); store(K.favs, f.includes(id) ? f.filter(z => z !== id) : f.concat(id)); x.outerHTML = favBtn(id); if (tab === 'aprender' && !document.querySelector('.veil')) render(); return; }
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
   if ((x = t.closest('#app [data-doc]'))) return openDoc(x.dataset.doc);
   if ((x = t.closest('#app [data-planver]'))) return openPlan(x.dataset.planver);
@@ -640,6 +684,7 @@ document.addEventListener('click', e => {
     if (a === 'plan') return openPlan();
     if (a === 'parati') return openParaTi();
     if (a === 'carta') return openCarta();
+    if (a === 'quiz') return openQuiz();
     if (a === 'syncme') return syncLink(CS.fromMiEspacio());
     if (a === 'syncscan') return syncScan();
     if (a === 'syncnow') { CS.sync(); const el = $('syncst'); if (el) el.textContent = 'Sincronizando…'; return; }
@@ -670,6 +715,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('input', e => {
+  if (e.target.dataset && e.target.dataset.nota) { const n = load(K.notas, {}) || {}; n[e.target.dataset.nota] = e.target.value; store(K.notas, n); return; }
   if (e.target.id === 'aq') { aq = e.target.value; const r = aprenderLista(); $('aqres').innerHTML = r; $('aqall').hidden = !!r; return; }
   if (e.target.dataset && e.target.dataset.pens) ui.pens[e.target.dataset.pens] = e.target.value;
   if (e.target.id === 'txt') ui.txt = e.target.value;
