@@ -17,6 +17,8 @@ const K = {
   semana: 'cimientosSemana',
   frases: 'cimientosFrases',
   mias: 'cimientosMias',
+  borradores: 'cimientosBorradores',
+  bajon: 'cimientosBajon',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -105,6 +107,8 @@ function vHoy() {
       <div class="row-btns"><button class="btn" data-act="checkin" ${ui.nivel == null ? 'disabled style="opacity:.45"' : ''}>Guardar</button>${ui.otro ? '<button class="btn ghost" data-act="nootro">Cancelar</button>' : ''}</div>`;
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
+    ${bajonAyerHTML()}
+    <button class="sos bajon-b" data-act="bajon"><span class="ic">🌧️</span><span><b>He bebido y me ha dado el bajón</b><small>Letra grande y pocos pasos, para esa noche</small></span><span class="go">›</span></button>
     <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
@@ -535,6 +539,72 @@ function semanaHTML() {
     ${hechas === 3 ? '<p class="small" style="margin:10px 0 0">Semana completa. Muy bien.</p>' : ''}</div>`;
 }
 
+// ---------- He bebido y me ha dado el bajón ----------
+// Pensado para ir pasado: letra grande, frases cortas, botones gordos y nada obligatorio que escribir.
+function openBajon() {
+  store(K.bajon, { fecha: new Date().toISOString(), visto: false });
+  const o = document.createElement('div'); o.className = 'sos-full bajon'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Bajón');
+  document.body.appendChild(o); document.body.style.overflow = 'hidden';
+  let modo = 'inicio';
+  const close = () => { clearTimeout(sosTimer); o.remove(); document.body.style.overflow = ''; render(); };
+  const carta = load(K.carta, '');
+  const paint = () => {
+    clearTimeout(sosTimer);
+    let body;
+    if (modo === 'inicio') body = `<h2 class="bj-h">Tranquilo.</h2><p class="bj-p">Esto es el alcohol hablando. El bajón de beber es químico: mañana lo verás distinto.</p>
+      <div class="bj-bt">
+        <button data-bj="agua">💧 Agua y a casa</button>
+        <button data-bj="respira">🫁 Respirar</button>
+        <button data-bj="escribir">✋ Quiero escribirle a alguien</button>
+        <button data-bj="recuerda">💌 ${carta ? 'Leer mi carta' : 'Lo que tengo que recordar'}</button>
+        <button data-bj="fatal" class="rojo">Me siento fatal de verdad</button>
+      </div>`;
+    else if (modo === 'agua') body = `<h2 class="bj-h">Ahora mismo</h2><div class="bj-list">
+        <div>💧 Bebe un vaso de agua entero.</div><div>🚫 No bebas más esta noche.</div><div>🚕 Busca cómo volver: taxi, NitBus o con un amigo.</div><div>📱 Avisa a tu amigo de que te vas.</div><div>🛏️ En casa: agua al lado de la cama y a dormir.</div></div>`;
+    else if (modo === 'respira') body = `<div class="breath"><b>Prepárate</b></div><p class="bj-p">Suelta el aire despacio.</p>`;
+    else if (modo === 'escribir') body = `<h2 class="bj-h">Escríbelo aquí</h2><p class="bj-p">Mañana decides si lo mandas. Esta noche, no.</p><textarea id="bjtxt" class="bj-ta" rows="5" placeholder="Lo que quieras decir…"></textarea><div class="bj-bt"><button data-bj="guardar">Guardar para mañana</button></div>`;
+    else if (modo === 'guardado') body = `<h2 class="bj-h">Guardado</h2><p class="bj-p">Mañana te lo enseño en Hoy. Si sigues queriendo mandarlo, lo mandas. Ahora, agua y a casa.</p>`;
+    else if (modo === 'recuerda') body = `<div class="bj-list">${carta ? `<div class="carta"><b>Tu carta</b><br>${esc(carta).replace(/\n/g, '<br>')}</div>` : ''}
+        <div>No hagas balance de tu vida esta noche. A las 4 de la mañana y con alcohol, todo parece peor de lo que es.</div>
+        <div>Lo que ha pasado (o no ha pasado) hoy no dice nada de lo que vales.</div>
+        <div>Compararte con otro esta noche no es justo: ves su mejor momento y tu peor bajón.</div>
+        <div>Si tomas medicación para el ánimo, el alcohol puede hacer el bajón más fuerte. No eres tú: es la mezcla.</div>
+        <div>Mañana: agua, descanso y algo rico. El bajón se pasa.</div></div>`;
+    else body = `<h2 class="bj-h">No estás solo</h2><p class="bj-p">Si es más que un bajón, si tienes ganas de hacerte daño o no te ves bien, llama ahora:</p>
+      <div class="bj-bt"><a class="bj-tel" href="tel:024">📞 024 · gratis, 24 horas</a><a class="bj-tel" href="tel:112">🚑 112 · emergencias</a></div>
+      <p class="bj-p">O llama a alguien de confianza o díselo a tu amigo, aunque sea de madrugada.</p>`;
+    o.innerHTML = `<button class="x" data-bj="${modo === 'inicio' ? 'cerrar' : 'inicio'}">${modo === 'inicio' ? 'Cerrar' : '← Atrás'}</button><div class="sos-body">${body}</div>`;
+    if (modo === 'respira') {
+      let k = 0; const ph = [['Coge aire', 4000, 1], ['Aguanta', 2000, 1], ['Suéltalo despacio', 6000, .55]];
+      const step = () => { const c = o.querySelector('.breath'); if (!c) return; const [t, d, sc] = ph[k]; c.style.setProperty('--d', d + 'ms'); c.style.setProperty('--s', sc); c.querySelector('b').textContent = t; sosTimer = setTimeout(() => { k = (k + 1) % 3; step(); }, d); };
+      setTimeout(step, 300);
+    }
+    if (modo === 'escribir') setTimeout(() => { const t = o.querySelector('#bjtxt'); if (t) t.focus(); }, 80);
+  };
+  paint();
+  o.addEventListener('click', e => {
+    const b = e.target.closest('[data-bj]'); if (!b) return;
+    const a = b.dataset.bj;
+    if (a === 'cerrar') return close();
+    if (a === 'guardar') {
+      const t = (o.querySelector('#bjtxt') || {}).value || '';
+      if (t.trim()) store(K.borradores, (load(K.borradores, []) || []).concat({ id: uid('b'), fecha: new Date().toISOString(), texto: t.trim() }));
+      modo = 'guardado'; return paint();
+    }
+    modo = a; paint();
+  });
+}
+// Al día siguiente: cómo estás, y lo que escribiste anoche.
+function bajonAyerHTML() {
+  const b = load(K.bajon, null), borr = load(K.borradores, []) || [];
+  const pasado = b ? Date.now() - Date.parse(b.fecha) : 0, reciente = !!(b && !b.visto && pasado > 4 * 3600e3 && pasado < 40 * 3600e3); // a partir de la mañana siguiente
+  const borrH = borr.filter(x => Date.now() - Date.parse(x.fecha) > 4 * 3600e3); // lo de anoche, cuando ya se ha dormido
+  if (!reciente && !borrH.length) return '';
+  return `<div class="card bj-ayer">${reciente ? `<h2>Anoche fue duro</h2><p class="sub">Hoy toca agua, descanso y no juzgarte. Si quieres, apunta en el diario cómo fue: ayuda a ver el patrón.</p>
+      <div class="row-btns" style="margin-top:0"><button class="pill" data-tipo-dificil>Apuntarlo</button><button class="pill" data-act="bajonvisto">Estoy bien</button></div>` : ''}
+    ${borrH.map(x => `<div class="bj-borr"><small>Lo que escribiste el ${fCorta(x.fecha)} a las ${new Date(x.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}:</small><p>«${esc(x.texto)}»</p><div class="row-btns" style="margin-top:6px"><button class="pill" data-borr="${x.id}" data-acc="copiar">Copiar para mandarlo</button><button class="pill" data-borr="${x.id}" data-acc="borrar">Mejor no, borrar</button></div></div>`).join('')}</div>`;
+}
+
 // ---------- Voy a salir ya ----------
 function openSalir() {
   const o = document.createElement('div'); o.className = 'sos-full'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Voy a salir ya');
@@ -835,6 +905,12 @@ document.addEventListener('click', e => {
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
   if ((x = t.closest('[data-voz]'))) { const sh = x.closest('.sheet'); if (vozActiva()) { vozParar(); x.textContent = '🔊 Escuchar'; } else { vozLeer(sh, () => { x.textContent = '🔊 Escuchar'; }); x.textContent = '⏹ Parar'; } return; }
   if ((x = t.closest('#app [data-mia]'))) return openMia(x.dataset.mia);
+  if ((x = t.closest('[data-borr]'))) {
+    const id = x.dataset.borr, acc = x.dataset.acc, l = load(K.borradores, []) || [], b = l.find(z => z.id === id); if (!b) return;
+    if (acc === 'copiar') { try { navigator.clipboard.writeText(b.texto); toast('Copiado. Ahora decides tú, con calma.'); } catch (e) {} return; }
+    store(K.borradores, l.filter(z => z.id !== id)); render(); return toast(acc === 'borrar' ? 'Borrado. Bien pensado.' : 'Guardado en tu diario');
+  }
+  if (t.closest('[data-tipo-dificil]')) { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); ui.tipo = 'dificil'; return goTab('diario'); }
   if ((x = t.closest('[data-semck]'))) { const w = semana(); w.hecho = Object.assign({}, w.hecho, { [x.dataset.semck]: !(w.hecho || {})[x.dataset.semck] }); store(K.semana, w); const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('[data-fav]'))) { const id = x.dataset.fav, f = favs(); store(K.favs, f.includes(id) ? f.filter(z => z !== id) : f.concat(id)); x.outerHTML = favBtn(id); if (tab === 'aprender' && !document.querySelector('.veil')) render(); return; }
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
@@ -864,6 +940,8 @@ document.addEventListener('click', e => {
     if (a === 'carta') return openCarta();
     if (a === 'quiz' || a === 'senales' || a === 'frases') return openQuiz(a);
     if (a === 'salir') return openSalir();
+    if (a === 'bajon') return openBajon();
+    if (a === 'bajonvisto') { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); return render(); }
     if (a === 'ensayo') return openEnsayo();
     if (a === 'mia') return openMia();
     if (a === 'resumen') return openResumen();
