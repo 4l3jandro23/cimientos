@@ -117,7 +117,7 @@ function vHoy() {
     ${planHoyHTML()}
     ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
     ${(() => { const all = GUIA.flatMap(g => g.items), pend = all.filter(x => !leidas()[x.id]), pool = pend.length ? pend : all, d = new Date(), g = pool[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % pool.length]; return `<p class="sec-h">Situación del día</p><button class="lec" data-guia="${g.id}"><span class="ic">💬</span><span class="b"><b>${esc(g.titulo)}</b><small>${esc(g.pasa.split('. ')[0])}.</small></span><span class="go">›</span></button>`; })()}
-    ${(() => { const d = new Date(), t = TIPS[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() * 7) % TIPS.length]; return `<div class="card consejo"><span class="small muted">💡 Tip del día · ${esc(t[0])}</span><p>${esc(t[1])}</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-doc="d-tips">Ver todos los tips</button></div></div>`; })()}
+    ${tipHoyHTML()}
     <div class="card"><h2>¿Cuánta ansiedad tienes ahora?</h2><p class="sub">Un toque basta. Tu ánimo del día lo marcas en Mi Espacio; aquí solo la ansiedad.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
       <button class="reto ${pl ? 'plan' : ''} foco" data-reto="${r.id}" style="margin:0"><span class="chk">${retosHechos()[r.id] ? '✓' : ''}</span><span class="b"><b>${esc(r.titulo)}</b><small>${esc(r.descripcion || '')}</small>${pl && pl.antes != null ? `<span class="meta"><span class="tag warm">Crees que te dará ${pl.antes} de 10 de miedo</span></span>` : ''}</span></button>
@@ -130,6 +130,10 @@ function vHoy() {
 }
 
 // ---------- TENGO UN PLAN ----------
+function tipHoyHTML() {
+  const d = new Date(), t = TIPS[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() * 7 + (ui.tipOff || 0)) % TIPS.length];
+  return `<div class="card consejo"><span class="small muted">💡 Tip del día · ${esc(t[0])}</span><p>${esc(t[1])}</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-act="otrotip">Otro tip</button><button class="pill" data-act="tips">Ver todos</button></div></div>`;
+}
 function planHoyHTML() {
   const p = planPendiente(), n = planProximo();
   if (p) { const t = tipoPlan(p.tipo); return `<button class="sos plan" data-plancierre="${p.id}"><span class="ic">${t.icono}</span><span><b>¿Qué tal fue?</b><small>${esc(t.titulo)}${p.cuando === dayKey(Date.now() - 864e5) ? ' de ayer' : ', ' + cuandoTxt(p.cuando)}. Dos toques.</small></span><span class="go">›</span></button>`; }
@@ -371,7 +375,8 @@ function aprenderLista() {
     DOCS.filter(d => norm(docTexto(d)).includes(q)).map(docBtn),
     GUIA.flatMap(g => g.items).filter(g => norm(guiaTexto(g)).includes(q)).map(guiaBtn),
     LECCIONES.filter(l => norm(lecTexto(l)).includes(q)).map(lecBtn));
-  return hits.length ? hits.join('') : '<p class="vacio">No hay nada con esa palabra.</p>';
+  const tp = TIPS.filter(t => norm(t[0] + ' ' + t[1]).includes(q)).slice(0, 12).map(t => `<div class="card consejo"><span class="small muted">💡 Tip · ${esc(t[0])}</span><p>${esc(t[1])}</p></div>`);
+  return hits.length || tp.length ? hits.join('') + tp.join('') : '<p class="vacio">No hay nada con esa palabra.</p>';
 }
 function vAprender() {
   const perfil = load(K.perfil, []) || [];
@@ -538,6 +543,22 @@ function semanaHTML() {
     ${g ? fila(gh, 'Una situación', `<b>${esc(g.titulo)}</b>`, `<button class="pill" data-guia="${g.id}">Leer</button>`) : ''}
     ${fila(th, 'Un tip para probar', `<b>${esc(t[1])}</b>`, `<button class="pill ${th ? 'on' : ''}" data-semck="tip">${th ? 'Probado' : 'Lo he probado'}</button>`)}
     ${hechas === 3 ? '<p class="small" style="margin:10px 0 0">Semana completa. Muy bien.</p>' : ''}</div>`;
+}
+
+// ---------- Todos los tips ----------
+function openTips() {
+  const cats = [...new Set(TIPS.map(t => t[0]))];
+  let cat = 'todos';
+  const v = sheet('', 'guia');
+  const paint = () => {
+    const l = cat === 'todos' ? TIPS : TIPS.filter(t => t[0] === cat);
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><h2>Tips</h2><p class="muted">${TIPS.length} consejos cortos. Toca un tema.</p>
+      <div class="pills scroll"><button class="pill ${cat === 'todos' ? 'on' : ''}" data-tc="todos">Todos</button>${cats.map(c => `<button class="pill ${cat === c ? 'on' : ''}" data-tc="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+      <ul class="gl" style="margin-top:14px">${l.map(t => `<li>${cat === 'todos' ? `<small class="muted">${esc(t[0])} · </small>` : ''}${esc(t[1])}</li>`).join('')}</ul>
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Listo</button></div>`;
+  };
+  paint();
+  v.addEventListener('click', e => { const b = e.target.closest('[data-tc]'); if (!b) return; cat = b.dataset.tc; paint(); v.querySelector('.sheet').scrollTop = 0; });
 }
 
 // ---------- Estoy fuera ahora ----------
@@ -986,6 +1007,8 @@ document.addEventListener('click', e => {
     if (a === 'salir') return openSalir();
     if (a === 'bajon') return openBajon();
     if (a === 'ahora') return openAhora();
+    if (a === 'tips') return openTips();
+    if (a === 'otrotip') { ui.tipOff = (ui.tipOff || 0) + 1; return render(); }
     if (a === 'bajonvisto') { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); return render(); }
     if (a === 'ensayo') return openEnsayo();
     if (a === 'mia') return openMia();
