@@ -115,6 +115,7 @@ function vHoy() {
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
     ${semanaHTML()}
     ${planHoyHTML()}
+    ${(load(K.perfil, []) || []).length ? '' : `<div class="card consejo"><span class="small muted">🎯 Hazlo tuyo</span><p>Hasta que elijas lo que va contigo, los consejos son generales. Con un minuto, se adaptan a ti.</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-act="parati">Elegir lo que va conmigo</button></div></div>`}
     ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
     ${(() => { const all = GUIA.flatMap(g => g.items), pend = all.filter(x => !leidas()[x.id]), pool = pend.length ? pend : all, d = new Date(), g = pool[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % pool.length]; return `<p class="sec-h">Situación del día</p><button class="lec" data-guia="${g.id}"><span class="ic">💬</span><span class="b"><b>${esc(g.titulo)}</b><small>${esc(g.pasa.split('. ')[0])}.</small></span><span class="go">›</span></button>`; })()}
     ${tipHoyHTML()}
@@ -360,6 +361,15 @@ const okOr = id => leidas()[id] ? '<span class="ok">✓</span>' : '<span class="
 const docBtn = d => `<button class="lec" data-doc="${d.id}"><span class="ic">${d.icono}</span><span class="b"><b>${esc(d.titulo)}</b><small>${esc(d.sub)}</small></span>${okOr(d.id)}</button>`;
 const lecBtn = l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l.icono}</span><span class="b"><b>${esc(l.titulo)}</b><small>${esc(l.sub)}</small></span>${okOr(l.id)}</button>`;
 const guiaBtn = s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${okOr(s.id)}</button>`;
+function adaptaHTML(tema) {
+  const sel = load(K.perfil, []) || [], t = ADAPTA[tema] || {};
+  if (!sel.length) return `<div class="quiet" style="margin:12px 0"><b>Hazlo tuyo.</b> Elige lo que va contigo y aquí te adapto el consejo. <button class="pill" data-parati style="margin-top:8px">Elegir lo que va conmigo</button></div>`;
+  const l = sel.filter(id => t[id] && PERFIL.find(p => p.id === id)).map(id => [PERFIL.find(p => p.id === id).n, t[id]]);
+  if (!l.length) return '';
+  return `<div class="pt adapt"><b>Para ti</b>${l.map(([n, tx]) => `<p><small class="muted">${esc(n)}</small><br>${esc(tx)}</p>`).join('')}</div>`;
+}
+const temaGuia = id => { const b = GUIA.find(g => g.items.some(x => x.id === id)); return temaAdapta(b ? b.bloque : ''); };
+const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo' }[d.grupo] || 'social');
 const favs = () => load(K.favs, []) || [];
 const favBtn = id => `<button class="fav ${favs().includes(id) ? 'on' : ''}" data-fav="${id}" aria-label="Guardar">${favs().includes(id) ? '★ Guardado' : '☆ Guardar'}</button>`;
 function itemBtn(id) {
@@ -405,6 +415,8 @@ function vAprender() {
     ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
     <p class="sec-h">Qué hacer en cada situación</p>
     ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
+    <p class="sec-h">Tu cuerpo y la intimidad</p>
+    ${DOCS.filter(d => d.grupo === 'cuerpo').map(docBtn).join('')}
     <p class="sec-h">Barcelona y tu edad</p>
     ${DOCS.filter(d => d.grupo === 'bcn').map(docBtn).join('')}
     <p class="sec-h">Conócete</p>
@@ -425,10 +437,11 @@ function openDoc(id) {
   const d = DOCS.find(x => x.id === id); if (!d) return;
   const v = sheet(`<div class="sh-top"><span class="small muted">${d.icono} ${esc(d.sub)}</span><span>${vozBtn()}${favBtn(d.id)}</span></div><h2>${esc(d.titulo)}</h2>
     ${d.secciones.map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? (c.length > 1 ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c[0])}</p>`) : `<p>${esc(c)}</p>`}`).join('')}
-    ${d.herramienta ? '<div id="yobox"></div>' : ''}
+    ${d.herramienta ? '<div id="yobox"></div>' : adaptaHTML(temaDoc(d))}
     <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><button class="btn" data-dleido>Leído</button></div>`, 'guia');
   if (d.herramienta) paintYo(v);
   v.addEventListener('click', e => {
+    if (e.target.closest('[data-parati]')) { v.remove(); return openParaTi(); }
     if (e.target.closest('[data-dleido]')) { const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); }
   });
 }
@@ -829,6 +842,7 @@ function openGuia(id) {
   const v = sheet(`<div class="sh-top"><span class="small muted">Guía de situaciones</span><span>${vozBtn()}${favBtn(s.id)}</span></div><h2>${esc(s.titulo)}</h2>
     <h3 class="gh">Lo que suele pasar</h3><p>${esc(s.pasa)}</p>
     <h3 class="gh">${esc(s.hacerTitulo || 'Qué puedes hacer')}</h3>${s.hacer.length > 1 ? `<ul class="gl">${s.hacer.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(s.hacer[0])}</p>`}
+    ${adaptaHTML(temaGuia(s.id))}
     ${s.ejemplos.length ? `<div class="gej">${s.ejemplos.map(t => `<div>${esc(t)}</div>`).join('')}</div>` : ''}${s.cierre ? `<p>${esc(s.cierre)}</p>` : ''}
     ${(s.extra || []).map(([h, c]) => `<h3 class="gh">${esc(h)}</h3>${Array.isArray(c) ? `<ul class="gl">${c.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(c)}</p>`}`).join('')}
     <h3 class="gh">Si sale regular</h3><p>${esc(s.sale)}</p>
@@ -836,6 +850,7 @@ function openGuia(id) {
     <div class="quiet" style="margin-top:14px"><b>Para practicar:</b> ${esc(s.practica.charAt(0).toLowerCase() + s.practica.slice(1))}.</div>
     <div class="acts"><button class="btn soft" data-g="reto" ${ya ? 'disabled style="opacity:.5"' : ''}>${ya ? 'Ya está en tus retos' : 'Añadirlo a mis retos'}</button><span class="sp"></span><button class="btn" data-g="leido">Leída</button></div>`, 'guia');
   v.addEventListener('click', e => {
+    if (e.target.closest('[data-parati]')) { v.remove(); return openParaTi(); }
     const b = e.target.closest('[data-g]'); if (!b || b.disabled) return;
     if (b.dataset.g === 'reto') { store(K.propios, propios().concat({ id: uid('p'), titulo: s.practica, descripcion: 'De la guía: ' + s.titulo })); b.disabled = true; b.style.opacity = '.5'; b.textContent = 'Ya está en tus retos'; return toast('Añadido a tus retos'); }
     const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render();
