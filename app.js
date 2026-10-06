@@ -104,6 +104,7 @@ function vHoy() {
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
     ${planHoyHTML()}
     ${consejoHoy() ? `<div class="card consejo"><span class="small muted">✨ Un consejo para ti</span><p>${esc(consejoHoy())}</p></div>` : ''}
+    ${(() => { const d = new Date(), t = TIPS[(d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() * 7) % TIPS.length]; return `<div class="card consejo"><span class="small muted">💡 Tip del día · ${esc(t[0])}</span><p>${esc(t[1])}</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-doc="d-tips">Ver todos los tips</button></div></div>`; })()}
     <div class="card"><h2>¿Cuánta ansiedad tienes ahora?</h2><p class="sub">Un toque basta. Tu ánimo del día lo marcas en Mi Espacio; aquí solo la ansiedad.</p>${ck}</div>
     ${r ? `<div class="card"><h2>Tu reto de ahora</h2><p class="sub">${pl ? 'Lo tienes preparado.' : 'Sin prisa. Cuando te veas con ganas.'}</p>
       <button class="reto ${pl ? 'plan' : ''} foco" data-reto="${r.id}" style="margin:0"><span class="chk">${retosHechos()[r.id] ? '✓' : ''}</span><span class="b"><b>${esc(r.titulo)}</b><small>${esc(r.descripcion || '')}</small>${pl && pl.antes != null ? `<span class="meta"><span class="tag warm">Crees que te dará ${pl.antes} de 10 de miedo</span></span>` : ''}</span></button>

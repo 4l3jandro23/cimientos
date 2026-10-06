@@ -1,0 +1,185 @@
+/* Contenido ampliado 3: muchas más situaciones, tips rápidos, planes de cita y aspecto. */
+'use strict';
+const S4 = (id, titulo, pasa, hacer, sale, practica, extra) => ({ id, titulo, pasa, hacer, ejemplos: [], cierre: '', extra: extra || [], sale, practica });
+
+GUIA.push(
+  { bloque:'Conocer gente nueva', items:[
+    S4('g-concierto', 'En un concierto', 'Estás rodeado de gente con tus mismos gustos, pero no sabes cómo hablar con nadie.', ['Antes de que empiece o entre grupos es el mejor momento.', 'Pregunta por el grupo: «¿Les has visto antes en directo?», «¿Qué canción esperas que toquen?».', 'Al acabar: «¿Qué te ha parecido?» es una pregunta muy natural.'], 'Aunque no hables con nadie, has ido a un sitio con gente. Suma.', 'Comentar algo del concierto con quien tenga al lado'),
+    S4('g-boda', 'En una boda o un cumpleaños de amigos', 'Hay mucha gente que no conoces, y una parte está sola o con amigos.', ['La pregunta perfecta: «¿Y tú de qué conoces a los novios?».', 'En el baile, únete al grupo: nadie baila bien en las bodas.', 'Si alguien te gusta, habla con ella en un momento tranquilo (en la barra, fuera) y, si hay buen rollo, pide su Instagram al final.'], 'Si solo estuviste con tus amigos, también es un buen plan.', 'Hablar con una persona que no conozca en una celebración'),
+    S4('g-presentan', 'Un amigo te presenta a alguien', 'Tu amigo te presenta a una chica y te quedas cortado.', ['Saluda por su nombre y pregunta algo que conecte: «¿De qué os conocéis?».', 'Tu amigo es tu puente: incluye a los tres en la conversación al principio.', 'Si hay buen rollo, puedes proponer algo en grupo para otro día.'], 'Si te quedaste cortado, se le olvida antes que a ti.', 'Pedir a un amigo que me presente a gente nueva'),
+    S4('g-baile', 'En una clase de baile', 'Salsa, bachata o swing: se cambia de pareja y te da vergüenza bailar mal.', ['Todo el mundo empieza bailando mal: es justo para lo que van.', 'Saluda a cada pareja por su nombre y sonríe. Si te equivocas, ríete.', 'Después de clase, quedarse a tomar algo con el grupo es lo habitual.'], 'Ir a la segunda clase ya es más fácil que la primera.', 'Probar una clase de baile'),
+    S4('g-viaje', 'En un viaje o una excursión en grupo', 'Pasas horas con gente nueva y hay tiempo de sobra para hablar.', ['Siéntate al lado de alguien distinto en cada trayecto.', 'Pregunta por sus viajes: casi a todo el mundo le gusta hablar de eso.', 'Al final del viaje, crear un grupo para pasar fotos es la excusa perfecta para seguir en contacto.'], 'Si no conectas con nadie, has visto un sitio nuevo.', 'Apuntarme a una excursión de grupo'),
+    S4('g-networking', 'En un evento de trabajo o una charla', 'Gente con su acreditación y un vaso en la mano. Todos parecen saber qué hacer menos tú.', ['Pregunta: «¿Qué te ha traído por aquí?» o «¿Qué te ha parecido la charla?».', 'Busca a alguien que esté solo: casi siempre agradece que le hablen.', 'Para irte de una conversación: «Encantado. Voy a saludar a alguien, ¡hablamos luego!».'], 'Con una conversación buena, el evento ya ha merecido la pena.', 'Hablar con una persona sola en un evento'),
+    S4('g-tienda', 'En una tienda o en el súper', 'Ves a alguien que te gusta en la cola del súper o en una tienda.', ['Normalmente, mejor no: la gente está a lo suyo y con prisa.', 'Si hay un momento natural (os reís de lo mismo, te pide algo), una frase amable y ya.', 'Si quien te gusta es quien te atiende, no: es su trabajo y no puede irse.'], 'No hacer nada aquí también es saber leer el momento.', 'Fijarme en cuándo un sitio invita a hablar y cuándo no')
+  ]},
+  { bloque:'Conversaciones difíciles', items:[
+    S4('g-distinta', 'No sabes de qué hablar con alguien muy distinto a ti', 'No compartís gustos ni ambiente y no encuentras temas.', ['Pregunta por lo suyo con curiosidad: «¿Y eso cómo es?». La gente distinta tiene cosas que enseñarte.', 'Busca lo que tenéis en común en lo básico: la ciudad, la comida, el finde.'], 'No hace falta conectar con todo el mundo.', 'Hacer tres preguntas sobre algo que no conozco'),
+    S4('g-callada', 'Ella es muy callada', 'Contesta poco y te parece que no le interesas o que lo haces mal.', ['Puede ser tímida, como tú. Haz preguntas abiertas y da tiempo a responder.', 'Cuenta algo tuyo para que se relaje.', 'Si tras varios intentos sigue cortante, puede que no le apetezca hablar ahora. Cierra con amabilidad.'], 'Dos tímidos juntos también pueden encajar muy bien, con tiempo.', 'Dejar dos segundos de silencio antes de llenar una pausa'),
+    S4('g-habla-mucho', 'Ella habla muchísimo', 'Apenas puedes decir nada y no sabes si está bien.', ['A mucha gente habladora le encanta que la escuchen: es una ventaja para ti.', 'Engancha con «¡A mí también!» o con una pregunta sobre lo que cuenta.', 'Si quieres contar algo tuyo, espera a una pausa y dilo con calma.'], 'Si te sentiste invisible, apúntalo: a lo mejor no encajáis en ritmo.', 'Meter una frase mía en una conversación con alguien que habla mucho'),
+    S4('g-triste', 'Te cuenta algo triste', 'Te cuenta algo duro (una pérdida, un problema) y no sabes qué decir.', ['No hace falta solucionar nada: escucha.', 'Frases que ayudan: «Lo siento mucho», «Debe de ser muy duro», «¿Cómo estás tú con eso?».', 'No cambies de tema rápido ni cuentes enseguida algo tuyo parecido.'], 'Si dijiste algo torpe, lo que recordará es que la escuchaste.', 'Decir «debe de ser duro» en vez de dar un consejo'),
+    S4('g-desacuerdo', 'No estás de acuerdo con algo que dice', 'Dice algo que no compartes y no sabes si callarte o decirlo.', ['Puedes no estar de acuerdo con respeto: «Yo lo veo un poco distinto, porque…».', 'Pregunta por qué piensa eso: suele ser más interesante que discutir.', 'Si es un tema muy serio para ti (valores), mejor saberlo pronto.'], 'Tener opinión propia atrae más que darle la razón en todo.', 'Decir una opinión distinta con calma'),
+    S4('g-broma', 'Te hace una broma y no sabes si va en serio', 'Te dice algo en broma y no sabes cómo tomarlo.', ['Si tiene tono amable, sígueselo con otra broma o ríete.', 'Si no estás seguro, pregunta con humor: «¿Eso ha sido un ataque?», sonriendo.', 'Si te ha molestado de verdad, puedes decirlo con calma.'], 'No entender una broma le pasa a todo el mundo. Una sonrisa lo arregla.', 'Seguirle una broma a alguien'),
+    S4('g-pata', 'Metes la pata', 'Dices algo que sale mal, ofende o suena raro.', ['Reconócelo rápido y con naturalidad: «Uf, eso ha sonado fatal. Lo que quería decir es…».', 'Si ha molestado, pide perdón sin dramatizar.', 'Luego sigue: no te quedes rumiándolo durante la conversación.'], 'Una metedura de pata bien llevada te hace más humano.', 'Reírme de un error mío pequeño'),
+    S4('g-nombre', 'Se te olvida su nombre', 'Te la vuelves a encontrar y no te acuerdas de cómo se llama.', ['Dilo con naturalidad: «Perdona, tengo una memoria fatal para los nombres. ¿Me lo recuerdas?».', 'Para la próxima: repite el nombre al conocerla y úsalo una vez en la conversación.'], 'A todo el mundo le pasa.', 'Repetir el nombre de alguien al conocerle'),
+    S4('g-personal', 'Te pregunta algo muy personal', 'Te pregunta algo que no te apetece contar (tu salud, tu familia, tu pasado).', ['No tienes por qué contarlo: «Eso ya te lo cuento otro día», con una sonrisa.', 'Cambia a otro tema con una pregunta.', 'Tú decides qué cuentas y cuándo.'], 'Poner límites con amabilidad es sano y se respeta.', 'Preparar una frase para no contar algo')
+  ]},
+  { bloque:'Más sobre citas', items:[
+    S4('g-tarde', 'Alguien llega tarde', 'Ella llega tarde, o llegas tarde tú.', ['Si llegas tarde, avisa en cuanto lo sepas y pide perdón al llegar, sin excusas largas.', 'Si llega tarde ella, recíbela con una sonrisa: «¡Nada, sin problema!».', 'Si no avisa y es mucho tiempo, puedes escribirle: «¿Todo bien?».'], 'Un retraso no estropea una cita si se lleva con humor.', 'Llegar cinco minutos antes'),
+    S4('g-lluvia', 'Hay que cambiar de plan', 'Llueve, el sitio está cerrado o lleno. Te agobias porque no era lo previsto.', ['Ten un plan B pensado cerca: un café, un bar tranquilo.', 'Tómalo con humor: «Bueno, plan de emergencia».', 'Pregúntale: «¿Te apetece algo en especial?».'], 'Los imprevistos a veces hacen las mejores anécdotas.', 'Pensar siempre un plan B para una cita'),
+    S4('g-segunda', 'La segunda y la tercera cita', 'La primera fue bien y no sabes qué hacer ahora.', ['Cambia de plan: algo distinto o un poco más largo (un paseo y cena, una actividad juntos).', 'Ya hay más confianza: cuenta más cosas de ti y pregunta por cosas más personales.', 'Fíjate en si ella también propone y busca verte.', 'Lo físico, a vuestro ritmo, y preguntando.'], 'Si la segunda no va tan bien, no pasa nada: a veces se ve claro ahí.', 'Proponer un plan distinto para una segunda cita'),
+    S4('g-paga-ella', 'Ella quiere pagarlo todo', 'Insiste en pagar ella y no sabes si aceptar.', ['Acepta con naturalidad: «¡Gracias! La próxima invito yo». Ya tienes excusa para otra cita.', 'No conviertas la cuenta en una discusión.'], 'Aceptar también es un detalle.', 'Aceptar una invitación sin sentirme mal'),
+    S4('g-irte', 'Tienes que irte o estás cansado', 'La cita se alarga y estás agotado, pero no quieres parecer maleducado.', ['Dilo con cariño: «Me lo estoy pasando genial, pero mañana madrugo. ¿Lo dejamos aquí y repetimos?».', 'Irte en un buen momento deja mejor recuerdo que quedarte agotado.'], 'Cuidar tu energía no es un desaire.', 'Decir que me voy sin dar mil explicaciones'),
+    S4('g-su-casa', 'Vas por primera vez a su casa', 'Te invita a su casa (a cenar, a ver una peli) y estás nervioso.', ['Lleva algo: una bebida, un postre.', 'Ir a su casa no obliga a nada. Lo que pase, poco a poco y preguntando.', 'Si estás nervioso, dilo. Si en algún momento no te sientes cómodo, puedes decir que prefieres ir más despacio.', 'Pregunta antes si vive con alguien, por si os encontráis a sus compañeros.'], 'Ir es un paso grande. Pase lo que pase, lo has hecho.', 'Pensar qué quiero y qué no antes de ir'),
+    S4('g-despues-beso', 'Después del primer beso', 'Ha habido beso y no sabes qué toca ahora.', ['Escríbele al día siguiente con naturalidad: «Me encantó lo de ayer. ¿Cuándo nos vemos?».', 'No hace falta hablar de «qué somos» todavía.', 'En la siguiente cita, ve con calma: no hace falta repetir el beso nada más verla; deja que surja.'], 'Si fue torpe, ríete: lo importante es que pasó.', 'Mandar un mensaje cariñoso al día siguiente'),
+    S4('g-fiesta-despues', 'Conociste a alguien de fiesta', 'Os disteis el Instagram de fiesta y al día siguiente no sabes si escribir.', ['Escribe al día siguiente algo ligero: «¡Hola! Soy ___, el de ayer en ___. Me gustó conocerte».', 'Si contesta con ganas, propón algo tranquilo, de día.', 'Ten en cuenta que de fiesta todo parece más intenso: en persona, con calma, se ve mejor.'], 'Si no contesta, la noche ya fue buena.', 'Escribir al día siguiente a alguien que conocí')
+  ]},
+  { bloque:'Si empieza algo', items:[
+    S4('g-exclusividad', '¿Qué somos?', 'Lleváis unas semanas viéndoos y no sabes si sois algo.', ['Si te importa saberlo, pregúntalo con calma: «Me gusta mucho estar contigo. ¿Cómo lo ves tú?».', 'No hace falta un discurso. Una pregunta sincera basta.', 'Escucha su respuesta sin presionar.'], 'Saberlo, sea lo que sea, te quita ansiedad.', 'Decir lo que siento con una frase sencilla'),
+    S4('g-celos', 'Sientes celos', 'Ella habla con otros chicos o te cuenta de un amigo y sientes celos.', ['Los celos son una emoción normal; lo importante es qué haces con ellos.', 'No revises su móvil ni le pidas explicaciones por todo.', 'Si algo te preocupa de verdad, háblalo con calma: «Me he sentido inseguro con esto».', 'Muchas veces los celos hablan más de tu inseguridad que de lo que pasa.'], 'Llévalo a terapia si se repite.', 'Escribir en el diario cuando sienta celos'),
+    S4('g-familia', 'Conocer a sus amigos o su familia', 'Te propone conocer a su gente y te da miedo.', ['Es buena señal.', 'Saluda por el nombre, pregunta, escucha. No hace falta brillar.', 'Pregúntale antes un poco cómo son.'], 'Con ser amable y respetuoso, ya está.', 'Preguntar el nombre de las personas antes de ir'),
+    S4('g-discusion', 'Vuestra primera discusión', 'Hay un roce o un malentendido y te asustas.', ['Las discusiones son normales y no significan que vaya mal.', 'Habla de lo que sientes, no de lo que ella hace mal: «Me sentí… cuando…».', 'Escucha su versión. A veces es solo un malentendido.', 'Si estás muy alterado, puedes pedir tiempo: «Déjame pensarlo y lo hablamos luego».'], 'Saber arreglar una discusión une más que no discutir nunca.', 'Usar «me sentí…» en una conversación difícil'),
+    S4('g-pierdo-interes', 'Notas que tú pierdes interés', 'Ya no te apetece tanto verla y te sientes mal.', ['Es normal: no todas las personas encajan.', 'Si lo tienes claro, díselo con cariño y pronto: «Me lo he pasado muy bien contigo, pero no siento que vaya a más».', 'Mejor eso que desaparecer o alargarlo.'], 'Ser claro es la forma más respetuosa.', 'Decir que no a algo que no quiero'),
+    S4('g-pierde-interes', 'Notas que ella pierde interés', 'Contesta menos, propone menos, está más fría.', ['Puedes preguntarlo con calma: «Te noto más distante. ¿Va todo bien?».', 'Si te dice que no siente lo mismo, acéptalo con amabilidad.', 'No intentes convencerla ni insistir.'], 'Duele, y se pasa. Tu valor no depende de eso.', 'Preguntar algo directamente en vez de imaginar'),
+    S4('g-molesta', 'Algo te molesta', 'Hace algo que te molesta y no te atreves a decírselo.', ['Dilo pronto y con calma, antes de que se haga grande: «Oye, una cosa que me gustaría comentarte…».', 'Habla de ti, no la acuses.', 'Pide lo que necesitas de forma concreta.'], 'Decir lo que te molesta con respeto es parte de una relación sana.', 'Decir algo que me molesta, pequeño, a alguien de confianza')
+  ]},
+  { bloque:'Tú y tu cabeza', items:[
+    S4('g-dia-malo', 'Tienes un plan y estás en un día malo', 'Hoy tienes plan y te sientes fatal, sin ganas de nada.', ['Pregúntate: ¿es cansancio de verdad o es miedo? Si es miedo, ve un rato.', 'Ponte un mínimo corto (media hora) y permiso para irte después.', 'Si de verdad no puedes, avisa con tiempo y propón otro día. No pasa nada.'], 'Cuidarte también es saber cuándo parar.', 'Ir a un plan aunque sea media hora'),
+    S4('g-amigos-pareja', 'Tus amigos tienen pareja y tú no', 'Te comparas y sientes que vas tarde.', ['Cada persona tiene su ritmo. Muchas parejas de tus amigos tampoco empezaron pronto.', 'Mira tu propio camino: lo que has avanzado tú este año.', 'No te alejes de tus amigos por eso: también pueden presentarte gente.'], 'Sentir envidia a veces es humano. No te hace mala persona.', 'Escribir tres cosas que he avanzado este año'),
+    S4('g-soledad', 'Te sientes solo', 'Ves parejas por la calle o en redes y sientes soledad.', ['Es una emoción normal y no dice nada malo de ti.', 'Haz algo que te conecte: escribir a un amigo, salir a caminar, una actividad.', 'Las redes enseñan lo mejor de cada uno, no la vida real.', 'Si la soledad pesa mucho, cuéntalo en terapia.'], 'Los días de soledad pasan.', 'Escribir a un amigo cuando me sienta solo'),
+    S4('g-rechazo-fuerte', 'Después de un rechazo que duele mucho', 'Te han dicho que no alguien que te gustaba de verdad y estás hundido.', ['Permítete estar mal unos días. No hace falta hacerse el fuerte.', 'Habla con alguien de confianza o llévalo a terapia.', 'Revisa los pensamientos que aparecen («nunca voy a gustar») con «Revisar un pensamiento».', 'Vuelve poco a poco a tus rutinas y a retos pequeños.'], 'Que duela tanto significa que te atreviste. Eso es valentía.', 'Hacer algo que me guste después de un mal día'),
+    S4('g-mayor', 'Sientes que eres demasiado mayor para empezar', 'Piensas que a tu edad ya deberías tener experiencia y que es tarde.', ['No lo es. Mucha gente empieza a los 30, a los 40 o más, y tiene relaciones muy bonitas.', 'Nadie te va a pedir un historial. Lo que importa es cómo eres ahora.', 'Empezar con más edad tiene ventajas: te conoces mejor y sabes lo que quieres.'], 'Ir tarde no es ir mal.', 'Leer «Sobre ti, con realismo y con cariño» en la lección de atracción'),
+    S4('g-familia-pregunta', 'Tu familia te pregunta «¿y la novia?»', 'En reuniones familiares te preguntan y te sientes mal.', ['Una respuesta corta y tranquila: «Cuando llegue, os lo cuento» con una sonrisa.', 'Cambia de tema con una pregunta.', 'Lo preguntan por cariño, aunque moleste.'], 'Tu ritmo es tuyo.', 'Preparar una respuesta corta'),
+    S4('g-va-bien', 'Todo va bien y te da miedo', 'Alguien parece interesada en ti y en vez de alegrarte te da miedo que salga mal.', ['Es muy común cuando has tenido baja autoestima: la cabeza busca el fallo.', 'Disfruta del momento sin adelantarte.', 'Revisa el pensamiento «seguro que se cansa de mí»: es adivinar el futuro.'], 'Mereces que te pasen cosas buenas.', 'Apuntar en el diario algo bueno que me haya pasado')
+  ]}
+);
+
+/* ---------- Tips rápidos (uno al día en Hoy) ---------- */
+const TIPS = [
+  ['Aspecto', 'Ropa que te quede bien de talla vale más que ropa cara.'],
+  ['Aspecto', 'Los zapatos limpios se notan más de lo que crees.'],
+  ['Aspecto', 'Encuentra un peluquero o barbero de confianza y ve cada 4-6 semanas.'],
+  ['Aspecto', 'Un perfume suave, poco. Mejor que lo note al acercarse que al entrar.'],
+  ['Aspecto', 'Uñas cortas y limpias, labios hidratados, aliento fresco: detalles que se notan de cerca.'],
+  ['Aspecto', 'Colores lisos y básicos (azul, blanco, gris, verde oscuro) quedan bien a casi todo el mundo.'],
+  ['Aspecto', 'Ponte para una cita algo con lo que estés cómodo: si estás incómodo, se nota más que la ropa.'],
+  ['Aspecto', 'Duerme bien la noche antes de un plan: se nota en la cara y en el ánimo.'],
+  ['Cuerpo', 'Antes de entrar en un sitio, hombros abajo y suelta el aire.'],
+  ['Cuerpo', 'Al hablar con alguien, gira el cuerpo entero hacia esa persona, no solo la cabeza.'],
+  ['Cuerpo', 'Las manos fuera de los bolsillos (al menos una) transmiten más tranquilidad.'],
+  ['Cuerpo', 'Camina un poco más despacio de lo que te sale con nervios.'],
+  ['Cuerpo', 'Asiente de vez en cuando mientras escuchas: le dice a la otra persona que sigues ahí.'],
+  ['Cuerpo', 'Sonríe al saludar y al despedirte: son los momentos que más se recuerdan.'],
+  ['Cuerpo', 'Si no sabes qué hacer con las manos, sostener una bebida ayuda.'],
+  ['Mirada', 'Mira a los ojos al saludar y al decir algo importante.'],
+  ['Mirada', 'Al escuchar, mira más; al pensar, puedes mirar a otro lado.'],
+  ['Mirada', 'Si mirar a los ojos te cuesta, mira entre las cejas.'],
+  ['Mirada', 'Si cruzas la mirada con alguien que te gusta, sonríe antes de apartarla.'],
+  ['Voz', 'Habla un poco más despacio y más grave de lo que te sale con nervios.'],
+  ['Voz', 'Termina las frases hacia abajo, no hacia arriba como si preguntaras: suena más seguro.'],
+  ['Voz', 'Haz pausas. El silencio corto da peso a lo que dices.'],
+  ['Voz', 'En sitios con ruido, acércate en vez de gritar.'],
+  ['Conversación', 'Escucha para entender, no para responder.'],
+  ['Conversación', 'Pregunta por lo que acaba de decir, no por lo que tenías preparado.'],
+  ['Conversación', 'Las preguntas de «qué» y «cómo» abren; las de «sí o no» cierran.'],
+  ['Conversación', 'Cuenta algo tuyo después de que ella cuente algo suyo: es un ping-pong.'],
+  ['Conversación', 'Usa su nombre una o dos veces. No más.'],
+  ['Conversación', 'Recuerda un detalle y pregúntalo otro día. Deja huella.'],
+  ['Conversación', 'Las anécdotas, cortas: principio, lo que salió raro y el final.'],
+  ['Conversación', 'Reírte de ti mismo (un poco) acerca.'],
+  ['Conversación', 'Evita al principio: exparejas, política, dinero y quejas.'],
+  ['Conversación', 'Si no entiendes algo, pregunta. Fingir que lo entiendes se nota.'],
+  ['Conversación', 'Un cumplido concreto (sobre lo que hace o dice) vale más que uno general.'],
+  ['Conversación', 'Las bromas que vuelven (algo gracioso de antes) crean complicidad.'],
+  ['Conversación', 'Afirma en vez de preguntar a veces: «Tienes cara de que te gusta la montaña».'],
+  ['Conversación', 'Responde a «¿qué tal?» con algo concreto, no solo «bien»: da pie a seguir.'],
+  ['Conversación', 'Si alguien te cuenta un logro, alégrate de verdad y pregunta cómo lo consiguió.'],
+  ['Conversación', 'No hace falta tener respuesta para todo: «No lo sé, ¿tú qué piensas?» está bien.'],
+  ['Conversación', 'Despídete en un buen momento, no cuando la conversación ya se ha apagado.'],
+  ['Ligar', 'Mostrar interés con claridad atrae más que hacerse el interesante.'],
+  ['Ligar', 'Un plan concreto («¿el jueves a las 19?») consigue más síes que «a ver si un día».'],
+  ['Ligar', 'Pedir el contacto con un motivo («te paso la canción») es más fácil para los dos.'],
+  ['Ligar', 'Si duda, déjale una salida fácil: «Si no te apetece, no pasa nada».'],
+  ['Ligar', 'Un «no» bien encajado deja mejor imagen que un «sí» forzado.'],
+  ['Ligar', 'Las actividades que se repiten son el mejor sitio para conocer a alguien.'],
+  ['Ligar', 'Dos veces sin respuesta clara: déjalo estar.'],
+  ['Ligar', 'No compitas con otros chicos: ella elige, tú sé tú.'],
+  ['Ligar', 'Que te vea feliz con tu vida atrae más que que te vea necesitándola.'],
+  ['Ligar', 'Para algo físico, solo vale un sí claro. Preguntar es respeto.'],
+  ['Ligar', 'No hace falta que pase nada en la primera cita.'],
+  ['Ligar', 'Si te gusta, díselo con palabras: «Me gustas». Es valiente y claro.'],
+  ['Citas', 'Primera cita: corta, de día y en un sitio donde se pueda hablar.'],
+  ['Citas', 'Ten siempre un plan B cerca por si el sitio está lleno o llueve.'],
+  ['Citas', 'Llega cinco minutos antes: te da tiempo a respirar.'],
+  ['Citas', 'Guarda el móvil en el bolsillo durante toda la cita.'],
+  ['Citas', 'Lleva pensadas tres preguntas por si te quedas en blanco.'],
+  ['Citas', 'Cuenta que estás nervioso si lo estás: suele relajar a los dos.'],
+  ['Citas', 'Termina diciendo lo que sientes: «Me lo he pasado muy bien».'],
+  ['Citas', 'Escribe ese día o al siguiente. No hace falta esperar tres días.'],
+  ['Citas', 'Para la segunda cita, cambia de plan: algo distinto o más largo.'],
+  ['Citas', 'Si no quieres repetir, dilo con amabilidad. No desaparezcas.'],
+  ['Mensajes', 'Contesta cuando puedas y te apetezca. Sin juegos.'],
+  ['Mensajes', 'Más o menos al mismo ritmo y longitud que ella.'],
+  ['Mensajes', 'Un mensaje sin respuesta basta. No mandes varios seguidos.'],
+  ['Mensajes', 'Comparte cosas: una canción, una foto, algo que te recordó a ella.'],
+  ['Mensajes', 'Los mensajes sirven para quedar, no para sustituir verse.'],
+  ['Mensajes', 'Los temas serios, en persona.'],
+  ['Mensajes', 'Los audios cortos (menos de un minuto) son más cercanos que el texto.'],
+  ['Apps', 'Primera foto: tú solo, sonriendo, con buena luz y la cara visible.'],
+  ['Apps', 'Incluye una foto haciendo algo que te gusta: da tema de conversación.'],
+  ['Apps', 'Nada de fotos en grupo como primera ni de gafas de sol en todas.'],
+  ['Apps', 'Biografía corta y con un gancho: algo concreto que te guste o una pregunta.'],
+  ['Apps', 'Empieza la conversación con algo de su perfil, no con «hola, ¿qué tal?».'],
+  ['Apps', 'Pocos matches es lo normal. No es una nota sobre ti.'],
+  ['Apps', 'Tras unos días de buena conversación, propón quedar.'],
+  ['Apps', 'Pide a una amiga que te ayude a elegir las fotos.'],
+  ['Cabeza', 'Los nervios y la emoción se sienten igual en el cuerpo: llámalos emoción.'],
+  ['Cabeza', 'No esperes a sentirte seguro: actúa y la seguridad llega después.'],
+  ['Cabeza', 'Objetivos que dependan de ti: «hacer tres preguntas», no «que le guste».'],
+  ['Cabeza', 'Un pensamiento no es un hecho.'],
+  ['Cabeza', 'Los demás se fijan en ti mucho menos de lo que crees.'],
+  ['Cabeza', 'Cada «no» es información, no una sentencia.'],
+  ['Cabeza', 'Compárate solo con quien eras hace unos meses.'],
+  ['Cabeza', 'Cada noche, tres cosas que hiciste bien.'],
+  ['Cabeza', 'Si te pasas el día dándole vueltas, escríbelo en el diario y ciérralo.'],
+  ['Cabeza', 'Habla contigo como hablarías a un amigo.'],
+  ['Cabeza', 'Antes de un plan: ¿qué es lo peor, lo mejor y lo más probable?'],
+  ['Cabeza', 'Prueba algo tres veces antes de decidir que no es para ti.'],
+  ['Cabeza', 'Descansar después de un plan social no es debilidad.'],
+  ['Cabeza', 'Lo que has avanzado no se borra por un mal día.'],
+  ['Vida', 'Ten aficiones propias: te dan temas, sitios y te quitan presión.'],
+  ['Vida', 'Apúntate a algo que se repita cada semana.'],
+  ['Vida', 'Cuida a tus amigos: también son la mejor vía para conocer gente.'],
+  ['Vida', 'El ejercicio baja la ansiedad y sube el ánimo.'],
+  ['Vida', 'Di que sí a más planes de los que te apetecen de entrada.'],
+  ['Vida', 'Di a tus amigos que te apetece conocer gente nueva.'],
+  ['Vida', 'Aprende a cocinar un par de platos que te salgan muy bien.'],
+  ['Vida', 'Ten un plan de domingo que te guste: te hace más interesante y más feliz.'],
+  ['Vida', 'Haz cosas solo de vez en cuando (un museo, un café): te acostumbra a estar a gusto contigo y en sitios con gente.'],
+  ['Ligar', 'Si alguien te da su contacto, escríbele en uno o dos días, no a las dos semanas.'],
+  ['Conversación', 'Cuando alguien te cuente un plan, pregúntale después cómo le fue.']
+];
+
+/* ---------- Documentos nuevos ---------- */
+DOCS.push(
+  { id:'d-tips', grupo:'ligar', icono:'💡', titulo:'Tips rápidos', sub:'Más de cien consejos cortos, por temas', secciones: [...new Set(TIPS.map(t => t[0]))].map(c => [c, TIPS.filter(t => t[0] === c).map(t => t[1])]) },
+  { id:'d-planes-cita', grupo:'bcn', icono:'📍', titulo:'Planes para una cita en Barcelona', sub:'Ideas según el momento y lo que os guste', secciones:[
+    ['Primera cita (corta y tranquila)', ['Un café en una plaza de Gràcia (la del Sol, la de la Virreina).', 'Vermut en Sant Antoni o en Poble-sec.', 'Un paseo por la Ciutadella con algo para tomar.', 'Unas cañas en una terraza del Poblenou.', 'Un helado y paseo por el Born.']],
+    ['Al atardecer', ['Subir al Turó de la Rovira (Búnkers del Carmel). Lleva algo de beber y ve con tiempo.', 'El mirador de Montjuïc o los jardines de Laribal.', 'Paseo por la playa de la Barceloneta al Poblenou.', 'El Parc del Guinardó o los alrededores del Park Güell (la zona gratuita).']],
+    ['Con algo que hacer (quita presión)', ['Una exposición: CCCB, MACBA, CaixaForum, Fundació Miró.', 'Un mercadillo o una feria de fin de semana.', 'Cine en versión original y algo para comentarla después.', 'Un bar de juegos de mesa.', 'Bolera, minigolf o ping-pong.', 'Un concierto pequeño en una sala.', 'Una clase de algo juntos (cerámica, cocina) para una segunda o tercera cita.']],
+    ['Si hace mal tiempo', ['Una librería-café.', 'Un museo.', 'Un bar tranquilo con mesas grandes.', 'Un mercado cubierto (la Boqueria, Santa Caterina, Sant Antoni) y algo de picar.']],
+    ['Más adelante', ['Excursión de un día: Sitges, Montserrat, la costa del Garraf.', 'Cocinar juntos.', 'Un picnic en Montjuïc.', 'Ir a ver un partido o un concierto grande.']],
+    ['Consejos', ['Elige algo que te guste a ti también: hablarás con más ganas.', 'Mejor sitios donde se pueda hablar que discotecas o cines solos para una primera cita.', 'Ten un plan B cerca.']]
+  ]},
+  { id:'d-aspecto', grupo:'carisma', icono:'👕', titulo:'Aspecto y estilo', sub:'Lo básico para ir a gusto y causar buena impresión', secciones:[
+    ['Lo que más importa', ['Ir limpio y oliendo bien, con ropa de tu talla y en buen estado. Con eso ya estás por encima de la media.', 'No hace falta ir a la moda: hace falta ir a gusto y que se vea que te cuidas.']],
+    ['Ropa', ['Busca tu talla: ni ancha ni apretada. Si dudas, pregunta en la tienda.', 'Básicos que funcionan: vaqueros oscuros, camisetas lisas, camisas sencillas, un jersey de punto, una chaqueta (cazadora, sobrecamisa).', 'Calzado limpio: unas zapatillas blancas o de piel sencillas van con casi todo.', 'Ten un «uniforme de cita»: un conjunto con el que te veas bien y estés cómodo.']],
+    ['Cuidado personal', ['Pelo: un corte que te favorezca y mantenerlo. Pide consejo al peluquero.', 'Barba: o bien recortada, o bien afeitado. Lo descuidado es lo que resta.', 'Piel: lavarte la cara e hidratarte. Protector solar en verano.', 'Perfume: poco y suave.', 'Aliento, uñas y labios: detalles que se notan de cerca.']],
+    ['Para las fotos (apps)', ['Luz natural, de día, mirando a la cámara.', 'Sonríe en alguna: transmite cercanía.', 'Pide a un amigo que te haga fotos en un sitio bonito, sin prisas.', 'Una de cuerpo entero, una haciendo algo que te gusta y una de cara clara.']],
+    ['Postura', ['Espalda recta sin rigidez y hombros sueltos.', 'Mira al frente al caminar, no al suelo.', 'El ejercicio ayuda con la postura y con la confianza.']]
+  ]}
+);
+
+PERFIL.push(
+  { id:'crack', n:'Quiero ganar soltura y seguridad con las chicas', consejos:[
+    'Practica todos los días algo pequeño con cualquier persona: la soltura se hace con repetición, no con un gran momento.', 'Lee un tip cada día en Hoy y pruébalo esa misma semana.', 'Escoge una situación de la guía cada semana y practícala con su reto.', 'Ve a sitios donde se repite el trato: ahí la confianza crece sola.', 'Mide antes y después: es la prueba de que estás mejorando.' ] }
+);
