@@ -340,3 +340,17 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .bj-borr { background: var(--bg); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
 .bj-borr small { color: var(--muted); }
 .bj-borr p { margin: 6px 0 0; font-family: var(--serif); font-size: 17px; }
+
+/* estoy fuera ahora */
+.sos.ahora-b { background: #E0EEF5; }
+.sos.ahora-b .ic { background: #3C7FA8; }
+@media (prefers-color-scheme: dark) { .sos.ahora-b { background: #1A2C36; } }
+.sos-full.ahora { background: linear-gradient(180deg, #17384A 0%, #0D1C25 100%); }
+.sos-full.ahora .sos-body { justify-content: flex-start; padding-top: 10px; }
+.sos-full.ahora .bj-h { font-size: 28px; }
+.sos-full.ahora .bj-bt button { font-size: 19px; padding: 16px 18px; }
+.ah-una { width: 100%; text-align: left; background: #EAF3EF; color: #17384A; border-radius: 20px; padding: 16px 18px; font-size: 21px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+.ah-una small, .ah-dilo small { display: block; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; opacity: .7; margin-bottom: 4px; }
+.ah-dilo { width: 100%; text-align: left; margin-top: 12px; background: rgba(255, 255, 255, .12); border-radius: 18px; padding: 14px 18px; color: #fff; }
+.ah-dilo b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 500; margin-top: 4px; }
+.ah-sitio { font-size: 16px !important; color: #B9D3E0 !important; text-align: left; width: 100%; margin: 12px 0 0 !important; }

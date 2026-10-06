@@ -108,6 +108,7 @@ function vHoy() {
   }
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
     ${bajonAyerHTML()}
+    <button class="sos ahora-b" data-act="ahora"><span class="ic">📍</span><span><b>Estoy fuera ahora</b><small>En un bar, de fiesta, donde sea: qué hacer en este momento</small></span><span class="go">›</span></button>
     <button class="sos bajon-b" data-act="bajon"><span class="ic">🌧️</span><span><b>He bebido y me ha dado el bajón</b><small>Letra grande y pocos pasos, para esa noche</small></span><span class="go">›</span></button>
     <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
@@ -539,6 +540,49 @@ function semanaHTML() {
     ${hechas === 3 ? '<p class="small" style="margin:10px 0 0">Semana completa. Muy bien.</p>' : ''}</div>`;
 }
 
+// ---------- Estoy fuera ahora ----------
+function openAhora() {
+  const o = document.createElement('div'); o.className = 'sos-full ahora'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Estoy fuera ahora');
+  document.body.appendChild(o); document.body.style.overflow = 'hidden';
+  let sitio = null, cosa = null;
+  const close = () => { clearTimeout(sosTimer); o.remove(); document.body.style.overflow = ''; };
+  const paint = () => {
+    clearTimeout(sosTimer);
+    let body, atras = sitio ? (cosa ? 'cosa' : 'sitio') : 'cerrar';
+    if (!sitio) body = `<h2 class="bj-h">¿Dónde estás?</h2><div class="bj-bt">${AHORA_SITIOS.map(([k, i, n]) => `<button data-ah-s="${k}">${i} ${esc(n)}</button>`).join('')}</div>`;
+    else if (!cosa) body = `<h2 class="bj-h">¿Qué te pasa ahora?</h2><div class="bj-bt">${AHORA_COSAS.map(c => `<button data-ah-c="${c.id}">${c.i} ${esc(c.n)}</button>`).join('')}<button data-ah-c="bajon" class="rojo">🌧️ Me ha dado el bajón</button></div>`;
+    else if (cosa === 'respira') body = `<div class="breath"><b>Prepárate</b></div><p class="bj-p">Tres respiraciones y vuelves.</p>`;
+    else {
+      const c = AHORA_COSAS.find(x => x.id === cosa), st = AHORA_SITIOS.find(x => x[0] === sitio);
+      body = `<h2 class="bj-h">${c.i} ${esc(c.n)}</h2>
+        <div class="ah-una"><small>Ahora, una sola cosa</small>${esc(c.una)}</div>
+        <div class="bj-list">${c.haz.map(t => `<div>${esc(t)}</div>`).join('')}</div>
+        ${c.dilo.length ? `<div class="ah-dilo"><small>Dilo así</small>${c.dilo.map(t => `<b>${esc(t)}</b>`).join('')}</div>` : ''}
+        <p class="ah-sitio">${st[1]} ${esc(st[3])}</p>
+        <div class="bj-bt"><button data-ah-x="respira">🫁 Respirar un momento</button><button data-ah-x="otra">Me pasa otra cosa</button><button data-ah-x="fin">Estoy mejor, cerrar</button></div>`;
+    }
+    o.innerHTML = `<button class="x" data-ah-x="${atras}">${atras === 'cerrar' ? 'Cerrar' : '← Atrás'}</button><div class="sos-body">${body}</div>`;
+    o.scrollTop = 0;
+    if (cosa === 'respira') {
+      let k = 0, r = 0; const ph = [['Coge aire', 4000, 1], ['Aguanta', 2000, 1], ['Suéltalo despacio', 6000, .55]];
+      const step = () => { const el = o.querySelector('.breath'); if (!el) return; const [t, d, sc] = ph[k]; el.style.setProperty('--d', d + 'ms'); el.style.setProperty('--s', sc); el.querySelector('b').textContent = t; sosTimer = setTimeout(() => { k = (k + 1) % 3; if (!k && ++r >= 3) { cosa = prev; return paint(); } step(); }, d); };
+      setTimeout(step, 300);
+    }
+  };
+  let prev = null;
+  paint();
+  o.addEventListener('click', e => {
+    const s2 = e.target.closest('[data-ah-s]'); if (s2) { sitio = s2.dataset.ahS; return paint(); }
+    const c = e.target.closest('[data-ah-c]'); if (c) { if (c.dataset.ahC === 'bajon') { close(); return openBajon(); } cosa = c.dataset.ahC; return paint(); }
+    const x = e.target.closest('[data-ah-x]'); if (!x) return;
+    const a = x.dataset.ahX;
+    if (a === 'cerrar' || a === 'fin') { close(); if (a === 'fin') toast('Bien hecho. Mañana apunta cómo fue.'); return; }
+    if (a === 'sitio') { sitio = null; return paint(); }
+    if (a === 'cosa' || a === 'otra') { cosa = null; return paint(); }
+    if (a === 'respira') { prev = cosa; cosa = 'respira'; return paint(); }
+  });
+}
+
 // ---------- He bebido y me ha dado el bajón ----------
 // Pensado para ir pasado: letra grande, frases cortas, botones gordos y nada obligatorio que escribir.
 function openBajon() {
@@ -941,6 +985,7 @@ document.addEventListener('click', e => {
     if (a === 'quiz' || a === 'senales' || a === 'frases') return openQuiz(a);
     if (a === 'salir') return openSalir();
     if (a === 'bajon') return openBajon();
+    if (a === 'ahora') return openAhora();
     if (a === 'bajonvisto') { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); return render(); }
     if (a === 'ensayo') return openEnsayo();
     if (a === 'mia') return openMia();

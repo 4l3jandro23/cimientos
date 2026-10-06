@@ -14,6 +14,16 @@ GUIA.push({ bloque:'Comparaciones y noches que se repiten', items:[
     ['Por qué no funciona compararte', ['Ves sus éxitos desde fuera y tus dudas desde dentro: la comparación nunca es justa.', 'Lo que a él le sale por impulso a ti te sale por práctica. Es más lento, pero luego es más tuyo.', 'Muchos que ligan fácil de fiesta no saben mantener una conversación o una relación. Cada uno tiene su terreno.']],
     ['Si la fiesta no es tu sitio', ['Las discotecas premian el impulso y el ruido. Tú conectas mejor hablando: conciertos pequeños, bares tranquilos, actividades, intercambios, planes.', 'Puedes seguir saliendo de fiesta por pasarlo bien con tus amigos, sin que sea «la prueba» de si ligas o no.']]
   ]),
+  S7('g-amigo-con-chica', 'Tu amigo se pone con una chica y te quedas solo', 'Salís juntos, él empieza a hablar con una chica y de repente te quedas sin plan, solo y mirando.', [
+    'Es una buena noticia para él, no una mala para ti. Su noche no dice nada de la tuya.',
+    'Dale espacio: no te quedes al lado mirando. Si te la presenta, saluda, un par de frases y luego os dejas.',
+    'Escríbele para coordinaros: «Todo bien, estoy en la barra. Avísame cuando quieras».',
+    'Haz algo tuyo: ve a la barra, habla con alguien, únete a otro grupo de conocidos o habla con sus amigas si están abiertas a hablar.',
+    'Si te apetece irte, avísale y vete tranquilo.',
+    'Si estás allí mismo, abre «Estoy fuera ahora» › «Mi amigo está con una chica».'
+  ], 'Si te quedaste un rato solo y te sentiste fatal, es normal. La próxima vez, ten pensado de antemano qué harás si pasa.', 'Pensar antes de salir qué haré si mi amigo se pone con alguien', [
+    ['Para pensarlo antes de salir', ['Hablad antes: «Si uno se queda con alguien, el otro hace su vida y nos escribimos». Quita toda la tensión.', 'Ten tu propio plan B: otro amigo a quien escribir, un sitio donde ir, o la hora a la que te irás.']]
+  ]),
   S7('g-noche-igual', 'Otra noche en la que no ha pasado nada', 'Vuelves a casa sintiendo que has perdido otra oportunidad y que siempre te pasa lo mismo.', [
     'Para un momento y mira qué sí hiciste: ¿saliste?, ¿hablaste con alguien?, ¿te quedaste aunque te costara? Apúntalo en el diario.',
     'No hagas balance de madrugada: el cansancio y el alcohol hacen que todo parezca peor.',
