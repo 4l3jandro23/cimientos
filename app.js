@@ -11,6 +11,7 @@ const K = {
   salidas: 'cimientosSalidas',
   perfil: 'cimientosPerfil',
   yo: 'cimientosYo',
+  carta: 'cimientosCarta',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -358,10 +359,12 @@ function vAprender() {
     <div id="aqres">${busq}</div>
     <div id="aqall" ${busq ? 'hidden' : ''}>
     <button class="parati" data-act="parati"><span class="ic">✨</span><span class="b"><b>Para ti</b><small>${perfil.length ? `Consejos según ${perfil.length === 1 ? 'lo que has elegido' : 'las ' + perfil.length + ' cosas que has elegido'}` : 'Elige lo que va contigo y te doy consejos a tu medida'}</small></span><span class="go">›</span></button>
+    <p class="sec-h">Carisma y confianza</p>
+    ${DOCS.filter(d => d.grupo === 'carisma').map(docBtn).join('')}
     <p class="sec-h">Ligar, de principio a fin</p>
     ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
     <p class="sec-h">Qué hacer en cada situación</p>
-    ${GUIA.map((g, i) => `<p class="small muted" style="margin:${i ? 14 : 0}px 4px 6px">${i + 1}. ${esc(g.bloque)}</p>${g.items.map(guiaBtn).join('')}`).join('')}
+    ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
     <p class="sec-h">Barcelona y tu edad</p>
     ${DOCS.filter(d => d.grupo === 'bcn').map(docBtn).join('')}
     <p class="sec-h">Conócete</p>
@@ -372,6 +375,7 @@ function vAprender() {
     <div class="card" style="padding:4px 16px">
       <button class="lrow" data-act="sos"><span class="ic">🌊</span><span class="b"><b>Calma ahora</b><small>Respirar, aterrizar y recordar</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="plan"><span class="ic">🗓️</span><span class="b"><b>Tengo un plan</b><small>Fiesta, quedada, una cita… cómo ir preparado</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="carta"><span class="ic">💌</span><span class="b"><b>Carta para ti</b><small>Lo que ya has conseguido, para leerlo cuando dudes</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="pensar"><span class="ic">🧠</span><span class="b"><b>Revisar un pensamiento</b><small>Mirarlo con un poco de distancia</small></span><span class="go">›</span></button>
       <button class="lrow" data-act="trampas"><span class="ic">🪤</span><span class="b"><b>Trampas del pensamiento</b><small>Las más típicas, con ejemplos</small></span><span class="go">›</span></button>
     </div></div>`;
@@ -434,6 +438,12 @@ function openParaTi() {
     store(K.perfil, sel.includes(id) ? sel.filter(z => z !== id) : sel.concat(id));
     const y = v.querySelector('.sheet').scrollTop; paint(); v.querySelector('.sheet').scrollTop = y; render();
   });
+}
+function openCarta() {
+  const v = sheet(`<h2>Carta para ti</h2><p class="muted">Escribe lo que ya has conseguido, lo que has superado y lo que te dirías en un mal día. Saldrá en «Un momento difícil» › Recordar.</p>
+    <textarea id="cartat" rows="10" placeholder="Este año he conseguido…&#10;Me acuerdo de cuando…&#10;Si te sientes mal, recuerda que…">${esc(load(K.carta, '') || '')}</textarea>
+    <div class="acts"><span class="sp"></span><button class="btn" data-cartaok>Guardar</button></div>`);
+  v.addEventListener('click', e => { if (e.target.closest('[data-cartaok]')) { store(K.carta, v.querySelector('#cartat').value.trim()); v.remove(); toast('Guardada. La tienes en «Un momento difícil».'); } });
 }
 // Un consejo al día, de lo que has elegido en «Para ti».
 function consejoHoy() {
@@ -509,7 +519,7 @@ function openSOS() {
     let body;
     if (modo === 'respira') body = `<div class="breath"><b>Prepárate</b></div><p id="ronda">Respiración 1 de 6</p><p>Suelta el aire más largo de lo que lo coges. Con eso el cuerpo empieza a frenar.</p>`;
     else if (modo === 'aterriza') { const [n, t, d] = ATERRIZA[paso]; body = `<div class="ground"><div class="num">${n}</div><h3>${t}</h3></div><p>${d}</p><div class="row-btns">${paso < ATERRIZA.length - 1 ? '<button class="btn" data-s="sig">Siguiente</button>' : '<button class="btn" data-s="otra">Otra vez</button>'}</div>`; }
-    else body = `<div class="recuerda">${RECUERDA.map(t => `<div>${esc(t)}</div>`).join('')}</div>`;
+    else { const ct = load(K.carta, ''); body = `<div class="recuerda">${ct ? `<div class="carta"><b>Tu carta</b><br>${esc(ct).replace(/\n/g, '<br>')}</div>` : ''}${RECUERDA.map(t => `<div>${esc(t)}</div>`).join('')}</div>`; }
     o.innerHTML = `<button class="x" data-s="cerrar">Cerrar</button>
       <div class="seg">${[['respira', 'Respirar'], ['aterriza', 'Aterrizar'], ['recuerda', 'Recordar']].map(([k, n]) => `<button class="${modo === k ? 'on' : ''}" data-modo="${k}">${n}</button>`).join('')}</div>
       <div class="sos-body">${body}</div>
@@ -628,6 +638,7 @@ document.addEventListener('click', e => {
     if (a === 'sos') return openSOS();
     if (a === 'plan') return openPlan();
     if (a === 'parati') return openParaTi();
+    if (a === 'carta') return openCarta();
     if (a === 'syncme') return syncLink(CS.fromMiEspacio());
     if (a === 'syncscan') return syncScan();
     if (a === 'syncnow') { CS.sync(); const el = $('syncst'); if (el) el.textContent = 'Sincronizando…'; return; }

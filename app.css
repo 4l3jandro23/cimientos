@@ -269,3 +269,11 @@ label.f > small { display: block; color: var(--muted); font-size: 13px; margin: 
 .qr { width: 200px; margin: 0 auto; background: #fff; padding: 12px; border-radius: 12px; }
 .qr svg { width: 100%; height: auto; display: block; }
 .scan video { width: 100%; max-height: 50vh; border-radius: 16px; background: #000; object-fit: cover; }
+
+/* bloques plegables y carta */
+details.blq { margin-bottom: 8px; }
+details.blq > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); font-weight: 650; cursor: pointer; }
+details.blq > summary::-webkit-details-marker { display: none; }
+details.blq > summary small { color: var(--muted); font-weight: 600; white-space: nowrap; }
+details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
+.recuerda .carta { background: rgba(111, 184, 163, .18); }
