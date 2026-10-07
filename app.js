@@ -437,7 +437,8 @@ function vAprender() {
     ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
     <p class="sec-h">Nivel avanzado: lo que dicen los libros de expertos</p>
     <p class="small muted" style="margin:-4px 0 8px">Ideas de libros de referencia, en sencillo y aplicadas a ti.</p>
-    ${DOCS.filter(d => d.grupo === 'avanzado').map(docBtn).join('')}
+    ${(() => { const av = DOCS.filter(d => d.grupo === 'avanzado'), usados = new Set(AVANZADO_GRUPOS.flatMap(g => g[1])), resto = av.filter(d => !usados.has(d.id));
+      return AVANZADO_GRUPOS.concat(resto.length ? [['Más', resto.map(d => d.id)]] : []).map(([n, ids]) => { const l = ids.map(id => av.find(d => d.id === id)).filter(Boolean); return l.length ? `<details class="blq"><summary><span>${esc(n)}</span><small>${l.filter(d => leidas()[d.id]).length} de ${l.length}</small></summary>${l.map(docBtn).join('')}</details>` : ''; }).join(''); })()}
     <p class="sec-h">Lo que casi nadie sabe (con estudios)</p>
     <p class="small muted" style="margin:-4px 0 8px">Cosas poco obvias y reales. Cada guía dice qué tan sólida es la evidencia.</p>
     ${DOCS.filter(d => d.grupo === 'experto').map(docBtn).join('')}
