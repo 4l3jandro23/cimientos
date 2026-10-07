@@ -19,6 +19,7 @@ const K = {
   mias: 'cimientosMias',
   borradores: 'cimientosBorradores',
   bajon: 'cimientosBajon',
+  sim: 'cimientosSim',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -405,6 +406,7 @@ function vAprender() {
       <button data-act="senales"><span>👁️</span><b>¿Le interesa o no?</b><small>${QUIZ_SENALES.length} señales</small></button>
       <button data-act="frases"><span>💬</span><b>La mejor frase</b><small>${QUIZ_FRASES.length} momentos</small></button>
       <button data-act="ensayo"><span>✍️</span><b>Modo ensayo</b><small>Escribe qué harías</small></button>
+      <button data-act="sim"><span>🎭</span><b>Simulador</b><small>Sin respuesta correcta</small></button>
     </div>
     <p class="sec-h">Mis situaciones</p>
     ${(load(K.mias, []) || []).map(m => `<button class="lec" data-mia="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>${esc((m.prox || m.paso || '').slice(0, 70))}</small></span><span class="go">›</span></button>`).join('')}
@@ -561,6 +563,79 @@ function semanaHTML() {
     ${g ? fila(gh, 'Una situación', `<b>${esc(g.titulo)}</b>`, `<button class="pill" data-guia="${g.id}">Leer</button>`) : ''}
     ${fila(th, 'Un tip para probar', `<b>${esc(t[1])}</b>`, `<button class="pill ${th ? 'on' : ''}" data-semck="tip">${th ? 'Probado' : 'Lo he probado'}</button>`)}
     ${hechas === 3 ? '<p class="small" style="margin:10px 0 0">Semana completa. Muy bien.</p>' : ''}</div>`;
+}
+
+// ---------- Simulador de escenas (sin respuesta correcta) ----------
+const simHist = () => (load(K.sim, []) || []).filter(x => x && x.esc);
+function simMezcla(a) { const b = a.map((x, i) => [x, i]); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+function simEstiloHTML() {
+  const h = simHist().slice(-40), n = h.length;
+  if (n < 3) return `<h2>Tu estilo</h2><p class="muted">Juega al menos tres escenas y te enseño cómo sueles responder.</p>`;
+  const cuenta = k => Object.keys(SIM_ESTILOS).map(t => [t, h.filter(x => x[k] === t).length]).sort((a, b) => b[1] - a[1]);
+  const ins = cuenta('ins'), des = cuenta('des'), max = Math.max(1, ...ins.map(x => x[1]), ...des.map(x => x[1]));
+  const bar = (t, c, col) => `<div style="margin:6px 0"><small>${SIM_ESTILOS[t][0]} ${esc(SIM_ESTILOS[t][1])} · ${c}</small><div class="sim-bar"><i style="width:${Math.round(c / max * 100)}%;${col ? 'background:' + col : ''}"></i></div></div>`;
+  const quiere = Object.keys(SIM_ESTILOS).map(t => [t, des.find(x => x[0] === t)[1] - ins.find(x => x[0] === t)[1]]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
+  const saltos = h.filter(x => x.ins !== x.des).length;
+  return `<h2>Tu estilo</h2><p class="muted">Según tus últimas ${n} escenas. No mide quién eres: es una foto de cómo respondes.</p>
+    <h3 class="gh">Lo que haces de verdad</h3>${ins.filter(x => x[1]).map(x => bar(x[0], x[1])).join('')}
+    <p>${esc(SIM_ESTILOS[ins[0][0]][2])}</p>
+    <h3 class="gh">Lo que te gustaría poder hacer</h3>${des.filter(x => x[1]).map(x => bar(x[0], x[1], 'var(--warm, #D9A441)')).join('')}
+    <div class="quiet" style="margin-top:12px"><b>La distancia entre las dos.</b> En ${saltos} de ${n} escenas lo que harías y lo que querrías hacer no coinciden. ${quiere.length ? 'Lo que más echas de menos: ' + quiere.slice(0, 2).map(x => SIM_ESTILOS[x[0]][1].toLowerCase()).join(' y ') + '. Es justo lo que conviene entrenar en pequeño.' : 'Eso significa que sueles hacer lo que quieres.'}</div>`;
+}
+function openSim(escId) {
+  const v = sheet('', 'guia');
+  const set = html => { const sh = v.querySelector('.sheet'); sh.innerHTML = `<div class="grab"></div>${html}`; sh.scrollTop = 0; };
+  let sc = null, S = null, o1 = [], o2 = [];
+  const opts = (l, a) => l.map(([o, i]) => `<button class="simo" data-${a}="${i}">${esc(o[0])}</button>`).join('');
+  const cons = o => `<div class="sim-cons"><p><b>Lo que te da:</b> ${esc(o[2])}</p><p><b>Lo que te cuesta:</b> ${esc(o[3])}</p><p><b>Cómo se ve desde fuera:</b> ${esc(o[4])}</p></div>`;
+  const tag = t => `${SIM_ESTILOS[t][0]} ${SIM_ESTILOS[t][1]}`;
+  const menu = () => {
+    const h = simHist(), veces = id => h.filter(x => x.esc === id).length;
+    set(`<h2>Simulador</h2><p class="muted">Escenas reales con ambigüedad. <b>No hay respuesta correcta</b>: cada opción da algo y cuesta algo, y el resultado depende en parte del azar. Elige lo que harías de verdad, aunque sepas que no es «lo mejor».</p>
+      ${SIM_ESCENAS.map(e => `<button class="lec" data-sim="${e.id}"><span class="ic">${e.ico}</span><span class="b"><b>${esc(e.t)}</b><small>${veces(e.id) ? 'Jugada ' + veces(e.id) + (veces(e.id) === 1 ? ' vez' : ' veces') : 'Sin jugar'}</small></span><span class="go">›</span></button>`).join('')}
+      <div class="row-btns"><button class="pill" data-sim-rand>Una al azar</button><button class="pill" data-sim-estilo>Mi estilo</button></div>
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`);
+  };
+  const start = id => { sc = SIM_ESCENAS.find(e => e.id === id); if (!sc) return menu(); S = { ins: null, des: null, q2: null, bien: Math.random() < .5 }; o1 = simMezcla(sc.o1); o2 = simMezcla(sc.o2);
+    set(`<span class="small muted">${sc.ico} Escena</span><h2>${esc(sc.t)}</h2><p>${esc(sc.setup)}</p><p class="quiet">Elige lo que harías <b>de verdad</b>, no lo que crees que es lo mejor. Después verás qué te da y qué te cuesta cada camino.</p><div class="acts"><button class="btn ghost" data-sim-menu>Volver</button><span class="sp"></span><button class="btn" data-sim-ins>Empezar</button></div>`); };
+  const paso = {
+    ins: () => set(`<h2>${esc(sc.t)}</h2><p class="muted">${esc(sc.setup)}</p><h3 class="gh">¿Qué harías de verdad?</h3>${opts(o1, 'i1')}`),
+    des: () => set(`<h2>${esc(sc.t)}</h2><p class="muted">Has elegido: «${esc(sc.o1[S.ins][0])}»</p><h3 class="gh">Y si pudieras elegir sin miedo, ¿qué te gustaría poder hacer?</h3>${opts(o1, 'd1')}`),
+    res1: () => { const a = sc.o1[S.ins], b = sc.o1[S.des], igual = S.ins === S.des;
+      set(`<h2>${esc(sc.t)}</h2><p><b>Lo que harías:</b> ${esc(a[0])}</p>${cons(a)}
+        <div class="quiet"><b>Esta vez:</b> ${esc(S.bien ? a[5] : a[6])}<br><small class="muted">Otra vez podría ser: ${esc(S.bien ? a[6] : a[5])}</small></div>
+        <p class="small muted">El resultado depende de ella y del azar, no solo de ti. Una buena decisión puede salir regular y al revés: no juzgues la decisión por el resultado.</p>
+        ${igual ? '<p>Lo que harías y lo que querrías hacer coinciden. Bien.</p>' : `<h3 class="gh">Lo que te gustaría poder hacer</h3><p><b>${esc(b[0])}</b></p>${cons(b)}`}
+        <div class="acts"><span class="sp"></span><button class="btn" data-sim-q2>Seguir</button></div>`); },
+    q2: () => set(`<h2>${esc(sc.t)}</h2><p>${esc(sc.q2)}</p><h3 class="gh">¿Qué haces?</h3>${opts(o2, 'i2')}`),
+    res2: () => { const a = sc.o2[S.q2]; set(`<h2>${esc(sc.t)}</h2><p><b>Elegiste:</b> ${esc(a[0])}</p>${cons(a)}<div class="acts"><span class="sp"></span><button class="btn" data-sim-fin>Ver qué significa</button></div>`); },
+    fin: () => {
+      const a = sc.o1[S.ins], b = sc.o1[S.des], salto = a[1] !== b[1];
+      store(K.sim, simHist().concat({ id: uid('s'), esc: sc.id, fecha: new Date().toISOString(), ins: a[1], des: b[1], q2: sc.o2[S.q2][1] }));
+      set(`<h2>${esc(sc.t)}</h2>
+        <div class="sim-cons"><p><b>Tu instinto:</b> ${esc(tag(a[1]))}</p><p><b>Lo que querrías:</b> ${esc(tag(b[1]))}</p><p><b>Cuando siguió:</b> ${esc(tag(sc.o2[S.q2][1]))}</p></div>
+        ${salto ? '<p>Hay un salto entre lo que harías y lo que querrías hacer. No es un fallo: es justo lo que se entrena. Un paso pequeño para acercar las dos:</p>' : '<p>Lo que harías y lo que querrías hacer coinciden. Aun así, un paso pequeño para seguir practicando:</p>'}
+        <div class="pt"><b>Tu paso puente</b><p>${esc(sc.puente)}</p></div>
+        <div class="pt"><b>Lo que casi nadie sabe</b><p>${esc(sc.dato)}</p></div>
+        <div class="acts"><button class="btn soft" data-sim-reto>Añadirlo a mis retos</button><span class="sp"></span><button class="btn" data-sim-menu>Más escenas</button></div>`);
+    }
+  };
+  v.addEventListener('click', e => {
+    const t = e.target;
+    let x;
+    if ((x = t.closest('[data-sim]'))) return start(x.dataset.sim);
+    if (t.closest('[data-sim-rand]')) return start(SIM_ESCENAS[Math.floor(Math.random() * SIM_ESCENAS.length)].id);
+    if (t.closest('[data-sim-estilo]')) return set(simEstiloHTML() + `<div class="acts"><button class="btn ghost" data-sim-menu>Volver</button></div>`);
+    if (t.closest('[data-sim-menu]')) return menu();
+    if (t.closest('[data-sim-ins]')) return paso.ins();
+    if ((x = t.closest('[data-i1]'))) { S.ins = +x.dataset.i1; return paso.des(); }
+    if ((x = t.closest('[data-d1]'))) { S.des = +x.dataset.d1; return paso.res1(); }
+    if (t.closest('[data-sim-q2]')) return paso.q2();
+    if ((x = t.closest('[data-i2]'))) { S.q2 = +x.dataset.i2; return paso.res2(); }
+    if (t.closest('[data-sim-fin]')) return paso.fin();
+    if ((x = t.closest('[data-sim-reto]'))) { store(K.propios, propios().concat({ id: uid('p'), titulo: sc.puente, descripcion: 'Del simulador: ' + sc.t })); x.disabled = true; x.textContent = 'Añadido'; toast('Añadido a tus retos'); }
+  });
+  if (escId) start(escId); else menu();
 }
 
 // ---------- Todos los tips ----------
@@ -1028,6 +1103,7 @@ document.addEventListener('click', e => {
     if (a === 'bajon') return openBajon();
     if (a === 'ahora') return openAhora();
     if (a === 'tips') return openTips();
+    if (a === 'sim') return openSim();
     if (a === 'otrotip') { ui.tipOff = (ui.tipOff || 0) + 1; return render(); }
     if (a === 'bajonvisto') { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); return render(); }
     if (a === 'ensayo') return openEnsayo();

@@ -354,3 +354,11 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .ah-dilo { width: 100%; text-align: left; margin-top: 12px; background: rgba(255, 255, 255, .12); border-radius: 18px; padding: 14px 18px; color: #fff; }
 .ah-dilo b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 500; margin-top: 4px; }
 .ah-sitio { font-size: 16px !important; color: #B9D3E0 !important; text-align: left; width: 100%; margin: 12px 0 0 !important; }
+
+/* simulador */
+.simo { display: block; width: 100%; text-align: left; border: 0; border-radius: 14px; padding: 14px 16px; margin: 8px 0; background: var(--soft); color: var(--ink); font: inherit; font-size: 16px; line-height: 1.4; cursor: pointer; }
+.simo:active { opacity: .7; }
+.sim-cons { background: var(--bg); border-radius: 14px; padding: 6px 14px; margin: 10px 0; }
+.sim-cons p { margin: 8px 0; font-size: 15px; }
+.sim-bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.sim-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
