@@ -1,5 +1,5 @@
 /* Al cambiar el contenido de la app, sube este número: la app se actualiza sola al abrirla. */
-const CACHE_VERSION = 'cimientos-v30';
+const CACHE_VERSION = 'cimientos-v31';
 
 const APP_SHELL = [
   './',
@@ -34,6 +34,8 @@ const APP_SHELL = [
   './contenido22.js',
   './contenido23.js',
   './contenido24.js',
+  './contenido25.js',
+  './contenido26.js',
   './csync.js'
 ];
 

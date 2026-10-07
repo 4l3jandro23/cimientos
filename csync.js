@@ -11,7 +11,7 @@ const CS = (() => {
   const TYPES = {
     cimientosDiario: 'list', cimientosTerapia: 'list', cimientosRetosPropios: 'list', cimientosSalidas: 'list',
     cimientosRetosCompletados: 'map', cimientosRetosPlanes: 'map', cimientosLeccionesCompletadas: 'map',
-    cimientosFoco: 'whole', cimientosPerfil: 'whole', cimientosYo: 'whole', cimientosCarta: 'whole', cimientosFavs: 'whole', cimientosNotas: 'map', cimientosSemana: 'whole', cimientosFrases: 'whole', cimientosMias: 'list', cimientosBorradores: 'list', cimientosBajon: 'whole', cimientosSim: 'list'
+    cimientosFoco: 'whole', cimientosPerfil: 'whole', cimientosYo: 'whole', cimientosCarta: 'whole', cimientosFavs: 'whole', cimientosNotas: 'map', cimientosSemana: 'whole', cimientosFrases: 'whole', cimientosMias: 'list', cimientosBorradores: 'list', cimientosBajon: 'whole', cimientosSim: 'list', cimientosExp: 'list', cimientosEscenas: 'list', cimientosVen: 'list', cimientosPruebas: 'list', cimientosCreencia: 'whole', cimientosPlan8: 'whole'
   };
   const rd = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const wr = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };

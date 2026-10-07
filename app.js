@@ -20,6 +20,12 @@ const K = {
   borradores: 'cimientosBorradores',
   bajon: 'cimientosBajon',
   sim: 'cimientosSim',
+  exp: 'cimientosExp',
+  escenas: 'cimientosEscenas',
+  ven: 'cimientosVen',
+  pruebas: 'cimientosPruebas',
+  creencia: 'cimientosCreencia',
+  plan8: 'cimientosPlan8',
   pin: 'cimientosPin'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -114,6 +120,8 @@ function vHoy() {
     <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
+    ${plan8HTML()}
+    ${equilibrioHTML()}
     ${semanaHTML()}
     ${planHoyHTML()}
     ${(load(K.perfil, []) || []).length ? '' : `<div class="card consejo"><span class="small muted">🎯 Hazlo tuyo</span><p>Hasta que elijas lo que va contigo, los consejos son generales. Con un minuto, se adaptan a ti.</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-act="parati">Elegir lo que va conmigo</button></div></div>`}
@@ -370,7 +378,7 @@ function adaptaHTML(tema) {
   return `<div class="pt adapt"><b>Para ti</b>${l.map(([n, tx]) => `<p><small class="muted">${esc(n)}</small><br>${esc(tx)}</p>`).join('')}</div>`;
 }
 const temaGuia = id => { const b = GUIA.find(g => g.items.some(x => x.id === id)); return temaAdapta(b ? b.bloque : ''); };
-const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle', experto: 'social' }[d.grupo] || 'social');
+const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle', experto: 'social', avanzado: 'social' }[d.grupo] || 'social');
 const favs = () => load(K.favs, []) || [];
 const favBtn = id => `<button class="fav ${favs().includes(id) ? 'on' : ''}" data-fav="${id}" aria-label="Guardar">${favs().includes(id) ? '★ Guardado' : '☆ Guardar'}</button>`;
 function itemBtn(id) {
@@ -408,6 +416,16 @@ function vAprender() {
       <button data-act="ensayo"><span>✍️</span><b>Modo ensayo</b><small>Escribe qué harías</small></button>
       <button data-act="sim"><span>🎭</span><b>Simulador</b><small>Sin respuesta correcta</small></button>
     </div>
+    <p class="sec-h">Herramientas para practicar</p>
+    <div class="card" style="padding:4px 16px">
+      <button class="lrow" data-act="plan8"><span class="ic">🗺️</span><span class="b"><b>Plan de 8 semanas</b><small>Un foco cada semana, sin agobiarte</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="exp"><span class="ic">🧪</span><span class="b"><b>Experimentos</b><small>Pon a prueba lo que temes y mira qué pasa de verdad</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="preg"><span class="ic">❓</span><span class="b"><b>Entrenador de preguntas</b><small>Escribe lo que te ha dicho y te doy por dónde seguir</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="revisor"><span class="ic">✉️</span><span class="b"><b>Revisor de mensajes</b><small>Pega tu borrador antes de enviarlo</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="ven"><span class="ic">🪞</span><span class="b"><b>Cómo me ven</b><small>Cinco preguntas para tres personas de confianza</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="pruebas"><span class="ic">📒</span><span class="b"><b>Mis pruebas</b><small>Contra «no soy suficiente»</small></span><span class="go">›</span></button>
+      <button class="lrow" data-act="planes"><span class="ic">🌆</span><span class="b"><b>Planes en Barcelona</b><small>Según con quién, cuándo y cuánto</small></span><span class="go">›</span></button>
+    </div>
     <p class="sec-h">Mis situaciones</p>
     ${(load(K.mias, []) || []).map(m => `<button class="lec" data-mia="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>${esc((m.prox || m.paso || '').slice(0, 70))}</small></span><span class="go">›</span></button>`).join('')}
     <button class="btn soft full" data-act="mia">＋ Añadir una situación mía</button>
@@ -417,6 +435,9 @@ function vAprender() {
     ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
     <p class="sec-h">Qué hacer en cada situación</p>
     ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
+    <p class="sec-h">Nivel avanzado: lo que dicen los libros de expertos</p>
+    <p class="small muted" style="margin:-4px 0 8px">Ideas de libros de referencia, en sencillo y aplicadas a ti.</p>
+    ${DOCS.filter(d => d.grupo === 'avanzado').map(docBtn).join('')}
     <p class="sec-h">Lo que casi nadie sabe (con estudios)</p>
     <p class="small muted" style="margin:-4px 0 8px">Cosas poco obvias y reales. Cada guía dice qué tan sólida es la evidencia.</p>
     ${DOCS.filter(d => d.grupo === 'experto').map(docBtn).join('')}
@@ -586,6 +607,24 @@ function openSim(escId) {
   const v = sheet('', 'guia');
   const set = html => { const sh = v.querySelector('.sheet'); sh.innerHTML = `<div class="grab"></div>${html}`; sh.scrollTop = 0; };
   let sc = null, S = null, o1 = [], o2 = [];
+  const ellaHTML = () => {
+    if (sc.mia) return `<h3 class="gh">Desde su lado</h3><p class="small muted">No sabes lo que pensó. Escribe dos o tres posibilidades distintas: ver que hay varias lecturas baja la ansiedad.</p><textarea id="simella" rows="3" placeholder="Quizá pensó que…">${esc(sc.mia.ella || '')}</textarea><div class="row-btns"><button class="pill" data-sim-ella>Guardar</button></div>`;
+    const l = SIM_ELLA[sc.id]; if (!l) return '';
+    return `<h3 class="gh">Desde su lado</h3><p class="small muted">Lo que ella podría estar pensando. No lo sabes: son posibilidades, y casi nunca es lo que tu miedo dice.</p><ul class="gl">${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  };
+  const nueva = () => {
+    const tags = (n, sel) => `<div class="pills">${Object.keys(SIM_ESTILOS).map(t => `<button type="button" class="pill ${sel === t ? 'on' : ''}" data-mtag="${n}" data-v="${t}">${SIM_ESTILOS[t][0]} ${esc(SIM_ESTILOS[t][1])}</button>`).join('')}</div>`;
+    const M = { t1: 'evita', t2: 'acerca', t3: 'pregunta' };
+    set(`<h2>Escena con algo que me pasó</h2><p class="muted">Se guarda solo en tus dispositivos. Escribe como te salga.</p>
+      <label class="f"><span>Título corto</span><input id="m-tit" type="text" placeholder="Ej.: La chica del gimnasio"></label>
+      <label class="f"><span>¿Qué pasó?</span><textarea id="m-setup" rows="3" placeholder="Dónde estabas, quién estaba, qué ocurrió"></textarea></label>
+      <label class="f"><span>Lo que hice</span><input id="m-o1" type="text"></label>${tags('t1', M.t1)}
+      <label class="f"><span>Lo que me habría gustado hacer</span><input id="m-o2" type="text"></label>${tags('t2', M.t2)}
+      <label class="f"><span>Otra opción posible (si se te ocurre)</span><input id="m-o3" type="text"></label>${tags('t3', M.t3)}
+      <label class="f"><span>¿Qué pasó al final?</span><textarea id="m-real" rows="2"></textarea></label>
+      <div class="acts"><button class="btn ghost" data-sim-menu>Cancelar</button><span class="sp"></span><button class="btn" data-sim-save>Guardar escena</button></div>`);
+    v.querySelector('.sheet').__M = M;
+  };
   const opts = (l, a) => l.map(([o, i]) => `<button class="simo" data-${a}="${i}">${esc(o[0])}</button>`).join('');
   const cons = o => `<div class="sim-cons"><p><b>Lo que te da:</b> ${esc(o[2])}</p><p><b>Lo que te cuesta:</b> ${esc(o[3])}</p><p><b>Cómo se ve desde fuera:</b> ${esc(o[4])}</p></div>`;
   const tag = t => `${SIM_ESTILOS[t][0]} ${SIM_ESTILOS[t][1]}`;
@@ -593,10 +632,12 @@ function openSim(escId) {
     const h = simHist(), veces = id => h.filter(x => x.esc === id).length;
     set(`<h2>Simulador</h2><p class="muted">Escenas reales con ambigüedad. <b>No hay respuesta correcta</b>: cada opción da algo y cuesta algo, y el resultado depende en parte del azar. Elige lo que harías de verdad, aunque sepas que no es «lo mejor».</p>
       ${SIM_ESCENAS.map(e => `<button class="lec" data-sim="${e.id}"><span class="ic">${e.ico}</span><span class="b"><b>${esc(e.t)}</b><small>${veces(e.id) ? 'Jugada ' + veces(e.id) + (veces(e.id) === 1 ? ' vez' : ' veces') : 'Sin jugar'}</small></span><span class="go">›</span></button>`).join('')}
+      ${lista(K.escenas).length ? `<p class="sec-h">Mis escenas</p>${lista(K.escenas).map(m => `<button class="lec" data-sim="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>Algo que te pasó</small></span><span class="go">›</span></button>`).join('')}` : ''}
+      <button class="btn soft full" data-sim-new style="margin-top:10px">＋ Escena con algo que me pasó</button>
       <div class="row-btns"><button class="pill" data-sim-rand>Una al azar</button><button class="pill" data-sim-estilo>Mi estilo</button></div>
       <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`);
   };
-  const start = id => { sc = SIM_ESCENAS.find(e => e.id === id); if (!sc) return menu(); S = { ins: null, des: null, q2: null, bien: Math.random() < .5 }; o1 = simMezcla(sc.o1); o2 = simMezcla(sc.o2);
+  const start = id => { sc = escenaPorId(id); if (!sc) return menu(); S = { ins: null, des: null, q2: null, bien: Math.random() < .5 }; o1 = simMezcla(sc.o1); o2 = sc.o2 ? simMezcla(sc.o2) : [];
     set(`<span class="small muted">${sc.ico} Escena</span><h2>${esc(sc.t)}</h2><p>${esc(sc.setup)}</p><p class="quiet">Elige lo que harías <b>de verdad</b>, no lo que crees que es lo mejor. Después verás qué te da y qué te cuesta cada camino.</p><div class="acts"><button class="btn ghost" data-sim-menu>Volver</button><span class="sp"></span><button class="btn" data-sim-ins>Empezar</button></div>`); };
   const paso = {
     ins: () => set(`<h2>${esc(sc.t)}</h2><p class="muted">${esc(sc.setup)}</p><h3 class="gh">¿Qué harías de verdad?</h3>${opts(o1, 'i1')}`),
@@ -606,14 +647,15 @@ function openSim(escId) {
         <div class="quiet"><b>Esta vez:</b> ${esc(S.bien ? a[5] : a[6])}<br><small class="muted">Otra vez podría ser: ${esc(S.bien ? a[6] : a[5])}</small></div>
         <p class="small muted">El resultado depende de ella y del azar, no solo de ti. Una buena decisión puede salir regular y al revés: no juzgues la decisión por el resultado.</p>
         ${igual ? '<p>Lo que harías y lo que querrías hacer coinciden. Bien.</p>' : `<h3 class="gh">Lo que te gustaría poder hacer</h3><p><b>${esc(b[0])}</b></p>${cons(b)}`}
-        <div class="acts"><span class="sp"></span><button class="btn" data-sim-q2>Seguir</button></div>`); },
+        ${ellaHTML()}
+        <div class="acts"><span class="sp"></span>${sc.o2 ? '<button class="btn" data-sim-q2>Seguir</button>' : '<button class="btn" data-sim-fin>Ver qué significa</button>'}</div>`); },
     q2: () => set(`<h2>${esc(sc.t)}</h2><p>${esc(sc.q2)}</p><h3 class="gh">¿Qué haces?</h3>${opts(o2, 'i2')}`),
     res2: () => { const a = sc.o2[S.q2]; set(`<h2>${esc(sc.t)}</h2><p><b>Elegiste:</b> ${esc(a[0])}</p>${cons(a)}<div class="acts"><span class="sp"></span><button class="btn" data-sim-fin>Ver qué significa</button></div>`); },
     fin: () => {
       const a = sc.o1[S.ins], b = sc.o1[S.des], salto = a[1] !== b[1];
-      store(K.sim, simHist().concat({ id: uid('s'), esc: sc.id, fecha: new Date().toISOString(), ins: a[1], des: b[1], q2: sc.o2[S.q2][1] }));
+      store(K.sim, simHist().concat({ id: uid('s'), esc: sc.id, fecha: new Date().toISOString(), ins: a[1], des: b[1], q2: sc.o2 ? sc.o2[S.q2][1] : null }));
       set(`<h2>${esc(sc.t)}</h2>
-        <div class="sim-cons"><p><b>Tu instinto:</b> ${esc(tag(a[1]))}</p><p><b>Lo que querrías:</b> ${esc(tag(b[1]))}</p><p><b>Cuando siguió:</b> ${esc(tag(sc.o2[S.q2][1]))}</p></div>
+        <div class="sim-cons"><p><b>Tu instinto:</b> ${esc(tag(a[1]))}</p><p><b>Lo que querrías:</b> ${esc(tag(b[1]))}</p>${sc.o2 ? `<p><b>Cuando siguió:</b> ${esc(tag(sc.o2[S.q2][1]))}</p>` : ''}</div>
         ${salto ? '<p>Hay un salto entre lo que harías y lo que querrías hacer. No es un fallo: es justo lo que se entrena. Un paso pequeño para acercar las dos:</p>' : '<p>Lo que harías y lo que querrías hacer coinciden. Aun así, un paso pequeño para seguir practicando:</p>'}
         <div class="pt"><b>Tu paso puente</b><p>${esc(sc.puente)}</p></div>
         <div class="pt"><b>Lo que casi nadie sabe</b><p>${esc(sc.dato)}</p></div>
@@ -627,6 +669,15 @@ function openSim(escId) {
     if (t.closest('[data-sim-rand]')) return start(SIM_ESCENAS[Math.floor(Math.random() * SIM_ESCENAS.length)].id);
     if (t.closest('[data-sim-estilo]')) return set(simEstiloHTML() + `<div class="acts"><button class="btn ghost" data-sim-menu>Volver</button></div>`);
     if (t.closest('[data-sim-menu]')) return menu();
+    if (t.closest('[data-sim-new]')) return nueva();
+    if ((x = t.closest('[data-mtag]'))) { const M = v.querySelector('.sheet').__M; M[x.dataset.mtag] = x.dataset.v; x.parentNode.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', p === x)); return; }
+    if (t.closest('[data-sim-save]')) {
+      const g = id => (v.querySelector('#' + id).value || '').trim(), M = v.querySelector('.sheet').__M;
+      if (!g('m-setup') || !g('m-o1') || !g('m-o2')) return toast('Escribe qué pasó, lo que hiciste y lo que te habría gustado');
+      const m = { id: uid('e'), fecha: new Date().toISOString(), titulo: g('m-tit') || 'Algo que me pasó', setup: g('m-setup'), o1: g('m-o1'), t1: M.t1, o2: g('m-o2'), t2: M.t2, o3: g('m-o3'), t3: M.t3, real: g('m-real'), ella: '' };
+      store(K.escenas, lista(K.escenas).concat(m)); toast('Escena guardada'); return start(m.id);
+    }
+    if (t.closest('[data-sim-ella]')) { const txt = (v.querySelector('#simella').value || '').trim(); store(K.escenas, lista(K.escenas).map(m => m.id === sc.mia.id ? Object.assign({}, m, { ella: txt }) : m)); sc.mia.ella = txt; return toast('Guardado'); }
     if (t.closest('[data-sim-ins]')) return paso.ins();
     if ((x = t.closest('[data-i1]'))) { S.ins = +x.dataset.i1; return paso.des(); }
     if ((x = t.closest('[data-d1]'))) { S.des = +x.dataset.d1; return paso.res1(); }
@@ -636,6 +687,251 @@ function openSim(escId) {
     if ((x = t.closest('[data-sim-reto]'))) { store(K.propios, propios().concat({ id: uid('p'), titulo: sc.puente, descripcion: 'Del simulador: ' + sc.t })); x.disabled = true; x.textContent = 'Añadido'; toast('Añadido a tus retos'); }
   });
   if (escId) start(escId); else menu();
+}
+
+const lista = k => { const l = load(k, []); return Array.isArray(l) ? l : []; };
+function escenaPorId(id) {
+  const e = SIM_ESCENAS.find(x => x.id === id); if (e) return e;
+  const m = lista(K.escenas).find(x => x.id === id); if (!m) return null;
+  const nada = 'No lo sabes: es justo lo que puedes probar la próxima vez.';
+  const op = (t, tag, real) => [t, tag, ...SIM_GEN[tag], real || nada, real || nada];
+  const o1 = [op(m.o1, m.t1, m.real ? 'Lo que pasó de verdad: ' + m.real : ''), op(m.o2, m.t2)];
+  if (m.o3) o1.push(op(m.o3, m.t3));
+  return { id: m.id, ico: '📝', t: m.titulo, setup: m.setup, o1, o2: null, mia: m,
+    dato: 'Lo que hiciste es información, no un juicio. Volver a mirar una escena con calma y ver otras opciones es lo que hace la terapia cognitiva con las situaciones reales.',
+    puente: 'Si vuelve a pasar algo parecido a «' + m.titulo + '», probaré: ' + m.o2 };
+}
+
+// ---------- Equilibrio leer / hacer ----------
+const enSemana = iso => !!iso && Date.now() - Date.parse(iso) < 7 * 864e5;
+function equilibrioHTML() {
+  const leido = Object.values(leidas()).filter(enSemana).length;
+  const hecho = allRetos().reduce((a, r) => a + veces(r.id).filter(v => enSemana(v.fecha)).length, 0) + lista(K.exp).filter(e => e.res && enSemana(e.fres)).length;
+  if (leido < 6 || hecho * 6 >= leido) return '';
+  return `<div class="card consejo"><span class="small muted">⚖️ Esta semana</span><p>Has leído ${leido} cosas y has hecho ${hecho} en la vida real. Leer prepara, pero lo que cambia las cosas es practicar. Toca algo pequeño fuera.</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-act="exp">Hacer un experimento</button><button class="pill" data-act="retos">Ver retos</button></div></div>`;
+}
+
+// ---------- Experimentos ----------
+const EXP_RES = { si: 'pasó lo que temía', parte: 'pasó en parte', no: 'no pasó' };
+function expStatsHTML() {
+  const l = lista(K.exp).filter(e => e.res); if (!l.length) return '';
+  const si = l.filter(e => e.res === 'si').length, parte = l.filter(e => e.res === 'parte').length, media = Math.round(l.reduce((a, e) => a + (+e.prob || 0), 0) / l.length);
+  return `<div class="card"><h2>Tus experimentos</h2><p class="sub">${l.length} ${l.length === 1 ? 'experimento hecho' : 'experimentos hechos'}.</p>
+    <p>De media creías que lo temido pasaría un <b>${media} %</b> de las veces. Pasó del todo en <b>${si}</b>${parte ? ` y en parte en <b>${parte}</b>` : ''} (${Math.round(si / l.length * 100)} %).</p>
+    <div class="row-btns"><button class="pill" data-act="exp">Ver experimentos</button></div></div>`;
+}
+function openExp(pre) {
+  const v = sheet('', 'guia');
+  const set = html => { const sh = v.querySelector('.sheet'); sh.innerHTML = `<div class="grab"></div>${html}`; sh.scrollTop = 0; };
+  let cur = null, res = null;
+  const lst = () => {
+    const l = lista(K.exp).slice().reverse(), pend = l.filter(e => !e.res), hechos = l.filter(e => e.res);
+    set(`<h2>Experimentos</h2><p class="muted">Escribe lo que temes como una predicción, pruébalo en la vida real y apunta qué pasó. Es la forma más eficaz que hay de bajar el miedo: con tus propios datos.</p>
+      <button class="btn full" data-ex-new>＋ Nuevo experimento</button>
+      ${pend.length ? `<p class="sec-h">Pendientes</p>${pend.map(e => `<button class="lec" data-ex-res="${e.id}"><span class="ic">🧪</span><span class="b"><b>${esc(e.cre)}</b><small>Creías ${e.prob} % · ${esc(e.plan || '')}</small></span><span class="go">›</span></button>`).join('')}` : ''}
+      ${hechos.length ? `<p class="sec-h">Hechos</p>${hechos.map(e => `<div class="pt"><b>${esc(e.cre)}</b><p class="small">Creías ${e.prob} % → ${EXP_RES[e.res]}${e.paso ? '. ' + esc(e.paso) : ''}</p>${e.apr ? `<p class="small muted">Aprendí: ${esc(e.apr)}</p>` : ''}</div>`).join('')}` : ''}
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`);
+  };
+  const nuevo = p => set(`<h2>Nuevo experimento</h2>
+    <label class="f"><span>¿Qué temes que pase?</span><textarea id="ex-cre" rows="2" placeholder="Ej.: Si le propongo un café, me dirá que no y será incómodo">${esc((p && p.cre || '').replace(/[«»]/g, ''))}</textarea></label>
+    <label class="f"><span>¿Cuánto te lo crees? <b id="ex-pv">70</b> %</span><input id="ex-prob" type="range" min="0" max="100" step="10" value="70"></label>
+    <label class="f"><span>¿Qué vas a hacer, y cuándo?</span><input id="ex-plan" type="text" placeholder="Ej.: El jueves, al salir de clase"></label>
+    <label class="f"><span>¿Qué «protección» vas a dejar? (opcional)</span><input id="ex-sin" type="text" placeholder="Ej.: no ensayar la frase, no mirar el móvil"></label>
+    <div class="acts"><button class="btn ghost" data-ex-list>Volver</button><span class="sp"></span><button class="btn" data-ex-save>Guardar</button></div>`);
+  const resultado = id => { cur = lista(K.exp).find(e => e.id === id); res = null; if (!cur) return lst();
+    set(`<h2>¿Qué pasó?</h2><div class="pt"><b>Lo que temías</b><p>${esc(cur.cre)} (${cur.prob} %)</p></div>
+      <h3 class="gh">¿Pasó lo que temías?</h3><div class="pills">${Object.entries({ si: 'Sí', parte: 'En parte', no: 'No' }).map(([k, n]) => `<button type="button" class="pill" data-ex-r="${k}">${n}</button>`).join('')}</div>
+      <label class="f"><span>¿Qué pasó de verdad?</span><textarea id="ex-paso" rows="2"></textarea></label>
+      <label class="f"><span>¿Qué aprendes de esto?</span><textarea id="ex-apr" rows="2" placeholder="Ej.: Me puse nervioso, pero no se notó tanto"></textarea></label>
+      <div class="acts"><button class="btn ghost" data-ex-list>Volver</button><span class="sp"></span><button class="btn" data-ex-done>Guardar</button></div>`); };
+  v.addEventListener('input', e => { if (e.target.id === 'ex-prob') v.querySelector('#ex-pv').textContent = e.target.value; });
+  v.addEventListener('click', e => {
+    const t = e.target, g = id => ((v.querySelector('#' + id) || {}).value || '').trim(); let x;
+    if (t.closest('[data-ex-new]')) return nuevo();
+    if (t.closest('[data-ex-list]')) return lst();
+    if (t.closest('[data-ex-save]')) { if (!g('ex-cre')) return toast('Escribe qué temes que pase'); store(K.exp, lista(K.exp).concat({ id: uid('x'), fecha: new Date().toISOString(), cre: g('ex-cre'), prob: +g('ex-prob'), plan: g('ex-plan'), sin: g('ex-sin') })); toast('Guardado. Cuando lo hagas, apunta qué pasó.'); return lst(); }
+    if ((x = t.closest('[data-ex-res]'))) return resultado(x.dataset.exRes);
+    if ((x = t.closest('[data-ex-r]'))) { res = x.dataset.exR; x.parentNode.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', p === x)); return; }
+    if (t.closest('[data-ex-done]')) { if (!res) return toast('Elige si pasó o no'); store(K.exp, lista(K.exp).map(z => z.id === cur.id ? Object.assign({}, z, { res, paso: g('ex-paso'), apr: g('ex-apr'), fres: new Date().toISOString() }) : z)); toast(res === 'si' ? 'Apuntado. Ha pasado, y aquí sigues: eso también es un dato.' : 'Apuntado. Tu miedo exageraba: guárdalo.'); render(); return lst(); }
+  });
+  if (pre) nuevo(pre); else lst();
+}
+
+// ---------- Entrenador de preguntas ----------
+function preguntasPara(txt) {
+  const limpio = txt.replace(/\s+/g, ' ').trim(); if (limpio.length < 3) return '';
+  const ultima = limpio.split(/[.,;:!?¡¿…]+/).map(x => x.trim()).filter(Boolean).pop() || limpio;
+  const TU = { mi: 'tu', mis: 'tus', me: 'te', conmigo: 'contigo', yo: 'tú', estoy: 'estás', he: 'has', soy: 'eres', tengo: 'tienes', voy: 'vas', hice: 'hiciste', fui: 'fuiste', estuve: 'estuviste', quiero: 'quieres', puedo: 'puedes', sé: 'sabes' };
+  const pal = ultima.replace(/["«»]/g, '').split(' ').filter(Boolean).map(w => TU[w.toLowerCase()] || w);
+  let espejo = pal.slice(-Math.min(3, pal.length)).join(' ');
+  if (pal.length >= 2 && /^(estás|has|eres|tienes|vas)$/.test(pal[pal.length - 2])) espejo = pal.slice(-2).join(' ');
+  espejo = espejo.charAt(0).toUpperCase() + espejo.slice(1);
+  const pos = /encant|genial|guay|ilusi|increíble|me gust|feliz|flip/i.test(limpio), neg = /cansad|agobi|reventad|agotad|destrozad|muert[ao]|mal |harta|harto|difícil|duro|triste|estr[eé]s|liad|fatal/i.test(limpio);
+  const etiqueta = neg ? 'Suena a que ha sido duro.' : pos ? 'Parece que eso te hace mucha ilusión.' : 'Parece que eso es importante para ti.';
+  const tema = PREG_TEMAS.find(x => x.k.test(limpio)), q = tema || PREG_GEN;
+  const toks = limpio.split(' '), nombres = [...new Set(toks.map((w, i) => i > 0 && !/[.!?]$/.test(toks[i - 1]) ? w.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ]/g, '') : '').filter(w => /^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}$/.test(w)))];
+  const fila = (n, l) => `<div class="pt"><b>${n}</b><ul class="gl">${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  return `${tema ? `<p class="small muted">Tema detectado: ${esc(tema.n)}</p>` : ''}
+    ${fila('Espejo (repite sus últimas palabras, como pregunta)', ['«¿' + espejo + '?»'])}
+    ${fila('Etiqueta (nombra lo que percibes)', ['«' + etiqueta + '»'])}
+    ${nombres.length ? fila('Información gratuita (lo que ha soltado sin que preguntes)', nombres.slice(0, 3).map(n => 'Has mencionado «' + n + '»: pregunta por eso.')) : ''}
+    ${fila('De hechos', q.h)}${fila('De emoción', q.e)}${fila('Hacia delante', q.c)}
+    <p class="small muted">Elige una, no todas. Y cuenta algo tuyo después para que no sea un interrogatorio.</p>`;
+}
+function openPreg() {
+  const v = sheet(`<h2>Entrenador de preguntas</h2><p class="muted">Escribe lo que te ha dicho (o algo que suele decir la gente) y te doy por dónde seguir. Sirve para practicar en casa y para mirarlo en el baño si te quedas en blanco.</p>
+    <textarea id="pq" rows="3" placeholder="Ej.: Este finde he estado en Girona con mi hermana, estoy reventada"></textarea><div id="pqr"></div>
+    <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`, 'guia');
+  v.addEventListener('input', e => { if (e.target.id === 'pq') v.querySelector('#pqr').innerHTML = preguntasPara(e.target.value); });
+}
+
+// ---------- Revisor de mensajes ----------
+function revisar(mio, suyo, seguidos) {
+  const m = mio.trim(), avisos = [], bien = [];
+  if (!m) return '';
+  const h = new Date().getHours();
+  if (seguidos >= 2) avisos.push(`Llevas ${seguidos} mensajes sin respuesta. Mejor no mandar otro: deja que conteste ella.`);
+  else if (seguidos === 1) avisos.push('Ya tienes un mensaje sin respuesta. Si mandas este, que sea distinto y ligero, y que sea el último.');
+  if (h >= 0 && h < 7) avisos.push(`Son las ${h}:00. Si puedes, guárdalo y decide por la mañana.`);
+  if (suyo && suyo.trim() && m.length > Math.max(140, suyo.trim().length * 2.5)) avisos.push(`El tuyo es mucho más largo que el suyo (${m.length} frente a ${suyo.trim().length} caracteres). Acércate a su ritmo.`);
+  if (!/\?/.test(m) && !/quedamos|te apetece|vamos|vienes|plan|jueves|viernes|sábado|domingo|lunes|martes|miércoles|mañana/i.test(m)) avisos.push('No hay ni pregunta ni propuesta. Es fácil que la conversación muera aquí.');
+  if (/perd[oó]n|perdona|siento molestar|siento escribir|no quiero molestar/i.test(m)) avisos.push('Pides perdón sin motivo. Quítalo: no estás molestando por escribir.');
+  if (/soy (un )?(desastre|aburrido|pesado|raro)|seguro que no|no sé si te apetecerá|igual no te interesa/i.test(m)) avisos.push('Te pones por debajo antes de que ella diga nada. Quítalo y di lo que quieres sin más.');
+  if (/por qu[eé] no (me )?contestas|me ignoras|si no quieres d[ií]melo|ya veo que/i.test(m)) avisos.push('Suena a reproche. Aunque te duela el silencio, esto suele empeorar las cosas.');
+  if (/a ver si (un d[ií]a|alg[uú]n d[ií]a)|cuando quieras|alg[uú]n d[ií]a/i.test(m)) avisos.push('La propuesta es vaga. Concreta un día y un plan: «¿Te apetece un café el jueves?».');
+  if ((m.match(/!/g) || []).length > 4 || (m.match(/[\u{1F300}-\u{1FAFF}]/gu) || []).length > 4) avisos.push('Muchas exclamaciones o emojis. Con menos se lee más tranquilo.');
+  if (/\?/.test(m)) bien.push('Tiene una pregunta: es fácil de contestar.');
+  if (m.length <= 160) bien.push('Es corto y fácil de leer.');
+  return `${avisos.length ? `<div class="pt"><b>Para mirar</b><ul class="gl">${avisos.map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>` : '<div class="pt"><b>Nada que señalar</b><p>Mándalo si te apetece.</p></div>'}
+    ${bien.length ? `<div class="pt"><b>Bien</b><ul class="gl">${bien.map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}
+    <p class="small muted">No te lo escribo yo: tu forma de escribir es tuya. Solo te aviso de cosas que suelen jugar en contra.</p>`;
+}
+function openRevisor() {
+  const v = sheet(`<h2>Revisor de mensajes</h2><p class="muted">Pega tu borrador antes de mandarlo. No sale de tu móvil.</p>
+    <label class="f"><span>Tu borrador</span><textarea id="rv-m" rows="4"></textarea></label>
+    <label class="f"><span>Su último mensaje (opcional)</span><textarea id="rv-s" rows="2"></textarea></label>
+    <label class="f"><span>Mensajes tuyos seguidos sin respuesta</span><select id="rv-n"><option value="0">Ninguno</option><option value="1">1</option><option value="2">2</option><option value="3">3 o más</option></select></label>
+    <div id="rvr"></div><div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`, 'guia');
+  const go = () => { v.querySelector('#rvr').innerHTML = revisar(v.querySelector('#rv-m').value, v.querySelector('#rv-s').value, +v.querySelector('#rv-n').value); };
+  v.addEventListener('input', go); v.addEventListener('change', go);
+}
+
+// ---------- Cómo me ven ----------
+function openVen() {
+  const v = sheet('', 'guia');
+  const set = html => { const sh = v.querySelector('.sheet'); sh.innerHTML = `<div class="grab"></div>${html}`; sh.scrollTop = 0; };
+  const msj = 'Oye, estoy trabajando en conocerme mejor y me ayudaría mucho tu opinión sincera. Son cinco preguntas rápidas:\n' + VEN_PREGUNTAS.map((p, i) => (i + 1) + '. ' + p).join('\n') + '\nSin prisa, y gracias.';
+  const lst = () => {
+    const l = lista(K.ven);
+    set(`<h2>Cómo me ven</h2><p class="muted">Tu imagen interna suele ser peor que la real. Preguntar a tres personas de confianza es de lo que más la corrige. Elige gente que te quiera bien y que sea sincera.</p>
+      <div class="pt"><b>Mensaje para mandar</b><p style="white-space:pre-line">${esc(msj)}</p><div class="row-btns"><button class="pill" data-ven-copy>Copiar</button></div></div>
+      <button class="btn full" data-ven-new style="margin-top:12px">＋ Apuntar respuestas de alguien</button>
+      ${l.length ? `<p class="sec-h">Lo que dicen (${l.length})</p>${VEN_PREGUNTAS.map((p, i) => `<div class="pt"><b>${esc(p)}</b><ul class="gl">${l.filter(r => (r.r || [])[i]).map(r => `<li>${esc(r.r[i])} <small class="muted">· ${esc(r.quien)}</small></li>`).join('')}</ul></div>`).join('')}
+        <p class="small muted">Fíjate en lo que se repite: eso es como te ven de verdad. Y fíjate en lo que te sorprende.</p>` : ''}
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`);
+  };
+  const nuevo = () => set(`<h2>Respuestas</h2><label class="f"><span>¿Quién? (solo para ti)</span><input id="vq" type="text" placeholder="Un nombre o una inicial"></label>
+    ${VEN_PREGUNTAS.map((p, i) => `<label class="f"><span>${esc(p)}</span><textarea id="vr${i}" rows="2"></textarea></label>`).join('')}
+    <div class="acts"><button class="btn ghost" data-ven-list>Volver</button><span class="sp"></span><button class="btn" data-ven-save>Guardar</button></div>`);
+  v.addEventListener('click', e => {
+    const t = e.target;
+    if (t.closest('[data-ven-copy]')) { try { navigator.clipboard.writeText(msj); toast('Copiado'); } catch (er) {} return; }
+    if (t.closest('[data-ven-new]')) return nuevo();
+    if (t.closest('[data-ven-list]')) return lst();
+    if (t.closest('[data-ven-save]')) { const r = VEN_PREGUNTAS.map((_, i) => (v.querySelector('#vr' + i).value || '').trim()); if (!r.some(Boolean)) return toast('Apunta al menos una respuesta'); store(K.ven, lista(K.ven).concat({ id: uid('v'), fecha: new Date().toISOString(), quien: (v.querySelector('#vq').value || '').trim() || 'Alguien', r })); toast('Guardado'); return lst(); }
+  });
+  lst();
+}
+
+// ---------- Mis pruebas ----------
+const PRUEBA_TIPOS = { hice: 'Lo hice', dijeron: 'Me dijeron', supere: 'Lo superé', trate: 'Me traté bien' };
+function openPruebas() {
+  const v = sheet('', 'guia');
+  const set = html => { const sh = v.querySelector('.sheet'), y = sh.scrollTop; sh.innerHTML = `<div class="grab"></div>${html}`; sh.scrollTop = y; };
+  let tipo = 'hice';
+  const paint = () => {
+    const c = Object.assign({ vieja: 'No soy suficiente', nueva: '', hist: [] }, load(K.creencia, {}) || {}), l = lista(K.pruebas).slice().reverse(), hoy = (c.hist || []).find(h => h.f === hoyKey());
+    set(`<h2>Mis pruebas</h2><p class="muted">Una creencia de fondo (muchas veces de la infancia) no cambia discutiendo con ella, sino juntando pruebas reales en contra, día a día. Esto se lleva a terapia tal cual.</p>
+      <label class="f"><span>La creencia que quieres cambiar</span><input id="pv-v" type="text" value="${esc(c.vieja)}"></label>
+      <label class="f"><span>La creencia más justa que quieres construir</span><input id="pv-n" type="text" value="${esc(c.nueva)}" placeholder="Ej.: Valgo, aunque a veces me cueste"></label>
+      <label class="f"><span>¿Cuánto te crees hoy la primera? <b id="pv-x">${hoy ? hoy.v : 70}</b> de 100</span><input id="pv-s" type="range" min="0" max="100" step="5" value="${hoy ? hoy.v : 70}"></label>
+      <div class="row-btns"><button class="pill" data-pv-save>Guardar</button></div>
+      ${(c.hist || []).length > 1 ? `<p class="small muted" style="margin-top:8px">Cómo ha cambiado: ${c.hist.slice(-10).map(h => h.v).join(' → ')}</p>` : ''}
+      <h3 class="gh">Añadir una prueba</h3>
+      <div class="pills">${Object.entries(PRUEBA_TIPOS).map(([k, n]) => `<button type="button" class="pill ${tipo === k ? 'on' : ''}" data-pv-t="${k}">${n}</button>`).join('')}</div>
+      <textarea id="pv-txt" rows="2" placeholder="Ej.: Hablé con una chica en la cola y fue bien. / Mi amiga me dijo que soy muy buen oyente."></textarea>
+      <div class="row-btns"><button class="pill" data-pv-add>Añadir</button></div>
+      <p class="sec-h">${l.length} ${l.length === 1 ? 'prueba' : 'pruebas'}</p>
+      ${l.map(p => `<div class="pt"><small class="muted">${PRUEBA_TIPOS[p.tipo] || ''} · ${fCorta(p.fecha)}</small><p style="margin:4px 0 0">${esc(p.texto)}</p><button class="pill" data-pv-del="${p.id}" style="margin-top:6px">Quitar</button></div>`).join('')}
+      <div class="acts"><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`);
+  };
+  v.addEventListener('input', e => { if (e.target.id === 'pv-s') v.querySelector('#pv-x').textContent = e.target.value; });
+  v.addEventListener('click', e => {
+    const t = e.target; let x;
+    if ((x = t.closest('[data-pv-t]'))) { tipo = x.dataset.pvT; x.parentNode.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', p === x)); return; }
+    if (t.closest('[data-pv-save]')) { const c = Object.assign({ hist: [] }, load(K.creencia, {}) || {}), val = +v.querySelector('#pv-s').value; const hist = (c.hist || []).filter(h => h.f !== hoyKey()).concat({ f: hoyKey(), v: val }); store(K.creencia, { vieja: v.querySelector('#pv-v').value.trim(), nueva: v.querySelector('#pv-n').value.trim(), hist }); toast('Guardado'); return paint(); }
+    if (t.closest('[data-pv-add]')) { const txt = (v.querySelector('#pv-txt').value || '').trim(); if (!txt) return; store(K.pruebas, lista(K.pruebas).concat({ id: uid('r'), fecha: new Date().toISOString(), tipo, texto: txt })); toast('Una prueba más'); return paint(); }
+    if ((x = t.closest('[data-pv-del]'))) { store(K.pruebas, lista(K.pruebas).filter(p => p.id !== x.dataset.pvDel)); return paint(); }
+  });
+  paint();
+}
+
+// ---------- Planes en Barcelona ----------
+function openPlanes() {
+  const v = sheet('', 'guia'), F = { con: '', m: '', p: '', e: '' };
+  const grupos = [['con', 'Con quién', { cita: 'Una cita', amigos: 'Amigos', solo: 'Solo', conocer: 'Conocer gente' }], ['m', 'Cuándo', { dia: 'De día', tarde: 'Tarde', noche: 'Noche' }], ['p', 'Dinero', { 1: 'Poco', 2: 'Algo más' }], ['e', 'Energía', { tranquilo: 'Tranquilo', activo: 'Activo' }]];
+  const paint = () => {
+    const l = simMezcla(PLANES_BCN.filter(x => (!F.con || x.con.includes(F.con)) && (!F.m || x.m.includes(F.m)) && (!F.p || x.p <= +F.p) && (!F.e || x.e === F.e))).slice(0, 5).map(z => z[0]);
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><h2>Planes en Barcelona</h2><p class="muted">Tipos de plan, no locales concretos. Con una frase para proponerlo y una pregunta para después.</p>
+      ${grupos.map(([k, n, o]) => `<p class="small muted" style="margin:10px 0 4px">${n}</p><div class="pills">${Object.entries(o).map(([val, t]) => `<button type="button" class="pill ${F[k] === val ? 'on' : ''}" data-pl="${k}" data-v="${val}">${t}</button>`).join('')}</div>`).join('')}
+      ${l.length ? l.map(x => `<div class="pt"><b>${esc(x.t)}</b><p class="small muted">${esc(x.z)} · ${x.p === 1 ? '€' : '€€'}</p><p>${esc(x.d)}</p><p class="small">Para la conversación: ${esc(x.q)}</p></div>`).join('') : '<p class="vacio">Nada con esos filtros. Quita alguno.</p>'}
+      <div class="acts"><button class="btn ghost" data-pl-otra>Otras ideas</button><span class="sp"></span><button class="btn" data-close>Cerrar</button></div>`;
+  };
+  v.addEventListener('click', e => { const x = e.target.closest('[data-pl]'); if (x) { F[x.dataset.pl] = F[x.dataset.pl] === x.dataset.v ? '' : x.dataset.v; return paint(); } if (e.target.closest('[data-pl-otra]')) paint(); });
+  paint();
+}
+
+// ---------- Plan de 8 semanas ----------
+function plan8Foco() {
+  const h = simHist().slice(-30); if (h.length < 3) return '';
+  const d = Object.keys(SIM_ESTILOS).map(t => [t, h.filter(x => x.des === t).length - h.filter(x => x.ins === t).length]).sort((a, b) => b[1] - a[1])[0];
+  return d && d[1] > 0 ? `En el simulador, lo que más querrías hacer y no haces es: ${SIM_ESTILOS[d[0]][1].toLowerCase()}. Busca esta semana una ocasión pequeña para eso.` : '';
+}
+function plan8HTML() {
+  const p = load(K.plan8, null);
+  if (!p) return `<div class="card consejo"><span class="small muted">🗺️ Plan de 8 semanas</span><p>Un foco cada semana: tres guías, una escena del simulador, un reto y un experimento. Para no perderte entre tantas cosas.</p><div class="row-btns" style="margin-top:8px"><button class="pill" data-act="plan8">Ver el plan</button></div></div>`;
+  if (p.fin) return '';
+  const w = PLAN8[p.sem], k = 's' + p.sem, hh = p.hecho || {}, desde = p.desde || p.inicio;
+  const fila = (ok, tag, cuerpo, attr) => `<div class="sem-f ${ok ? 'ok' : ''}"><span class="sem-c">${ok ? '✓' : ''}</span><span class="b"><small>${tag}</small>${cuerpo}</span>${attr}</div>`;
+  const docs = w.docs.map(id => DOCS.find(d => d.id === id)).filter(Boolean);
+  const escOk = simHist().some(x => x.esc === w.esc && x.fecha >= desde), sc = SIM_ESCENAS.find(e => e.id === w.esc);
+  const expOk = lista(K.exp).some(e => e.res && e.fres >= desde);
+  const foco = plan8Foco();
+  return `<div class="card sem"><div class="sem-h"><h2>Semana ${p.sem + 1} de 8 · ${esc(w.t)}</h2></div><p class="sub">${esc(w.foco)}</p>
+    ${docs.map(d => fila(!!leidas()[d.id], 'Leer', `<b>${esc(d.titulo)}</b>`, `<button class="pill" data-doc="${d.id}">Leer</button>`)).join('')}
+    ${sc ? fila(escOk, 'Simulador', `<b>${esc(sc.t)}</b>`, `<button class="pill" data-simesc="${sc.id}">Jugar</button>`) : ''}
+    ${fila(!!hh[k + 'reto'], 'Reto de la semana', `<b>${esc(w.reto)}</b>`, `<button class="pill ${hh[k + 'reto'] ? 'on' : ''}" data-p8="${k}reto">${hh[k + 'reto'] ? 'Hecho' : 'Lo he hecho'}</button>`)}
+    ${fila(expOk, 'Experimento', `<b>${esc(w.exp)}</b>`, `<button class="pill" data-p8exp="${esc(w.exp)}">Probar</button>`)}
+    ${foco ? `<p class="small" style="margin:10px 0 0">🎯 ${esc(foco)}</p>` : ''}
+    <div class="row-btns"><button class="pill" data-act="plan8">Ver el plan</button></div></div>`;
+}
+function openPlan8() {
+  const v = sheet('', 'guia');
+  const paint = () => {
+    const p = load(K.plan8, null);
+    v.querySelector('.sheet').innerHTML = `<div class="grab"></div><h2>Plan de 8 semanas</h2><p class="muted">Un foco por semana. Pasas a la siguiente cuando tú quieras: no hay prisa ni rachas. Si una semana se alarga, se alarga.</p>
+      ${PLAN8.map((w, i) => `<div class="pt" style="${p && !p.fin && p.sem === i ? 'outline:2px solid var(--accent)' : ''}"><b>${i + 1}. ${esc(w.t)}</b><p class="small">${esc(w.foco)}</p></div>`).join('')}
+      <div class="acts">${p ? '<button class="btn ghost" data-p8-reset>Empezar de nuevo</button>' : ''}<span class="sp"></span>
+        ${!p ? '<button class="btn" data-p8-go>Empezar</button>' : p.fin ? '' : p.sem < 7 ? '<button class="btn" data-p8-next>Pasar a la siguiente semana</button>' : '<button class="btn" data-p8-end>Terminar el plan</button>'}</div>`;
+  };
+  v.addEventListener('click', e => {
+    const p = load(K.plan8, null), now = new Date().toISOString();
+    if (e.target.closest('[data-p8-go]')) { store(K.plan8, { inicio: now, desde: now, sem: 0, hecho: {} }); toast('Plan empezado. Lo tienes en Hoy.'); render(); return paint(); }
+    if (e.target.closest('[data-p8-next]') && p) { store(K.plan8, Object.assign({}, p, { sem: Math.min(7, p.sem + 1), desde: now })); toast('Semana ' + (p.sem + 2)); render(); return paint(); }
+    if (e.target.closest('[data-p8-end]') && p) { store(K.plan8, Object.assign({}, p, { fin: now })); toast('Plan terminado. Lo que has practicado se queda contigo.'); render(); return paint(); }
+    if (e.target.closest('[data-p8-reset]')) { store(K.plan8, { inicio: now, desde: now, sem: 0, hecho: {} }); toast('Plan reiniciado'); render(); return paint(); }
+  });
+  paint();
 }
 
 // ---------- Todos los tips ----------
@@ -867,6 +1163,12 @@ function textoResumen() {
   if (dif.length) { L.push('', 'Momentos difíciles:'); dif.forEach(e => L.push('· ' + fCorta(e.fecha) + ': ' + e.texto)); }
   const vic = a.d.filter(e => e.tipo === 'victoria' && e.texto);
   if (vic.length) { L.push('', 'Victorias:'); vic.forEach(e => L.push('· ' + fCorta(e.fecha) + ': ' + e.texto)); }
+  const ex = lista(K.exp).filter(e => e.res && e.fres >= desde);
+  if (ex.length) { L.push('', 'Experimentos (' + ex.length + '):'); ex.forEach(e => L.push('· Creía: «' + e.cre + '» (' + e.prob + ' %) → ' + EXP_RES[e.res] + (e.paso ? '. Pasó: ' + e.paso : '') + (e.apr ? '. Aprendí: ' + e.apr : ''))); }
+  const pr = lista(K.pruebas).filter(p => p.fecha >= desde);
+  if (pr.length) { L.push('', 'Pruebas contra mi creencia (' + pr.length + '):'); pr.forEach(p => L.push('· ' + p.texto)); }
+  const cr = load(K.creencia, null);
+  if (cr && (cr.hist || []).length) L.push('', 'Cuánto me creo «' + (cr.vieja || '') + '» (0-100): ' + cr.hist.slice(-8).map(h => h.v).join(' → '));
   const ter = terapia().filter(t => !t.hecho);
   if (ter.length) { L.push('', 'Lo que quiero hablar en sesión:'); ter.forEach(t => L.push('· ' + t.texto)); }
   return L.join('\n');
@@ -1015,6 +1317,7 @@ function vProgreso() {
     <div class="card"><h2>Tu ansiedad</h2>${chartHTML()}</div>
     <button class="btn soft full" data-act="resumen" style="margin-bottom:12px">📄 Resumen para tu psicóloga</button>
     <div class="card"><h2>Lo que has hecho</h2>${tl.length ? tl.slice(0, 25).map(([f, i, t]) => `<div class="tl"><span class="d">${fCorta(f)}</span><span>${i} ${esc(t)}</span></div>`).join('') : '<p class="vacio">Aquí irán apareciendo tus victorias, retos y lecturas.</p>'}</div>
+    ${expStatsHTML()}
     ${syncCardHTML()}
     <div class="card"><h2>PIN</h2><p class="sub">${load(K.pin, null) ? 'Cimientos pide el PIN al abrirla y al volver después de un minuto fuera.' : 'Para que nadie más pueda abrir Cimientos en tu móvil.'}</p>
       <div class="row-btns" style="margin-top:0"><button class="btn soft" data-act="pinset">${load(K.pin, null) ? 'Cambiar PIN' : 'Poner un PIN'}</button>${load(K.pin, null) ? '<button class="btn ghost" data-act="pinquitar">Quitar</button>' : ''}</div></div>
@@ -1071,6 +1374,9 @@ document.addEventListener('click', e => {
     store(K.borradores, l.filter(z => z.id !== id)); render(); return toast(acc === 'borrar' ? 'Borrado. Bien pensado.' : 'Guardado en tu diario');
   }
   if (t.closest('[data-tipo-dificil]')) { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); ui.tipo = 'dificil'; return goTab('diario'); }
+  if ((x = t.closest('#app [data-simesc]'))) return openSim(x.dataset.simesc);
+  if ((x = t.closest('#app [data-p8exp]'))) return openExp({ cre: x.dataset.p8exp });
+  if ((x = t.closest('#app [data-p8]'))) { const p = load(K.plan8, null); if (!p) return; const h = Object.assign({}, p.hecho); h[x.dataset.p8] = !h[x.dataset.p8]; store(K.plan8, Object.assign({}, p, { hecho: h })); const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('[data-semck]'))) { const w = semana(); w.hecho = Object.assign({}, w.hecho, { [x.dataset.semck]: !(w.hecho || {})[x.dataset.semck] }); store(K.semana, w); const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('[data-fav]'))) { const id = x.dataset.fav, f = favs(); store(K.favs, f.includes(id) ? f.filter(z => z !== id) : f.concat(id)); x.outerHTML = favBtn(id); if (tab === 'aprender' && !document.querySelector('.veil')) render(); return; }
   if ((x = t.closest('#app [data-guia]'))) return openGuia(x.dataset.guia);
@@ -1104,6 +1410,14 @@ document.addEventListener('click', e => {
     if (a === 'ahora') return openAhora();
     if (a === 'tips') return openTips();
     if (a === 'sim') return openSim();
+    if (a === 'exp') return openExp();
+    if (a === 'preg') return openPreg();
+    if (a === 'revisor') return openRevisor();
+    if (a === 'ven') return openVen();
+    if (a === 'pruebas') return openPruebas();
+    if (a === 'planes') return openPlanes();
+    if (a === 'plan8') return openPlan8();
+    if (a === 'retos') return goTab('retos');
     if (a === 'otrotip') { ui.tipOff = (ui.tipOff || 0) + 1; return render(); }
     if (a === 'bajonvisto') { store(K.bajon, Object.assign({}, load(K.bajon, {}), { visto: true })); return render(); }
     if (a === 'ensayo') return openEnsayo();
