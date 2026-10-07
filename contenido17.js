@@ -19,7 +19,7 @@ DOCS.push(
   { id:'d-tu-cuerpo', grupo:'ligar', icono:'🕴️', titulo:'Tu lenguaje corporal: qué transmites', sub:'Cómo estar relajado, abierto y presente', secciones:[
     ['Lo que comunica seguridad', ['Espalda recta y hombros relajados hacia atrás, sin rigidez.', 'Movimientos lentos y suaves, sin prisas.', 'Manos visibles y tranquilas.', 'Mirada tranquila y sonrisa natural.', 'Ocupar tu espacio sin invadir el de los demás.']],
     ['Lo que comunica nervios', ['Encogerte, cruzar brazos, tocarte la cara, mirar al suelo, mover mucho las manos o los pies.']],
-    ['Un truco: la postura de poder suave', ['Antes de una conversación importante, abre el pecho, suelta los hombros y respira hondo. El cuerpo manda el mensaje a la cabeza y calma.']],
+    ['Postura y ánimo: lo que se sabe', ['Se dijo que las «poses de poder» cambian las hormonas. Eso no se ha podido repetir. Lo que parece quedar es un efecto pequeño en cómo te sientes, y respirar lento sí calma de verdad.', 'Úsalo como higiene (abrir el pecho, soltar los hombros, respirar), no como magia.']],
     ['Mito de «hombre alfa»', ['No necesitas dominar ni ocupar un montón de espacio. Mostrar calma, interés y respeto es mucho más atractivo y real.']],
     ['Ensayo', ['Grábate un minuto hablando y míralo. Seguramente te sorprenda lo bien que se te ve.']]
   ]},
@@ -27,8 +27,8 @@ DOCS.push(
     ['Para usar con honestidad', ['Estos «trucos» son pequeñas costumbres que mejoran el trato. No son para manipular: si lo usas para hacer sentir bien a alguien, funciona; si lo usas para engañar, se nota.']],
     ['Mirar el color de los ojos', ['Un truco sencillo para mirar a los ojos sin agobiarte: al saludar, fíjate en el color de sus ojos. Fuerza una mirada de un segundo y natural.']],
     ['La pausa antes de contestar', ['Un segundo de pausa antes de responder da sensación de calma y de que piensas lo que dices.']],
-    ['Efecto espejo', ['Sin exagerar, adapta tu tono y ritmo al suyo (más tranquilo si habla tranquilo). La gente se siente más cómoda con quien se le parece.']],
-    ['Pedir un pequeño favor', ['A las personas nos suele caer bien quien nos pide un favor pequeño (que nos presten el cargador, que nos recomienden un sitio). Funciona porque nos sentimos útiles.']],
+    ['Efecto espejo', ['Sin exagerar, adapta tu tono y ritmo al suyo (más tranquilo si habla tranquilo). El efecto es pequeño y si se nota que imitas, cae mal: úsalo solo para sintonizar.']],
+    ['Pedir un pequeño favor', ['A las personas nos suele caer bien quien nos pide un favor pequeño (que nos presten el cargador, que nos recomienden un sitio). Funciona porque nos sentimos útiles (la evidencia es modesta: tómalo como una idea amable, no como una ley).']],
     ['Dejar algo abierto', ['Acabar la conversación con un hilo pendiente («luego me cuentas cómo acabó lo de ___») hace que quede ganas de verse otra vez.']],
     ['Cambiar de sitio', ['Pasar de un lugar a otro (del bar a un paseo) crea la sensación de que habéis vivido más cosas juntos. Es un buen truco en una primera cita.']],
     ['Nombrar la emoción', ['«Qué ilusión te hace, se te nota» hace que alguien se sienta visto. Es de lo más potente y completamente honesto.']],

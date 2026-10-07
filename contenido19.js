@@ -41,7 +41,7 @@ DOCS.push(
   { id:'d-vulva', grupo:'cuerpo', icono:'🌺', titulo:'Curiosidades sobre la vulva y el cuerpo de ella', sub:'Lo que casi nadie te ha contado', secciones:[
     ['Vulva, no vagina', ['La vulva es la parte externa (labios, clítoris, entrada). La vagina es el canal interno. Mucha gente los confunde.']],
     ['Cada vulva es distinta', ['Varía mucho en forma, color y tamaño de los labios. Todas son normales.']],
-    ['El clítoris', ['Es mucho más grande por dentro de lo que se ve. Tiene unas 8.000 terminaciones nerviosas, más que ninguna otra zona del cuerpo.']],
+    ['El clítoris', ['Es mucho más grande por dentro de lo que se ve. Tiene miles de terminaciones nerviosas (se suele citar unas 8.000), muchas más que otras zonas del cuerpo.']],
     ['Lubricación y olor', ['Cambian con el ciclo, el estrés, la hidratación y la excitación. Es normal que el olor y la humedad varíen.']],
     ['Eyaculación femenina (squirt)', ['Algunas mujeres expulsan líquido al orgasmo y otras no. No es una meta ni un «nivel superior».', 'No lo fuerces ni lo conviertas en objetivo: genera presión. Si ocurre, es una experiencia más.']],
     ['Depilación genital', ['Es una opción, no una obligación. Tanto con vello como sin él es normal. Pregunta qué prefiere cada uno y respeta su decisión.']]
@@ -149,7 +149,7 @@ TIPS.push(
   ['Cuerpo y salud', 'No compres pastillas «de rendimiento» por internet. Pueden ser falsas o peligrosas.'],
   ['Cuerpo y salud', 'Una curvatura ligera es muy común. Si es nueva o dolorosa, consulta al médico.'],
   ['Cuerpo y salud', 'El himen no se «rompe» y que no sangre no significa nada.'],
-  ['Preliminares', 'El clítoris tiene unas 8.000 terminaciones nerviosas. Trátalo con suavidad.'],
+  ['Preliminares', 'El clítoris tiene miles de terminaciones nerviosas. Trátalo con suavidad.'],
   ['Preliminares', 'La mayoría del placer femenino se estimula por fuera. La longitud importa poco.'],
   ['Preliminares', 'Una almohada bajo las caderas cambia el ángulo y puede resultar más cómodo.'],
   ['Preliminares', 'Ella encima suele facilitar que ella controle ritmo y ángulo, y a ti te ayuda a ir más tranquilo.'],

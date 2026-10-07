@@ -369,7 +369,7 @@ function adaptaHTML(tema) {
   return `<div class="pt adapt"><b>Para ti</b>${l.map(([n, tx]) => `<p><small class="muted">${esc(n)}</small><br>${esc(tx)}</p>`).join('')}</div>`;
 }
 const temaGuia = id => { const b = GUIA.find(g => g.items.some(x => x.id === id)); return temaAdapta(b ? b.bloque : ''); };
-const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle' }[d.grupo] || 'social');
+const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle', experto: 'social' }[d.grupo] || 'social');
 const favs = () => load(K.favs, []) || [];
 const favBtn = id => `<button class="fav ${favs().includes(id) ? 'on' : ''}" data-fav="${id}" aria-label="Guardar">${favs().includes(id) ? '★ Guardado' : '☆ Guardar'}</button>`;
 function itemBtn(id) {
@@ -415,6 +415,9 @@ function vAprender() {
     ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
     <p class="sec-h">Qué hacer en cada situación</p>
     ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
+    <p class="sec-h">Lo que casi nadie sabe (con estudios)</p>
+    <p class="small muted" style="margin:-4px 0 8px">Cosas poco obvias y reales. Cada guía dice qué tan sólida es la evidencia.</p>
+    ${DOCS.filter(d => d.grupo === 'experto').map(docBtn).join('')}
     <p class="sec-h">Calle: que no se aprovechen de ti</p>
     ${DOCS.filter(d => d.grupo === 'calle').map(docBtn).join('')}
     <p class="sec-h">Tu cuerpo y la intimidad</p>
