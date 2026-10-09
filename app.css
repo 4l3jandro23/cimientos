@@ -362,3 +362,4 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .sim-cons p { margin: 8px 0; font-size: 15px; }
 .sim-bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
 .sim-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.sl-q { margin: 14px 0 6px; font-size: 14px; opacity: .75; }

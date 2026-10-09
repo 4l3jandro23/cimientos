@@ -19,6 +19,7 @@ const K = {
   mias: 'cimientosMias',
   borradores: 'cimientosBorradores',
   bajon: 'cimientosBajon',
+  ficha: 'cimientosFicha',
   sim: 'cimientosSim',
   exp: 'cimientosExp',
   escenas: 'cimientosEscenas',
@@ -120,6 +121,7 @@ function vHoy() {
     <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
+    ${fichaHTML()}
     ${plan8HTML()}
     ${equilibrioHTML()}
     ${semanaHTML()}
@@ -1061,22 +1063,35 @@ function bajonAyerHTML() {
 }
 
 // ---------- Voy a salir ya ----------
+const FICHA_TOPES = ['Hoy sin alcohol', 'Hasta 2 copas', 'Hasta 3 copas'];
+const FICHA_HORAS = ['01:30', '02:00', '02:30'];
+const FICHA_AMIGO = 'Si uno se queda con alguien, el otro hace su vida y nos escribimos. Sin rollos. Y si uno se quiere ir, avisa.';
+function fichaHTML() {
+  const f = load(K.ficha, null); if (!f || !f.fecha) return '';
+  const h = (Date.now() - Date.parse(f.fecha)) / 3600e3; if (h > 16) return '';
+  return `<div class="card consejo"><span class="small muted">🌙 Tu ficha de esta noche</span>
+    <ul class="gl" style="margin-top:6px">${f.obj ? `<li><b>Objetivo:</b> ${esc(f.obj)}</li>` : ''}${f.tope ? `<li><b>Tope:</b> ${esc(f.tope.toLowerCase())}</li>` : ''}${f.hora ? `<li><b>A las ${esc(f.hora)}</b> decido si me voy. Antes no.</li>` : ''}
+    <li><b>Si me agobio:</b> aire fuera cinco minutos, y vuelvo o me voy. Las dos valen.</li><li><b>Si me comparo:</b> mi terreno es conversar. Vuelvo al objetivo.</li><li><b>Si me dicen que no:</b> «¡Que pases buena noche!» y vuelvo con los míos.</li></ul>
+    <div class="row-btns"><button class="pill" data-act="ahora">Estoy fuera ahora</button><button class="pill" data-act="fichacopy">Copiar mensaje para mi amigo</button></div>
+    <p class="small muted" style="margin-top:8px">Al volver: apunta tres cosas que sí hiciste.</p></div>`;
+}
 function openSalir() {
   const o = document.createElement('div'); o.className = 'sos-full'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Voy a salir ya');
   document.body.appendChild(o); document.body.style.overflow = 'hidden';
   const frases = (load(K.frases, null) || FRASES_SALIR).slice(0, 3);
-  let paso = 0, obj = '';
+  let paso = 0, obj = '', tope = '', hora = '';
   const close = () => { clearTimeout(sosTimer); o.remove(); document.body.style.overflow = ''; };
   const paint = () => {
     clearTimeout(sosTimer);
     let body;
     if (paso === 0) body = `<h3 class="sl-h">Tu objetivo de hoy</h3><p>Uno solo, pequeño y que dependa de ti.</p><div class="sl-obj">${OBJETIVOS_SALIR.map(x => `<button class="${obj === x ? 'on' : ''}" data-obj="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
     else if (paso === 1) body = `<h3 class="sl-h">Tus tres frases</h3><p>Por si te quedas en blanco. Puedes cambiarlas.</p>${frases.map((f, k) => `<input class="sl-in" data-fr="${k}" value="${esc(f)}">`).join('')}`;
-    else if (paso === 2) body = `<div class="breath"><b>Prepárate</b></div><p id="ronda">Tres respiraciones</p>`;
-    else body = `<h3 class="sl-h">Vamos</h3><div class="recuerda">${obj ? `<div><b>Tu objetivo:</b> ${esc(obj)}</div>` : ''}<div>No tiene que salir perfecto. Con hacer tu objetivo, la noche ya ha salido bien.</div><div>Si te agobias: sal cinco minutos, respira y vuelve o vete. Las dos cosas están bien.</div><div>Mañana, apunta cómo fue.</div></div>`;
+    else if (paso === 2) body = `<h3 class="sl-h">Tu ficha de esta noche</h3><p>Lo decides ahora, con la cabeza fría. Luego no hay que pensarlo.</p><p class="sl-q">Tope de bebida</p><div class="sl-obj">${FICHA_TOPES.map(x => `<button class="${tope === x ? 'on' : ''}" data-tope="${esc(x)}">${esc(x)}</button>`).join('')}</div><p class="sl-q">Hora en la que decido si me voy</p><div class="sl-obj">${FICHA_HORAS.map(x => `<button class="${hora === x ? 'on' : ''}" data-hora="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
+    else if (paso === 3) body = `<div class="breath"><b>Prepárate</b></div><p id="ronda">Tres respiraciones</p>`;
+    else body = `<h3 class="sl-h">Vamos</h3><div class="recuerda">${obj ? `<div><b>Tu objetivo:</b> ${esc(obj)}</div>` : ''}${tope ? `<div><b>Tope:</b> ${esc(tope.toLowerCase())}</div>` : ''}${hora ? `<div><b>A las ${esc(hora)}</b> decides si te vas, no antes.</div>` : ''}<div>No tiene que salir perfecto. Con hacer tu objetivo, la noche ya ha salido bien.</div><div>Si te agobias: sal cinco minutos, respira y vuelve o vete. Las dos cosas están bien.</div><div>Mañana, apunta cómo fue.</div></div>`;
     o.innerHTML = `<button class="x" data-sl="cerrar">Cerrar</button><div class="sos-body">${body}</div>
-      <div class="sos-foot"><button class="btn" data-sl="${paso < 3 ? 'sig' : 'fin'}">${paso < 3 ? 'Siguiente' : 'Me voy'}</button></div>`;
-    if (paso === 2) {
+      <div class="sos-foot"><button class="btn" data-sl="${paso < 4 ? 'sig' : 'fin'}">${paso < 4 ? 'Siguiente' : 'Me voy'}</button></div>`;
+    if (paso === 3) {
       let k = 0, r = 0; const ph = [['Coge aire', 4000, 1], ['Aguanta', 2000, 1], ['Suéltalo despacio', 6000, .55]];
       const step = () => { const c = o.querySelector('.breath'); if (!c) return; const [t, d, sc] = ph[k]; c.style.setProperty('--d', d + 'ms'); c.style.setProperty('--s', sc); c.querySelector('b').textContent = t; sosTimer = setTimeout(() => { k = (k + 1) % 3; if (!k) { r++; const el = o.querySelector('#ronda'); if (el) el.textContent = r < 3 ? `Respiración ${r + 1} de 3` : 'Ya está. Cuando quieras.'; if (r >= 3) return; } step(); }, d); };
       setTimeout(step, 300);
@@ -1085,11 +1100,14 @@ function openSalir() {
   paint();
   o.addEventListener('click', e => {
     const b = e.target.closest('[data-obj]'); if (b) { obj = b.dataset.obj; return paint(); }
+    const bt = e.target.closest('[data-tope]'); if (bt) { tope = bt.dataset.tope; return paint(); }
+    const bh = e.target.closest('[data-hora]'); if (bh) { hora = bh.dataset.hora; return paint(); }
     const s2 = e.target.closest('[data-sl]'); if (!s2) return;
     if (paso === 1) { o.querySelectorAll('[data-fr]').forEach(i => { frases[+i.dataset.fr] = i.value; }); store(K.frases, frases); }
     if (s2.dataset.sl === 'cerrar') return close();
     if (s2.dataset.sl === 'sig') { paso++; return paint(); }
-    close(); toast('Disfruta. Mañana apunta cómo fue.');
+    store(K.ficha, { fecha: new Date().toISOString(), obj, tope, hora });
+    close(); toast('Disfruta. Mañana apunta cómo fue.'); render();
   });
 }
 
@@ -1407,6 +1425,7 @@ document.addEventListener('click', e => {
     if (a === 'carta') return openCarta();
     if (a === 'quiz' || a === 'senales' || a === 'frases') return openQuiz(a);
     if (a === 'salir') return openSalir();
+    if (a === 'fichacopy') { try { navigator.clipboard.writeText(FICHA_AMIGO); toast('Copiado'); } catch (er) {} return; }
     if (a === 'bajon') return openBajon();
     if (a === 'ahora') return openAhora();
     if (a === 'tips') return openTips();
