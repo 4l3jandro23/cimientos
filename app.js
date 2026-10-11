@@ -380,7 +380,7 @@ function adaptaHTML(tema) {
   return `<div class="pt adapt"><b>Para ti</b>${l.map(([n, tx]) => `<p><small class="muted">${esc(n)}</small><br>${esc(tx)}</p>`).join('')}</div>`;
 }
 const temaGuia = id => { const b = GUIA.find(g => g.items.some(x => x.id === id)); return temaAdapta(b ? b.bloque : ''); };
-const temaDoc = d => ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle', experto: 'social', avanzado: 'social' }[d.grupo] || 'social');
+const temaDoc = d => d.tema || ({ cuerpo: 'intimidad', ligar: 'citas', carisma: 'social', yo: 'yo', calle: 'calle', experto: 'social', avanzado: 'social' }[d.grupo] || 'social');
 const favs = () => load(K.favs, []) || [];
 const favBtn = id => `<button class="fav ${favs().includes(id) ? 'on' : ''}" data-fav="${id}" aria-label="Guardar">${favs().includes(id) ? '★ Guardado' : '☆ Guardar'}</button>`;
 function itemBtn(id) {
@@ -431,6 +431,9 @@ function vAprender() {
     <p class="sec-h">Mis situaciones</p>
     ${(load(K.mias, []) || []).map(m => `<button class="lec" data-mia="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>${esc((m.prox || m.paso || '').slice(0, 70))}</small></span><span class="go">›</span></button>`).join('')}
     <button class="btn soft full" data-act="mia">＋ Añadir una situación mía</button>
+    <p class="sec-h">Nivel pro: lo que me pediste</p>
+    <p class="small muted" style="margin:-4px 0 8px">Noche, conversación, aura, señales, calle y sexualidad. Lo menos obvio, aplicado a ti.</p>
+    ${PRO_GRUPOS.map(([n, ids]) => { const l = ids.map(id => DOCS.find(d => d.id === id)).filter(Boolean); return l.length ? `<details class="blq"><summary><span>${esc(n)}</span><small>${l.filter(d => leidas()[d.id]).length} de ${l.length}</small></summary>${l.map(docBtn).join('')}</details>` : ''; }).join('')}
     <p class="sec-h">Carisma y confianza</p>
     ${DOCS.filter(d => d.grupo === 'carisma').map(docBtn).join('')}
     <p class="sec-h">Ligar, de principio a fin</p>
