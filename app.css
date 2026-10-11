@@ -369,3 +369,9 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 @media (prefers-color-scheme: dark) { .sos.solo-b { background: #3A2A22; } }
 .sos-full.solo .bj-h { font-size: 30px; }
 .sos-full.solo .bj-bt button { font-size: 19px; padding: 16px 18px; }
+
+.grupo-s { background: var(--bg); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
+.grupo-s.top { outline: 2px solid var(--warm); }
+.grupo-s .tag { display: table; margin-bottom: 6px; }
+.grupo-s small { display: block; margin-top: 4px; line-height: 1.4; }
+a.pill { text-decoration: none; display: inline-flex; align-items: center; }

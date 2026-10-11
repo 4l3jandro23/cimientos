@@ -27,7 +27,8 @@ const K = {
   pruebas: 'cimientosPruebas',
   creencia: 'cimientosCreencia',
   plan8: 'cimientosPlan8',
-  pin: 'cimientosPin'
+  pin: 'cimientosPin',
+  grupo: 'cimientosGrupo'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const store = (k, v) => { const old = load(k, null); try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} if (typeof CS !== 'undefined') CS.touch(k, old, v); };
@@ -123,6 +124,7 @@ function vHoy() {
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
     ${load(K.pin, null) ? '' : '<button class="sos plan" data-act="pinset"><span class="ic">🔒</span><span><b>Pon un PIN</b><small>Para que nadie más pueda abrir Cimientos</small></span><span class="go">›</span></button>'}
     ${fichaHTML()}
+    ${gruposHTML()}
     ${plan8HTML()}
     ${equilibrioHTML()}
     ${semanaHTML()}
@@ -1072,7 +1074,7 @@ const SOLO_PLANES = {
   hablar: ['📱 Manda un mensaje corto a una persona (no a cinco): «Eh, ¿qué tal? Hace tiempo que no hablamos.» Solo eso.', '📞 Llama a alguien de tu familia. No hace falta tema: «Te llamaba para saber cómo estáis».', '🍻 Propón un plan pequeño y concreto a un amigo: «¿Tomamos algo el jueves?». Un día y una hora funcionan mejor que «a ver cuándo quedamos».', '💬 Si tienes a alguien del piso cerca, algo ligero y sin presión: «¿Has cenado? Voy a hacer algo rico, ¿te apuntas?».'],
   cuidar: ['🚿 Date una ducha larga y caliente, y ponte ropa cómoda y limpia. Cambia el cuerpo y cambia la cabeza.', '🍳 Cocina algo rico de verdad (no cualquier cosa): oler y comer bien en casa cuida mucho.', '🎧 Pon tu música o álbum favorito de principio a fin, sin móvil en la mano.', '🛏️ Si es tarde, a dormir pronto. A las 23:00 todo pesa más; la mañana lo ve distinto.'],
   hacer: ['🧹 Una tarea pequeña pendiente: ordenar un cajón, lavar ropa, limpiar el escritorio. Diez minutos y hecho.', '👕 Abre Estilo y prepara el outfit de mañana.', '📖 Lee una lección de Cimientos o un capítulo de lo que estés leyendo.', '✍️ Escribe en el diario lo que sientes. Ponerle palabras lo hace más pequeño.'],
-  gente: ['📚 Mira las actividades de tu biblioteca de barrio: clubs de lectura, talleres, charlas, casi todo gratis.', '🗣️ Entra en un grupo de intercambio de idiomas de Barcelona (en Meetup o Tandem). Hay quedadas casi cada semana, y siempre se habla con desconocidos.', '🥾 Busca un grupo de senderismo o de running de tu zona: caminar al lado de alguien hace que hablar sea fácil.', '🙌 Apúntate a un voluntariado de un par de horas. Tener un papel hace que conocer gente sea más fácil.', '🧠 Cuando hagas algo así, aunque sea una vez, apúntalo en Cimientos: te acerca a tener más gente y más sitios.']
+  gente: ['📚 Mira las actividades de tu biblioteca de barrio: clubs de lectura, talleres, charlas, casi todo gratis.', '🗣️ Entra en un grupo de intercambio de idiomas de Barcelona (en Meetup o Tandem). Hay quedadas casi cada semana, y siempre se habla con desconocidos.', '🥾 Apúntate a una salida de senderismo: en Hoy tienes las de esta semana con su enlace. Caminar al lado de alguien hace que hablar sea fácil.', '🙌 Apúntate a un voluntariado de un par de horas. Tener un papel hace que conocer gente sea más fácil.', '🧠 Cuando hagas algo así, aunque sea una vez, apúntalo en Cimientos: te acerca a tener más gente y más sitios.']
 };
 function openSolo() {
   const o = document.createElement('div'); o.className = 'sos-full solo'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Me siento solo');
@@ -1116,6 +1118,25 @@ function openSolo() {
     }
     modo = a; paint();
   });
+}
+
+// ---------- Grupos para conocer gente (salidas concretas, se ocultan al pasar la fecha) ----------
+const GRUPOS_SALIDAS = [
+  { id: 'th-1810', fecha: '2026-10-18', dia: 'Domingo 18 de octubre · 9:00', grupo: 'The Hikers · Barcelona', ruta: 'Sant Feliu de Codines y el congost secreto', nivel: 'Fácil', extra: 'Grupo de 20 a 45 años. Precio y punto de encuentro en la ficha del evento (se paga online en thehikers.es; cancelas gratis hasta 48 h antes y te queda como saldo).', link: 'https://www.meetup.com/es-es/hikersbarcelona/', top: true },
+  { id: 'th-1710', fecha: '2026-10-17', dia: 'Sábado 17 de octubre · 8:00', grupo: 'The Hikers · Barcelona', ruta: 'Bufadores de Bebié (ruta de otoño)', nivel: 'Intermedio', extra: 'Grupo de 20 a 45 años. Salida desde Fabra i Puig. Precio en la ficha del evento.', link: 'https://www.meetup.com/es-es/hikersbarcelona/' },
+  { id: 'hb-1710', fecha: '2026-10-17', dia: 'Sábado 17 de octubre · 8:30', grupo: 'HIKING BCN', ruta: 'Puigsacalm + Fageda de la Grevolosa', nivel: 'Intermedio', extra: '12 km, +580 m, unas 5 h 30 con paradas. 20 € (guía y seguro) + unos 12 € de gasolina. Reserva con Bizum de 10–20 €. Quedada en la cafetería Vivari, junto a Fabra i Puig; vuelta sobre las 17:45. Grupos de 10 a 20 personas, algo más mayores.', link: 'https://www.meetup.com/es-es/hiking-barcelona/' }
+];
+function gruposHTML() {
+  const hoy = new Date().toISOString().slice(0, 10), apunt = load(K.grupo, null);
+  const l = GRUPOS_SALIDAS.filter(g => g.fecha >= hoy); if (!l.length) return '';
+  const mio = apunt && l.find(g => g.id === apunt.id);
+  if (mio) return `<div class="card consejo"><span class="small muted">🥾 Tu salida de esta semana</span><p><b>${esc(mio.dia)}</b> · ${esc(mio.ruta)} con ${esc(mio.grupo)}.</p>
+    <ul class="gl"><li>La noche antes: mochila con 1–2 L de agua, comida, gorra y zapatillas cómodas (botas si es intermedia). Duerme pronto.</li><li>Al llegar, saluda al guía y preséntate: «Hola, es mi primera vez con vosotros». Así ya te ubican.</li><li>Para hablar, camina al lado de alguien y pregunta cosas fáciles: «¿Vienes mucho?», «¿Qué ruta te ha gustado más?».</li><li>Al final, si alguien te ha caído bien: «¿Vas a la próxima?». Así la semana que viene ya conoces a alguien.</li></ul>
+    <div class="row-btns"><a class="pill" href="${mio.link}" target="_blank" rel="noopener">Ver el evento</a><button class="pill" data-grupo="">Ya no voy</button></div></div>`;
+  return `<div class="card"><h2>🥾 Senderismo esta semana</h2><p class="sub">Para conocer gente sin presión: caminar al lado de alguien hace que hablar sea fácil. Mira la ficha, apúntate en Meetup y marca aquí la que elijas.</p>
+    ${l.map(g => `<div class="grupo-s${g.top ? ' top' : ''}">${g.top ? '<span class="tag warm">La que te recomiendo</span>' : ''}<b>${esc(g.dia)}</b><div>${esc(g.ruta)} · <i>${esc(g.nivel)}</i></div><small class="muted">${esc(g.grupo)}. ${esc(g.extra)}</small>
+      <div class="row-btns" style="margin-top:8px"><a class="pill" href="${g.link}" target="_blank" rel="noopener">Abrir en Meetup</a><button class="pill" data-grupo="${g.id}">Me he apuntado</button></div></div>`).join('')}
+    <p class="small muted" style="margin-top:8px">Las plazas cambian rápido: comprueba en la ficha que quedan y el precio antes de pagar.</p></div>`;
 }
 
 // ---------- Voy a salir ya ----------
@@ -1473,6 +1494,7 @@ document.addEventListener('click', e => {
     l.splice(i, 1); store(K.diario, l); const y = scrollY; render(); scrollTo(0, y);
     return toast('Borrado', () => { const l2 = diario(); l2.splice(i, 0, old); store(K.diario, l2); render(); });
   }
+  if ((x = t.closest('[data-grupo]'))) { const id = x.dataset.grupo; store(K.grupo, id ? { id, fecha: new Date().toISOString() } : null); render(); return toast(id ? 'Apuntado. ¡Bien hecho!' : 'Quitado'); }
   if ((x = t.closest('[data-act]'))) {
     const a = x.dataset.act;
     if (a === 'sos') return openSOS();
