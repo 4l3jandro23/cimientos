@@ -1494,7 +1494,7 @@ document.addEventListener('click', e => {
     l.splice(i, 1); store(K.diario, l); const y = scrollY; render(); scrollTo(0, y);
     return toast('Borrado', () => { const l2 = diario(); l2.splice(i, 0, old); store(K.diario, l2); render(); });
   }
-  if ((x = t.closest('[data-grupo]'))) { const id = x.dataset.grupo; store(K.grupo, id ? { id, fecha: new Date().toISOString() } : null); render(); return toast(id ? 'Apuntado. ¡Bien hecho!' : 'Quitado'); }
+  if ((x = t.closest('[data-grupo]'))) { const id = x.dataset.grupo, g = GRUPOS_SALIDAS.find(z => z.id === id); store(K.grupo, g ? { id, fecha: new Date().toISOString(), salida: g.fecha, hora: (g.dia.match(/(\d{1,2}:\d{2})$/) || [])[1] || '', ruta: g.ruta, grupo: g.grupo, link: g.link } : null); render(); return toast(id ? 'Apuntado. ¡Bien hecho!' : 'Quitado'); }
   if ((x = t.closest('[data-act]'))) {
     const a = x.dataset.act;
     if (a === 'sos') return openSOS();
@@ -1694,6 +1694,9 @@ document.addEventListener('visibilitychange', () => {
 // ---------- arranque ----------
 render();
 pinLock();
+// Enlaces directos desde Mi Espacio: …/cimientos/#solo o #salir
+if (location.hash === '#solo' || location.hash === '#salir') { const h = location.hash; history.replaceState(null, '', location.pathname); const abre = () => h === '#solo' ? openSolo() : openSalir(); if (!document.querySelector('.lock')) abre(); else { const w = setInterval(() => { if (!document.querySelector('.lock')) { clearInterval(w); abre(); } }, 300); } }
+
 CS.sync();
 
 if ('serviceWorker' in navigator) {
