@@ -363,3 +363,9 @@ details.blq[open] > summary { margin-bottom: 8px; background: var(--soft); }
 .sim-bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
 .sim-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
 .sl-q { margin: 14px 0 6px; font-size: 14px; opacity: .75; }
+
+.sos.solo-b { background: #F4E6DC; }
+.sos.solo-b .ic { background: #C0714B; }
+@media (prefers-color-scheme: dark) { .sos.solo-b { background: #3A2A22; } }
+.sos-full.solo .bj-h { font-size: 30px; }
+.sos-full.solo .bj-bt button { font-size: 19px; padding: 16px 18px; }

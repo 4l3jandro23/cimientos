@@ -117,6 +117,7 @@ function vHoy() {
   return `<section class="hero"><small>${fLarga(Date.now())}</small><h1>${saludo()}</h1><p class="frase">${esc(fraseHoy())}</p></section>
     ${bajonAyerHTML()}
     <button class="sos ahora-b" data-act="ahora"><span class="ic">📍</span><span><b>Estoy fuera ahora</b><small>En un bar, de fiesta, donde sea: qué hacer en este momento</small></span><span class="go">›</span></button>
+    <button class="sos solo-b" data-act="solo"><span class="ic">🫂</span><span><b>Me siento solo y sin plan</b><small>Ideas pequeñas para ahora mismo, gratis y sin depender de nadie</small></span><span class="go">›</span></button>
     <button class="sos bajon-b" data-act="bajon"><span class="ic">🌧️</span><span><b>He bebido y me ha dado el bajón</b><small>Letra grande y pocos pasos, para esa noche</small></span><span class="go">›</span></button>
     <button class="sos salir" data-act="salir"><span class="ic">🚪</span><span><b>Voy a salir ya</b><small>30 segundos antes de entrar: objetivo, tus frases y respirar</small></span><span class="go">›</span></button>
     <button class="sos" data-act="sos"><span class="ic">🌊</span><span><b>Un momento difícil</b><small>Respirar, aterrizar y recordar lo importante</small></span><span class="go">›</span></button>
@@ -1065,6 +1066,58 @@ function bajonAyerHTML() {
     ${borrH.map(x => `<div class="bj-borr"><small>Lo que escribiste el ${fCorta(x.fecha)} a las ${new Date(x.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}:</small><p>«${esc(x.texto)}»</p><div class="row-btns" style="margin-top:6px"><button class="pill" data-borr="${x.id}" data-acc="copiar">Copiar para mandarlo</button><button class="pill" data-borr="${x.id}" data-acc="borrar">Mejor no, borrar</button></div></div>`).join('')}</div>`;
 }
 
+// ---------- Me siento solo y sin plan ----------
+const SOLO_PLANES = {
+  mover: ['🚶 Sal a caminar 30 minutos con música o un pódcast, sin destino. Ve hacia donde haya gente: el Passeig de Gràcia, la Ciutadella o el paseo de la Barceloneta.', '🌇 Si queda luz, ve a ver la puesta de sol a Montjuïc o a los Búnkers del Carmel. Ya es un plan.', '🏃 Sal a correr suave o haz tu rutina de gimnasio en casa. Moverte cambia la química del ánimo en unos 20 minutos.', '☕ Siéntate en una cafetería con un libro o la libreta. Estar entre gente, sin hablar con nadie, ya acompaña.'],
+  hablar: ['📱 Manda un mensaje corto a una persona (no a cinco): «Eh, ¿qué tal? Hace tiempo que no hablamos.» Solo eso.', '📞 Llama a alguien de tu familia. No hace falta tema: «Te llamaba para saber cómo estáis».', '🍻 Propón un plan pequeño y concreto a un amigo: «¿Tomamos algo el jueves?». Un día y una hora funcionan mejor que «a ver cuándo quedamos».', '💬 Si tienes a alguien del piso cerca, algo ligero y sin presión: «¿Has cenado? Voy a hacer algo rico, ¿te apuntas?».'],
+  cuidar: ['🚿 Date una ducha larga y caliente, y ponte ropa cómoda y limpia. Cambia el cuerpo y cambia la cabeza.', '🍳 Cocina algo rico de verdad (no cualquier cosa): oler y comer bien en casa cuida mucho.', '🎧 Pon tu música o álbum favorito de principio a fin, sin móvil en la mano.', '🛏️ Si es tarde, a dormir pronto. A las 23:00 todo pesa más; la mañana lo ve distinto.'],
+  hacer: ['🧹 Una tarea pequeña pendiente: ordenar un cajón, lavar ropa, limpiar el escritorio. Diez minutos y hecho.', '👕 Abre Estilo y prepara el outfit de mañana.', '📖 Lee una lección de Cimientos o un capítulo de lo que estés leyendo.', '✍️ Escribe en el diario lo que sientes. Ponerle palabras lo hace más pequeño.'],
+  gente: ['📚 Mira las actividades de tu biblioteca de barrio: clubs de lectura, talleres, charlas, casi todo gratis.', '🗣️ Entra en un grupo de intercambio de idiomas de Barcelona (en Meetup o Tandem). Hay quedadas casi cada semana, y siempre se habla con desconocidos.', '🥾 Busca un grupo de senderismo o de running de tu zona: caminar al lado de alguien hace que hablar sea fácil.', '🙌 Apúntate a un voluntariado de un par de horas. Tener un papel hace que conocer gente sea más fácil.', '🧠 Cuando hagas algo así, aunque sea una vez, apúntalo en Cimientos: te acerca a tener más gente y más sitios.']
+};
+function openSolo() {
+  const o = document.createElement('div'); o.className = 'sos-full solo'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Me siento solo');
+  document.body.appendChild(o); document.body.style.overflow = 'hidden';
+  let modo = 'inicio', azar = '';
+  const close = () => { o.remove(); document.body.style.overflow = ''; render(); };
+  const TIT = { mover: '🚶 Moverme', hablar: '💬 Hablar con alguien', cuidar: '🧴 Cuidarme', hacer: '✅ Hacer algo', gente: '🌱 Conocer gente' };
+  const paint = () => {
+    let body;
+    if (modo === 'inicio') body = `<h2 class="bj-h">Aquí estás.</h2><p class="bj-p">Sentirte solo duele, y es una señal, no una sentencia: dice que quieres más compañía. No dice nada malo de ti.</p>
+      <div class="bj-bt">
+        <button data-so="azar">🎲 Dame un plan ya</button>
+        <button data-so="mover">🚶 Moverme</button>
+        <button data-so="hablar">💬 Hablar con alguien</button>
+        <button data-so="cuidar">🧴 Cuidarme</button>
+        <button data-so="hacer">✅ Hacer algo</button>
+        <button data-so="gente">🌱 Conocer gente</button>
+        <button data-so="escribir">✍️ Escribir lo que siento</button>
+        <button data-so="fatal" class="rojo">Me siento muy mal de verdad</button>
+      </div>`;
+    else if (modo === 'azar') body = `<h2 class="bj-h">Prueba esto</h2><div class="bj-list"><div>${azar}</div></div><div class="bj-bt"><button data-so="azar">🎲 Otro</button><button data-so="inicio">Ver todas las ideas</button></div><p class="bj-p">No hace falta que sea perfecto. Con empezar, ya has cambiado la noche.</p>`;
+    else if (SOLO_PLANES[modo]) body = `<h2 class="bj-h">${TIT[modo]}</h2><div class="bj-list">${SOLO_PLANES[modo].map(t => `<div>${t}</div>`).join('')}</div>`;
+    else if (modo === 'escribir') body = `<h2 class="bj-h">Escríbelo aquí</h2><p class="bj-p">Sin filtrar. Solo lo lees tú.</p><textarea id="sotxt" class="bj-ta" rows="6" placeholder="Hoy me siento…"></textarea><div class="bj-bt"><button data-so="guardar">Guardar en el diario</button></div>`;
+    else if (modo === 'guardado') body = `<h2 class="bj-h">Guardado</h2><p class="bj-p">Ya está fuera de tu cabeza. Si quieres, escoge ahora una cosa pequeña de la lista.</p><div class="bj-bt"><button data-so="inicio">Ver ideas</button></div>`;
+    else body = `<h2 class="bj-h">No estás solo</h2><p class="bj-p">Si es más que tristeza, si tienes ganas de hacerte daño o no te ves bien, llama ahora:</p>
+      <div class="bj-bt"><a class="bj-tel" href="tel:024">📞 024 · gratis, 24 horas</a><a class="bj-tel" href="tel:112">🚑 112 · emergencias</a></div>
+      <p class="bj-p">O díselo a alguien de confianza, aunque sea tarde. Mereces que te escuchen.</p>`;
+    o.innerHTML = `<button class="x" data-so="${modo === 'inicio' ? 'cerrar' : 'inicio'}">${modo === 'inicio' ? 'Cerrar' : '← Atrás'}</button><div class="sos-body">${body}</div>`;
+    if (modo === 'escribir') setTimeout(() => { const t = o.querySelector('#sotxt'); if (t) t.focus(); }, 80);
+  };
+  paint();
+  o.addEventListener('click', e => {
+    const b = e.target.closest('[data-so]'); if (!b) return;
+    const a = b.dataset.so;
+    if (a === 'cerrar') return close();
+    if (a === 'azar') { const todas = [].concat(SOLO_PLANES.mover, SOLO_PLANES.hablar, SOLO_PLANES.cuidar, SOLO_PLANES.hacer); let t; do { t = todas[Math.floor(Math.random() * todas.length)]; } while (t === azar); azar = t; modo = 'azar'; return paint(); }
+    if (a === 'guardar') {
+      const t = ((o.querySelector('#sotxt') || {}).value || '').trim();
+      if (t) store(K.diario, [{ id: uid('d'), fecha: new Date().toISOString(), tipo: 'checkin', animo: null, ansiedad: null, texto: 'Me sentía solo: ' + t }].concat(diario()));
+      modo = 'guardado'; return paint();
+    }
+    modo = a; paint();
+  });
+}
+
 // ---------- Voy a salir ya ----------
 const FICHA_TOPES = ['Hoy sin alcohol', 'Hasta 2 copas', 'Hasta 3 copas'];
 const FICHA_HORAS = ['01:30', '02:00', '02:30'];
@@ -1428,6 +1481,7 @@ document.addEventListener('click', e => {
     if (a === 'carta') return openCarta();
     if (a === 'quiz' || a === 'senales' || a === 'frases') return openQuiz(a);
     if (a === 'salir') return openSalir();
+    if (a === 'solo') return openSolo();
     if (a === 'fichacopy') { try { navigator.clipboard.writeText(FICHA_AMIGO); toast('Copiado'); } catch (er) {} return; }
     if (a === 'bajon') return openBajon();
     if (a === 'ahora') return openAhora();
