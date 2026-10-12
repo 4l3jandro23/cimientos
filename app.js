@@ -28,7 +28,8 @@ const K = {
   creencia: 'cimientosCreencia',
   plan8: 'cimientosPlan8',
   pin: 'cimientosPin',
-  grupo: 'cimientosGrupo'
+  grupo: 'cimientosGrupo',
+  voz: 'cimientosVoz'
 };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const store = (k, v) => { const old = load(k, null); try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} if (typeof CS !== 'undefined') CS.touch(k, old, v); };
@@ -377,7 +378,7 @@ const lecBtn = l => `<button class="lec" data-lec="${l.id}"><span class="ic">${l
 const guiaBtn = s => `<button class="lec" data-guia="${s.id}"><span class="ic">💬</span><span class="b"><b>${esc(s.titulo)}</b><small>${esc(s.pasa.split('. ')[0])}.</small></span>${okOr(s.id)}</button>`;
 function adaptaHTML(tema) {
   const sel = load(K.perfil, []) || [], t = ADAPTA[tema] || {};
-  if (!sel.length) return `<div class="quiet" style="margin:12px 0"><b>Hazlo tuyo.</b> Elige lo que va contigo y aquí te adapto el consejo. <button class="pill" data-parati style="margin-top:8px">Elegir lo que va conmigo</button></div>`;
+  if (!sel.length) return `<div class="quiet nolee" style="margin:12px 0"><b>Hazlo tuyo.</b> Elige lo que va contigo y aquí te adapto el consejo. <button class="pill" data-parati style="margin-top:8px">Elegir lo que va conmigo</button></div>`;
   const l = sel.filter(id => t[id] && PERFIL.find(p => p.id === id)).map(id => [PERFIL.find(p => p.id === id).n, t[id]]);
   if (!l.length) return '';
   return `<div class="pt adapt"><b>Para ti</b>${l.map(([n, tx]) => `<p><small class="muted">${esc(n)}</small><br>${esc(tx)}</p>`).join('')}</div>`;
@@ -412,6 +413,7 @@ function vAprender() {
     <div id="aqres">${busq}</div>
     <div id="aqall" ${busq ? 'hidden' : ''}>
     <button class="parati" data-act="parati"><span class="ic">✨</span><span class="b"><b>Para ti</b><small>${perfil.length ? `Consejos según ${perfil.length === 1 ? 'lo que has elegido' : 'las ' + perfil.length + ' cosas que has elegido'}` : 'Elige lo que va contigo y te doy consejos a tu medida'}</small></span><span class="go">›</span></button>
+    <button class="parati nlm-top" data-nlm=""><span class="ic">📚</span><span class="b"><b>Estudiar en NotebookLM</b><small>Lleva cada apartado a NotebookLM: preguntas, resúmenes, tests y pódcast</small></span><span class="go">›</span></button>
     ${fv.length ? `<p class="sec-h">★ Guardados</p>${fv.map(itemBtn).join('')}` : ''}
     <p class="sec-h">Practicar</p>
     <div class="juegos">
@@ -434,31 +436,31 @@ function vAprender() {
     <p class="sec-h">Mis situaciones</p>
     ${(load(K.mias, []) || []).map(m => `<button class="lec" data-mia="${m.id}"><span class="ic">📝</span><span class="b"><b>${esc(m.titulo)}</b><small>${esc((m.prox || m.paso || '').slice(0, 70))}</small></span><span class="go">›</span></button>`).join('')}
     <button class="btn soft full" data-act="mia">＋ Añadir una situación mía</button>
-    <p class="sec-h">Nivel pro: lo que me pediste</p>
+    <p class="sec-h nlm-h"><span>Nivel pro: lo que me pediste</span><button class="nlm-b" data-nlm="pro" aria-label="Llevar «Nivel pro: lo que me pediste» a NotebookLM">📚 NotebookLM</button></p>
     <p class="small muted" style="margin:-4px 0 8px">Noche, conversación, aura, señales, calle y sexualidad. Lo menos obvio, aplicado a ti.</p>
     ${PRO_GRUPOS.map(([n, ids]) => { const l = ids.map(id => DOCS.find(d => d.id === id)).filter(Boolean); return l.length ? `<details class="blq"><summary><span>${esc(n)}</span><small>${l.filter(d => leidas()[d.id]).length} de ${l.length}</small></summary>${l.map(docBtn).join('')}</details>` : ''; }).join('')}
-    <p class="sec-h">Carisma y confianza</p>
+    <p class="sec-h nlm-h"><span>Carisma y confianza</span><button class="nlm-b" data-nlm="carisma" aria-label="Llevar «Carisma y confianza» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'carisma').map(docBtn).join('')}
-    <p class="sec-h">Ligar, de principio a fin</p>
+    <p class="sec-h nlm-h"><span>Ligar, de principio a fin</span><button class="nlm-b" data-nlm="ligar" aria-label="Llevar «Ligar, de principio a fin» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'ligar').map(docBtn).join('')}
-    <p class="sec-h">Qué hacer en cada situación</p>
+    <p class="sec-h nlm-h"><span>Qué hacer en cada situación</span><button class="nlm-b" data-nlm="guia" aria-label="Llevar «Qué hacer en cada situación» a NotebookLM">📚 NotebookLM</button></p>
     ${GUIA.map((g, i) => `<details class="blq" ${i === 0 ? 'open' : ''}><summary><span>${i + 1}. ${esc(g.bloque)}</span><small>${g.items.filter(x => leidas()[x.id]).length} de ${g.items.length}</small></summary>${g.items.map(guiaBtn).join('')}</details>`).join('')}
-    <p class="sec-h">Nivel avanzado: lo que dicen los libros de expertos</p>
+    <p class="sec-h nlm-h"><span>Nivel avanzado: lo que dicen los libros de expertos</span><button class="nlm-b" data-nlm="avanzado" aria-label="Llevar «Nivel avanzado: lo que dicen los libros de expertos» a NotebookLM">📚 NotebookLM</button></p>
     <p class="small muted" style="margin:-4px 0 8px">Ideas de libros de referencia, en sencillo y aplicadas a ti.</p>
     ${(() => { const av = DOCS.filter(d => d.grupo === 'avanzado'), usados = new Set(AVANZADO_GRUPOS.flatMap(g => g[1])), resto = av.filter(d => !usados.has(d.id));
       return AVANZADO_GRUPOS.concat(resto.length ? [['Más', resto.map(d => d.id)]] : []).map(([n, ids]) => { const l = ids.map(id => av.find(d => d.id === id)).filter(Boolean); return l.length ? `<details class="blq"><summary><span>${esc(n)}</span><small>${l.filter(d => leidas()[d.id]).length} de ${l.length}</small></summary>${l.map(docBtn).join('')}</details>` : ''; }).join(''); })()}
-    <p class="sec-h">Lo que casi nadie sabe (con estudios)</p>
+    <p class="sec-h nlm-h"><span>Lo que casi nadie sabe (con estudios)</span><button class="nlm-b" data-nlm="experto" aria-label="Llevar «Lo que casi nadie sabe (con estudios)» a NotebookLM">📚 NotebookLM</button></p>
     <p class="small muted" style="margin:-4px 0 8px">Cosas poco obvias y reales. Cada guía dice qué tan sólida es la evidencia.</p>
     ${DOCS.filter(d => d.grupo === 'experto').map(docBtn).join('')}
-    <p class="sec-h">Calle: que no se aprovechen de ti</p>
+    <p class="sec-h nlm-h"><span>Calle: que no se aprovechen de ti</span><button class="nlm-b" data-nlm="calle" aria-label="Llevar «Calle: que no se aprovechen de ti» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'calle').map(docBtn).join('')}
-    <p class="sec-h">Tu cuerpo y la intimidad</p>
+    <p class="sec-h nlm-h"><span>Tu cuerpo y la intimidad</span><button class="nlm-b" data-nlm="cuerpo" aria-label="Llevar «Tu cuerpo y la intimidad» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'cuerpo').map(docBtn).join('')}
-    <p class="sec-h">Barcelona y tu edad</p>
+    <p class="sec-h nlm-h"><span>Barcelona y tu edad</span><button class="nlm-b" data-nlm="bcn" aria-label="Llevar «Barcelona y tu edad» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'bcn').map(docBtn).join('')}
-    <p class="sec-h">Conócete</p>
+    <p class="sec-h nlm-h"><span>Conócete</span><button class="nlm-b" data-nlm="yo" aria-label="Llevar «Conócete» a NotebookLM">📚 NotebookLM</button></p>
     ${DOCS.filter(d => d.grupo === 'yo').map(docBtn).join('')}
-    <p class="sec-h">Lecciones</p>
+    <p class="sec-h nlm-h"><span>Lecciones</span><button class="nlm-b" data-nlm="lecciones" aria-label="Llevar «Lecciones» a NotebookLM">📚 NotebookLM</button></p>
     ${LECCIONES.map(lecBtn).join('')}
     <p class="sec-h">Herramientas</p>
     <div class="card" style="padding:4px 16px">
@@ -479,7 +481,7 @@ function openDoc(id) {
   if (d.herramienta) paintYo(v);
   v.addEventListener('click', e => {
     if (e.target.closest('[data-parati]')) { v.remove(); return openParaTi(); }
-    if (e.target.closest('[data-dleido]')) { const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); }
+    if (e.target.closest('[data-dleido]')) { vozParar(); const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); }
   });
 }
 // «Conócete»: lo que eliges y apuntas se guarda solo aquí.
@@ -560,17 +562,161 @@ function openQuiz(tipo) {
   });
 }
 // ---------- voz ----------
-const vozActiva = () => 'speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending);
+// Lee frase a frase, con una pausa entre frases y otra más larga tras cada título, a la velocidad que elijas.
+// Pausar = parar y recordar por dónde iba (pause() falla en el iPhone). Las frases sueltas evitan que las voces se corten.
+const VOZ_VEL = [['Lenta', .7], ['Tranquila', .82], ['Normal', .95]];
+const vozCfg = () => Object.assign({ vel: 1, voz: '' }, load(K.voz, {}) || {});
+let VZ = null, vozGen = 0;
+const vozActiva = () => !!VZ;
 const vozBtn = () => 'speechSynthesis' in window ? '<button class="fav" data-voz>🔊 Escuchar</button>' : '';
-function vozParar() { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {} }
+function vozVoces() {
+  const l = ('speechSynthesis' in window ? speechSynthesis.getVoices() : []).filter(x => /^es/i.test(x.lang));
+  const nota = x => (x.lang === 'es-ES' || x.lang === 'es_ES' ? 0 : 10) - (/premium|enhanced|mejorad|natural|neural/i.test(x.name) ? 5 : 0) - (/google/i.test(x.name) ? 2 : 0);
+  return l.sort((a, b) => nota(a) - nota(b));
+}
+function vozElegida() { const l = vozVoces(), c = vozCfg(); return l.find(x => x.name === c.voz) || l[0] || null; }
+if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', () => {}); } catch (e) {} }
+// Texto limpio: sin emojis ni símbolos que la voz lee en voz alta o con tropiezos.
+const vozLimpia = t => t.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}\u{1F3FB}-\u{1F3FF}]/gu, '').replace(/[«»“”"]/g, '').replace(/\s*[·•→]\s*/g, ', ').replace(/_{2,}/g, ' algo ').replace(/\s+/g, ' ').trim();
+function vozFrases(sh) {
+  const clon = sh.cloneNode(true);
+  clon.querySelectorAll('button, textarea, input, select, label, .acts, .grab, .dots, .sh-top, .vozbar, .nolee').forEach(n => n.remove());
+  clon.style.cssText = 'position:absolute;left:-9999px;width:600px'; document.body.appendChild(clon);
+  // los títulos en mayúsculas (por CSS) se leen como frase normal
+  const lineas = clon.innerText.split(/\n+/).map(vozLimpia).map(x => x === x.toUpperCase() ? x.charAt(0) + x.slice(1).toLowerCase() : x).filter(x => /[\p{L}\p{N}]/u.test(x)); clon.remove();
+  const out = [];
+  lineas.forEach(li => {
+    const tit = li.length < 70 && !/[.!?:…]$/.test(li);
+    const fr = li.split(/(?<=[.!?…:])\s+/).filter(Boolean);
+    fr.forEach((t, k) => out.push({ t, p: tit ? 900 : k === fr.length - 1 ? 650 : 380 }));
+  });
+  return out;
+}
+function vozPintar() {
+  if (!VZ) return;
+  const c = vozCfg(), f = VZ.frases[VZ.i] || { t: '' };
+  if (!VZ.bar || !VZ.bar.isConnected) { VZ.bar = document.createElement('div'); VZ.bar.className = 'vozbar'; VZ.sh.appendChild(VZ.bar); }
+  VZ.bar.innerHTML = `<p class="vz-t">${esc(f.t)}</p><div class="vz-r">
+    <button data-vz="prev" aria-label="Frase anterior">⏮</button><button data-vz="play" class="pp" aria-label="${VZ.pausa ? 'Seguir' : 'Pausar'}">${VZ.pausa ? '▶' : '⏸'}</button><button data-vz="next" aria-label="Frase siguiente">⏭</button>
+    <button data-vz="vel" class="vz-c">${VOZ_VEL[c.vel][0]}</button>${vozVoces().length > 1 ? '<button data-vz="voz" class="vz-c">Voz</button>' : ''}
+    <span class="vz-n">${Math.min(VZ.i + 1, VZ.frases.length)}/${VZ.frases.length}</span><button data-vz="stop" aria-label="Parar">✕</button></div>
+    <div class="vz-pg"><i style="width:${Math.round(VZ.i / Math.max(1, VZ.frases.length) * 100)}%"></i></div>`;
+  const b = VZ.sh.querySelector('[data-voz]'); if (b) b.textContent = '⏹ Parar';
+}
+function vozCorta() { vozGen++; if (VZ) clearTimeout(VZ.timer); try { speechSynthesis.cancel(); } catch (e) {} }
+function vozParar() {
+  vozCorta();
+  if (VZ) { if (VZ.bar) VZ.bar.remove(); const b = VZ.sh.querySelector('[data-voz]'); if (b) b.textContent = '🔊 Escuchar'; VZ = null; }
+}
+function vozDecir() {
+  if (!VZ) return;
+  const f = VZ.frases[VZ.i];
+  if (!f) {
+    const sh = VZ.sh, fin = VZ.fin; vozParar();
+    const ov = sh.closest('.veil'); if (ov && ov._vozSig && ov._vozSig()) return; // lección: sigue con la tarjeta siguiente
+    if (fin) fin(); return;
+  }
+  VZ.pausa = false; vozPintar();
+  const g = vozGen, c = vozCfg(), v = vozElegida(), vel = VOZ_VEL[c.vel][1];
+  const u = new SpeechSynthesisUtterance(f.t); u.lang = v ? v.lang : 'es-ES'; if (v) u.voice = v; u.rate = vel;
+  u.onend = () => { if (g !== vozGen || !VZ) return; VZ.i++; VZ.timer = setTimeout(vozDecir, f.p / vel); };
+  u.onerror = e => { if (g !== vozGen || !VZ || e.error === 'interrupted' || e.error === 'canceled') return; VZ.i++; VZ.timer = setTimeout(vozDecir, 200); };
+  VZ.u = u; // si no se guarda, Chrome a veces lo libera y no avisa al acabar
+  speechSynthesis.speak(u);
+}
 function vozLeer(sh, fin) {
   vozParar();
-  const clon = sh.cloneNode(true); clon.querySelectorAll('button, textarea, input, .acts, .grab, .dots').forEach(n => n.remove());
-  const txt = clon.innerText.replace(/\s+\n/g, '\n').trim();
-  const voces = speechSynthesis.getVoices(), es = voces.find(x => x.lang === 'es-ES') || voces.find(x => /^es/.test(x.lang));
-  // Por frases: las voces del iPhone se cortan con textos largos.
-  const trozos = txt.split(/(?<=[.!?:])\s+|\n+/).filter(Boolean);
-  trozos.forEach((t, k) => { const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; if (es) u.voice = es; u.rate = 1; if (k === trozos.length - 1) u.onend = fin; speechSynthesis.speak(u); });
+  const frases = vozFrases(sh); if (!frases.length) return;
+  VZ = { sh, frases, i: 0, pausa: false, fin, bar: null };
+  vozDecir();
+}
+function vozAccion(a) {
+  if (!VZ) return;
+  const c = vozCfg();
+  if (a === 'stop') return vozParar();
+  if (a === 'play') { if (VZ.pausa) return vozDecir(); vozCorta(); VZ.pausa = true; return vozPintar(); }
+  if (a === 'prev' || a === 'next') { vozCorta(); VZ.i = Math.max(0, Math.min(VZ.frases.length - 1, VZ.i + (a === 'next' ? 1 : -1))); return VZ.pausa ? vozPintar() : vozDecir(); }
+  if (a === 'vel') { c.vel = (c.vel + 1) % VOZ_VEL.length; store(K.voz, c); }
+  if (a === 'voz') { const l = vozVoces(), k = l.findIndex(x => x.name === (vozElegida() || {}).name); const nv = l[(k + 1) % l.length]; c.voz = nv.name; store(K.voz, c); toast('Voz: ' + nv.name.replace(/\s*\(.*\)/, '')); }
+  vozCorta(); if (VZ.pausa) vozPintar(); else vozDecir();
+}
+
+// ---------- Estudiar en NotebookLM ----------
+// Cada apartado de Aprender sale como un documento de texto. Solo el contenido de la app: nada de tus notas ni tu diario.
+function nlmSecciones() {
+  const g = k => [[null, DOCS.filter(d => d.grupo === k)]];
+  const av = DOCS.filter(d => d.grupo === 'avanzado'), usados = new Set(AVANZADO_GRUPOS.flatMap(x => x[1])), resto = av.filter(d => !usados.has(d.id));
+  const grupos = l => l.map(([n, ids]) => [n, ids.map(id => DOCS.find(d => d.id === id)).filter(Boolean)]).filter(x => x[1].length);
+  return [
+    ['pro', 'Nivel pro', grupos(PRO_GRUPOS)],
+    ['carisma', 'Carisma y confianza', g('carisma')],
+    ['ligar', 'Ligar, de principio a fin', g('ligar')],
+    ['guia', 'Qué hacer en cada situación', GUIA.map(b => [b.bloque, b.items])],
+    ['avanzado', 'Lo que dicen los libros de expertos', grupos(AVANZADO_GRUPOS.concat(resto.length ? [['Más', resto.map(d => d.id)]] : []))],
+    ['experto', 'Lo que casi nadie sabe (con estudios)', g('experto')],
+    ['calle', 'Calle: que no se aprovechen de ti', g('calle')],
+    ['cuerpo', 'Tu cuerpo y la intimidad', g('cuerpo')],
+    ['bcn', 'Barcelona y tu edad', g('bcn')],
+    ['yo', 'Conócete', g('yo')],
+    ['lecciones', 'Lecciones', [[null, LECCIONES]]]
+  ].map(([k, n, b]) => ({ k, n, b, temas: b.reduce((a, x) => a + x[1].length, 0) })).filter(x => x.temas);
+}
+function nlmItem(x) {
+  const P = [`### ${x.titulo}`];
+  if (x.sub) P.push(`_${x.sub}_`);
+  const bl = (h, c) => { const l = Array.isArray(c) ? c : [c]; P.push((h ? `**${h}**\n` : '') + (l.length > 1 ? l.map(t => '- ' + t).join('\n') : l[0])); };
+  if (x.secciones) x.secciones.forEach(([h, c]) => bl(h, c));
+  else if (x.tarjetas) x.tarjetas.forEach(([h, c]) => bl(h, c));
+  else {
+    bl('Lo que suele pasar', x.pasa); bl(x.hacerTitulo || 'Qué puedes hacer', x.hacer);
+    if (x.ejemplos && x.ejemplos.length) bl('Ejemplos', x.ejemplos);
+    if (x.cierre) P.push(x.cierre);
+    (x.extra || []).forEach(([h, c]) => bl(h, c));
+    bl('Si sale regular', x.sale); P.push(`**Para practicar:** ${x.practica}.`);
+  }
+  return P.join('\n\n');
+}
+function nlmTexto(sec) {
+  const cab = `# Cimientos · ${sec.n}\n\nGuía para estudiar sobre crecimiento personal, relaciones y ligar, escrita en español de España. ${sec.temas} temas.`;
+  return cab + '\n\n' + sec.b.map(([n, l]) => (n ? `## ${n}\n\n` : '') + l.map(nlmItem).join('\n\n')).join('\n\n') + '\n';
+}
+const nlmMin = t => Math.max(1, Math.round(t.split(/\s+/).length / 200));
+const nlmArchivo = n => 'Cimientos - ' + n.replace(/[^\p{L}\p{N} ,()-]/gu, '').trim() + '.txt';
+async function nlmEnviar(sec, modo) {
+  const txt = sec.k === 'todo' ? nlmSecciones().map(nlmTexto).join('\n\n') : nlmTexto(sec), nombre = nlmArchivo(sec.n);
+  if (modo === 'copiar') {
+    try { await navigator.clipboard.writeText(txt); toast('Copiado. En NotebookLM: Añadir fuente → Texto copiado → pega'); }
+    catch (e) { toast('No he podido copiar. Prueba con «Descargar».'); }
+    return;
+  }
+  const file = new File([txt], nombre, { type: 'text/plain' });
+  if (modo === 'enviar' && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: nombre }); } catch (e) {}
+    return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = nombre; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  toast('Descargado. En NotebookLM: Añadir fuente → Subir → elige el archivo');
+}
+function openNLM(clave) {
+  const secs = nlmSecciones(), todo = { k: 'todo', n: 'Todo Aprender', temas: secs.reduce((a, x) => a + x.temas, 0) };
+  const puedeEnviar = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.txt', { type: 'text/plain' })] }));
+  const fila = s => `<div class="nlm-f${s.k === clave ? ' on' : ''}"><div><b>${esc(s.n)}</b><small>${s.temas} temas${s.k === 'todo' ? '' : ' · ' + nlmMin(nlmTexto(s)) + ' min de lectura'}</small></div>
+    <div class="nlm-bt">${puedeEnviar ? `<button class="pill" data-nx="enviar" data-k="${s.k}">Enviar</button>` : ''}<button class="pill" data-nx="copiar" data-k="${s.k}">Copiar</button><button class="pill" data-nx="bajar" data-k="${s.k}">Descargar</button></div></div>`;
+  const elegida = secs.find(x => x.k === clave);
+  const v = sheet(`<h2>📚 Estudiar en NotebookLM</h2>
+    <p class="muted">Cada apartado sale como un documento. En NotebookLM le puedes hacer preguntas y sacar resúmenes, tarjetas, tests o un pódcast para escucharlo paseando.</p>
+    <ol class="nlm-pasos"><li>Crea en NotebookLM un cuaderno llamado «Cimientos» (solo la primera vez).</li>
+      <li>${puedeEnviar ? '<b>Enviar</b> abre el menú de compartir: elige NotebookLM. Si no aparece, usa <b>Copiar</b>.' : 'Pulsa <b>Copiar</b>.'}</li>
+      <li>En el cuaderno: <b>Añadir fuente → Texto copiado</b> y pega. Si lo descargaste: <b>Añadir fuente → Subir</b>.</li></ol>
+    ${elegida ? fila(elegida) : ''}
+    <details class="blq" ${elegida ? '' : 'open'}><summary><span>${elegida ? 'Otros apartados' : 'Todos los apartados'}</span><small>${secs.length}</small></summary>${secs.filter(x => x !== elegida).map(fila).join('')}${fila(todo)}</details>
+    <p class="small muted" style="margin-top:10px">Un cuaderno admite hasta 50 fuentes: caben todos los apartados por separado. Solo se exporta el contenido de la app, nunca tus notas ni tu diario.</p>
+    <div class="acts"><button class="btn ghost" data-close>Cerrar</button><span class="sp"></span><a class="btn" href="https://notebooklm.google.com/" target="_blank" rel="noopener">Abrir NotebookLM</a></div>`, 'guia');
+  v.addEventListener('click', e => {
+    const b = e.target.closest('[data-nx]'); if (!b) return;
+    nlmEnviar(b.dataset.k === 'todo' ? todo : secs.find(x => x.k === b.dataset.k), b.dataset.nx);
+  });
 }
 
 // ---------- tu semana: un reto, una situación y un tip ----------
@@ -1297,17 +1443,20 @@ function openLeccion(id) {
   const l = LECCIONES.find(x => x.id === id); if (!l) return;
   let i = 0;
   const v = sheet('');
-  const paint = () => {
+  const paint = auto => {
+    if (!auto) vozParar();
     const [t, p] = l.tarjetas[i], last = i === l.tarjetas.length - 1;
     v.querySelector('.sheet').innerHTML = `<div class="grab"></div><div class="lcard"><div class="sh-top"><span class="n">${l.icono} ${esc(l.titulo)} · ${i + 1} de ${l.tarjetas.length}</span>${vozBtn()}</div><h3>${esc(t)}</h3><p>${esc(p)}</p></div>
       <div class="dots">${l.tarjetas.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
       <div class="acts">${i ? '<button class="btn ghost" data-l="prev">Atrás</button>' : '<button class="btn ghost" data-close>Cerrar</button>'}<span class="sp"></span><button class="btn" data-l="${last ? 'fin' : 'next'}">${last ? 'Terminar' : 'Siguiente'}</button></div>`;
+    if (auto) vozLeer(v.querySelector('.sheet'));
   };
+  v._vozSig = () => { if (i >= l.tarjetas.length - 1) return false; i++; paint(true); return true; };
   paint();
   v.addEventListener('click', e => {
     const b = e.target.closest('[data-l]'); if (!b) return;
     if (b.dataset.l === 'prev') i--; else if (b.dataset.l === 'next') i++;
-    else { const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); return toast('Leída. Puedes volver cuando quieras.'); }
+    else { vozParar(); const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render(); return toast('Leída. Puedes volver cuando quieras.'); }
     paint();
   });
   let x0 = null;
@@ -1331,7 +1480,7 @@ function openGuia(id) {
     if (e.target.closest('[data-parati]')) { v.remove(); return openParaTi(); }
     const b = e.target.closest('[data-g]'); if (!b || b.disabled) return;
     if (b.dataset.g === 'reto') { store(K.propios, propios().concat({ id: uid('p'), titulo: s.practica, descripcion: 'De la guía: ' + s.titulo })); b.disabled = true; b.style.opacity = '.5'; b.textContent = 'Ya está en tus retos'; return toast('Añadido a tus retos'); }
-    const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render();
+    vozParar(); const L = leidas(); L[id] = new Date().toISOString(); store(K.lecciones, L); v.remove(); render();
   });
 }
 function openTrampas() {
@@ -1462,7 +1611,9 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-filtro]'))) { const tx = $('txt'); if (tx) ui.txt = tx.value; ui.filtro = x.dataset.filtro; const y = scrollY; render(); scrollTo(0, y); return; }
   if ((x = t.closest('#app [data-reto]'))) return openReto(x.dataset.reto);
   if ((x = t.closest('#app [data-lec]'))) return openLeccion(x.dataset.lec);
-  if ((x = t.closest('[data-voz]'))) { const sh = x.closest('.sheet'); if (vozActiva()) { vozParar(); x.textContent = '🔊 Escuchar'; } else { vozLeer(sh, () => { x.textContent = '🔊 Escuchar'; }); x.textContent = '⏹ Parar'; } return; }
+  if ((x = t.closest('[data-voz]'))) { const sh = x.closest('.sheet'); if (vozActiva()) vozParar(); else vozLeer(sh); return; }
+  if ((x = t.closest('[data-vz]'))) return vozAccion(x.dataset.vz);
+  if ((x = t.closest('#app [data-nlm]'))) return openNLM(x.dataset.nlm);
   if ((x = t.closest('#app [data-mia]'))) return openMia(x.dataset.mia);
   if ((x = t.closest('[data-borr]'))) {
     const id = x.dataset.borr, acc = x.dataset.acc, l = load(K.borradores, []) || [], b = l.find(z => z.id === id); if (!b) return;
