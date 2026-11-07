@@ -125,7 +125,7 @@ function promptPara(h) {
 let pila = [], timer = null;
 // html puede ser una función: así la capa se vuelve a pintar al volver a ella (p. ej. tras marcar una lectura).
 function capa(html, onClick, volverTxt) {
-  clearTimeout(timer);
+  clearTimeout(timer); estParar();
   const o = document.createElement('div'); o.className = 'capa'; o.setAttribute('role', 'dialog');
   const pinta = typeof html === 'function' ? html : () => html;
   o.innerHTML = `<div class="capa-top"><button class="volver" data-x="cerrar">${ic('flecha')}${volverTxt || 'Volver'}</button></div><div class="capa-in">${pinta()}</div>`;
@@ -137,7 +137,7 @@ function capa(html, onClick, volverTxt) {
 }
 // Cierra la de arriba y vuelve a la anterior; con todas = true vuelve a la pantalla principal.
 function cerrarCapa(todas) {
-  clearTimeout(timer);
+  clearTimeout(timer); estParar();
   do { const o = pila.pop(); if (o) o.remove(); } while (todas && pila.length);
   if (pila.length) { const o = pila[pila.length - 1]; o.style.display = ''; if (o.repintar) o.repintar(); } else { document.body.style.overflow = ''; render(); }
 }
@@ -203,28 +203,44 @@ async function abrirEnviar(id) {
 function marcar(id, cambios) { store(K.historias, (load(K.historias, []) || []).map(x => x.id === id ? Object.assign({}, x, cambios) : x)); }
 
 // ---------- Leer ----------
-function abrirLectura(id) {
+// ids: la lista desde la que la abres (para seguir con la siguiente al escuchar). auto: empieza a leer sola.
+function abrirLectura(id, ids, auto) {
   const x = porId(id); if (!x) return toast('No encuentro esa lectura');
-  const lista = (v, cls) => Array.isArray(v) ? (v.length > 1 ? `<ul${cls ? ` class="${cls}"` : ''}>${v.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : `<p>${esc(v[0])}</p>`) : `<p>${esc(v)}</p>`;
+  numFrase = 0;
+  const bloque = v => Array.isArray(v) ? (v.length > 1 ? `<ul>${v.map(t => `<li>${frs(t)}</li>`).join('')}</ul>` : `<p>${frs(v[0])}</p>`) : `<p>${frs(v)}</p>`;
+  const h3 = t => `<h3>${frTitulo(t)}</h3>`;
+  const titulo = `<h2>${frTitulo(x.titulo)}</h2>`;
   let cuerpo = '';
-  if (x.secciones) cuerpo = x.secciones.map(([h, c]) => `${h ? `<h3>${esc(h)}</h3>` : ''}${lista(c)}`).join('');
-  else if (x.tarjetas) cuerpo = x.tarjetas.map(([h, t]) => `<div class="tarjeta"><h3>${esc(h)}</h3>${lista(t)}</div>`).join('');
+  if (x.secciones) cuerpo = x.secciones.map(([h, c]) => `${h ? h3(h) : ''}${bloque(c)}`).join('');
+  else if (x.tarjetas) cuerpo = x.tarjetas.map(([h, t]) => `<div class="tarjeta">${h3(h)}${bloque(t)}</div>`).join('');
   else {
-    const partes = [['pasa', 'Qué pasa'], ['hacer', 'Qué hacer'], ['ejemplos', 'Dilo así'], ['sale', 'Si no sale como esperabas'], ['practica', 'Para practicar'], ['cierre', null]];
-    cuerpo = partes.filter(([k]) => x[k] && (!Array.isArray(x[k]) || x[k].length)).map(([k, h]) => (h ? `<h3>${h}</h3>` : '<div style="height:14px"></div>') + lista(x[k])).join('');
+    const partes = [['pasa', 'Qué pasa'], ['hacer', x.hacerTitulo || 'Qué hacer'], ['ejemplos', 'Dilo así'], ['extra'], ['sale', 'Si no sale como esperabas'], ['practica', 'Para practicar'], ['cierre', null]];
+    cuerpo = partes.map(([k, h]) => {
+      if (k === 'extra') return (x.extra || []).map(([eh, ec]) => h3(eh) + bloque(ec)).join('');
+      if (!x[k] || (Array.isArray(x[k]) && !x[k].length)) return '';
+      return (h ? h3(h) : '<div style="height:14px"></div>') + bloque(x[k]);
+    }).join('');
   }
   const leida = !!leidas()[id], fav = favs().includes(id);
-  capa(`<article class="lect"><h2>${esc(x.titulo)}</h2><p class="lect-sub">${esc(x.sub || x.bloque || '')}</p>${cuerpo}</article>
+  const min = minutosEscucha(palabras(JSON.stringify([x.titulo, x.secciones, x.tarjetas, x.pasa, x.hacer, x.ejemplos, x.extra, x.sale, x.practica, x.cierre])));
+  const o = capa(`<article class="lect">${titulo}<p class="lect-sub">${esc(x.sub || x.bloque || '')}</p>
+      <div class="lect-bar">${'speechSynthesis' in window ? `<button class="btn" data-escuchar>${ic('altavoz')}Escuchar</button><span class="lect-min">${min} min</span>` : ''}<span class="sp"></span><button class="ibtn" data-fav aria-label="${fav ? 'Quitar de guardadas' : 'Guardar'}" aria-pressed="${fav}">${ic('guardar', fav ? 'lleno' : '')}</button></div>
+      ${cuerpo}</article>
     <div class="lect-acc">
       <button class="btn prim ancho" data-leida>${ic('check')}${leida ? 'Volver' : 'Marcar como leída'}</button>
-      <div class="grid2"><button class="btn" data-preg>${ic('chat')}Preguntar a Claude</button><button class="btn" data-fav>${ic('guardar')}${fav ? 'Guardada' : 'Guardar'}</button></div>
+      <button class="btn ancho" data-preg>${ic('chat')}Preguntar a Claude sobre esto</button>
     </div>`,
   (e, o) => {
+    if (e.target.closest('[data-escuchar]')) return estBoton(o);
     if (e.target.closest('[data-leida]')) { if (!leida) { const L = leidas(); L[id] = new Date().toISOString(); store(K.leidas, L); toast('Leída'); } return cerrarCapa(); }
-    if (e.target.closest('[data-fav]')) { const f = favs(), b = e.target.closest('[data-fav]'); const on = !f.includes(id); store(K.favs, on ? f.concat(id) : f.filter(z => z !== id)); b.innerHTML = ic('guardar') + (on ? 'Guardada' : 'Guardar'); return toast(on ? 'Guardada en Aprender' : 'Quitada de guardadas'); }
+    if (e.target.closest('[data-fav]')) { const f = favs(), b = e.target.closest('[data-fav]'); const on = !f.includes(id); store(K.favs, on ? f.concat(id) : f.filter(z => z !== id)); b.innerHTML = ic('guardar', on ? 'lleno' : ''); b.setAttribute('aria-pressed', on); return toast(on ? 'Guardada en Aprender' : 'Quitada de guardadas'); }
     if (e.target.closest('[data-preg]')) return abrirContar({ titulo: 'Pregunta sobre esta lectura', objetivo: 'entender', texto: 'He leído «' + x.titulo + '». Quiero entender cómo aplicarlo a mí. Mi duda: ' });
   });
+  o.dataset.lect = id; o.ctxIds = ids || [];
+  if (auto) setTimeout(() => estLeer(o, 0), 350);
 }
+// La lista en la que está una fila (para seguir con la siguiente lectura al escuchar).
+const idsDe = el => { const c = el.closest('.capa-in') || el.closest('.lista'); return c ? [...c.querySelectorAll('[data-leer]')].map(b => b.dataset.leer) : []; };
 const filaLectura = id => {
   const x = porId(id); if (!x) return '';
   const ok = !!leidas()[id];
@@ -235,8 +251,13 @@ function abrirSeccion(k) {
   const s = secciones().find(x => x.k === k); if (!s) return;
   capa(() => { const L = leidas(), hechas = s.b.reduce((a, x) => a + x[1].filter(d => L[d.id]).length, 0);
     return `<h2>${esc(s.n)}</h2><p class="p">${esc(s.s)} · ${hechas} de ${s.total} leídas</p>
+    <div class="fila" style="margin-bottom:8px">${'speechSynthesis' in window ? `<button class="btn" data-oir>${ic('auriculares')}Escuchar seguido</button>` : ''}<button class="btn" data-llevar-ap>${ic('compartir')}Llevar a NotebookLM o Claude</button></div>
     ${s.b.map(([n, items]) => `${n ? `<p class="eti">${esc(n)}</p>` : ''}<div class="lista">${items.map(d => filaLectura(d.id)).join('')}</div>`).join('')}`; },
-  e => { const r = e.target.closest('[data-leer]'); if (r) abrirLectura(r.dataset.leer); }, 'Aprender');
+  e => {
+    const r = e.target.closest('[data-leer]'); if (r) return abrirLectura(r.dataset.leer, idsDe(r));
+    if (e.target.closest('[data-oir]')) { const ids = s.b.flatMap(x => x[1].map(d => d.id)), L = leidas(); return abrirLectura(ids.find(i => !L[i]) || ids[0], ids, true); }
+    if (e.target.closest('[data-llevar-ap]')) return abrirEstudio(k);
+  }, 'Aprender');
 }
 
 function abrirPlanEntero() {
@@ -339,6 +360,8 @@ function abrirAjustes() {
   const t = load(K.tema, null) || 'auto', pin = load(K.pin, null), sync = typeof CS !== 'undefined' ? CS.status() : { on: false };
   capa(`<h2>Ajustes</h2>
     <p class="eti">Tema</p><div class="chips" style="margin-top:0">${[['auto', 'Como el móvil'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button data-tema="${k}" class="${k === t ? 'on' : ''}">${n}</button>`).join('')}</div>
+    <p class="eti">Lecturas</p>
+    <div class="lista"><button class="row" data-vozaj><span class="tx"><b>Lectura en voz alta</b><small>Voz y velocidad · ahora ${esc(VELS[vozCfg().vel][0])}${vozElegida() ? ', ' + esc(nombreVoz(vozElegida())) : ''}</small></span>${ic('flecha')}</button></div>
     <p class="eti">Privacidad</p>
     <div class="lista"><button class="row" data-pin><span class="tx"><b>${pin ? 'Quitar el PIN' : 'Poner un PIN'}</b><small>${pin ? 'Cimientos pide el PIN al abrirla y al volver después de cinco minutos fuera.' : 'Para que nadie más pueda abrir Cimientos en tu móvil.'}</small></span>${ic('candado')}</button></div>
     <p class="eti">Tus datos</p>
@@ -347,6 +370,7 @@ function abrirAjustes() {
   (e, o) => {
     const b = e.target.closest('[data-tema]');
     if (b) { store(K.tema, b.dataset.tema); aplicarTema(); o.querySelectorAll('[data-tema]').forEach(x => x.classList.toggle('on', x === b)); return; }
+    if (e.target.closest('[data-vozaj]')) return abrirVoces();
     if (e.target.closest('[data-pin]')) {
       if (!pin) return pinSetup();
       return pinPad('Quitar PIN', 'Escribe el PIN actual', async v => { if ((await pinHash(v, pin.salt)) !== pin.hash) return 'PIN incorrecto'; store(K.pin, null); setTimeout(() => { cerrarCapa(true); toast('PIN quitado'); }, 50); return true; }, { cancel: true });
@@ -436,13 +460,17 @@ function vistaAprender() {
       <div class="que">${esc(w.t)}</div>
       <p class="sub">${esc(w.foco)}</p>
       <div class="dentro"><small>Lo que crees (y vas a comprobar)</small><b>${esc(w.exp)}</b></div>
-      <button class="lnk" data-plan style="margin-top:10px">Ver las 8 semanas</button>
+      <div class="fila">${'speechSynthesis' in window ? `<button class="btn" data-oirsemana>${ic('auriculares')}Escuchar las lecturas</button>` : ''}</div>
+      <button class="lnk" data-plan style="margin-top:6px">Ver las 8 semanas</button>
     </section>
     <p class="eti">Las lecturas de esta semana</p>
     <div class="lista">${w.docs.map(filaLectura).join('')}</div>` : `<section class="hero"><div class="que">Plan de 8 semanas hecho</div><p class="sub">Puedes repasar cualquier semana o empezar otra vuelta.</p><button class="lnk" data-plan style="margin-top:10px">Ver las 8 semanas</button></section>`}
 
     <p class="eti">Para entenderte</p>
     <div class="lista">${_LECC.map(l => filaLectura(l.id)).join('')}</div>
+
+    <p class="eti">Estudiar a tu manera</p>
+    <div class="lista"><button class="row" data-estudio><span class="ico">${ic('auriculares')}</span><span class="tx"><b>Estudiar con NotebookLM y Claude</b><small>Pódcast de tu semana, tests y ensayar conversaciones</small></span>${ic('flecha')}</button></div>
 
     <p class="eti">Toda la biblioteca · ${leidasN} de ${total} leídas</p>
     <div class="buscar">${ic('buscar')}<input type="search" id="busca" placeholder="Buscar: nervios, cita, rechazo…" value="${esc(busqueda)}" autocomplete="off"></div>
@@ -510,7 +538,9 @@ app.addEventListener('click', e => {
   const d = b.dataset;
   if (d.sos) return abrirSOS(d.sos);
   if (d.int) return apuntarIntento(d.int);
-  if (d.leer) return abrirLectura(d.leer);
+  if (d.leer) return abrirLectura(d.leer, idsDe(b));
+  if ('oirsemana' in d) { const w = semana(), L = leidas(); if (!w) return; const ids = w.docs.filter(porId); return abrirLectura(ids.find(i => !L[i]) || ids[0], ids, true); }
+  if ('estudio' in d) return abrirEstudio();
   if (d.sec) return abrirSeccion(d.sec);
   if ('plan' in d) return abrirPlanEntero();
   if ('siguiente' in d) return siguienteSemana();
