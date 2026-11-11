@@ -1,5 +1,5 @@
 /* Al cambiar el contenido de la app, sube este número: la app se actualiza sola al abrirla. */
-const CACHE_VERSION = 'cimientos-v46';
+const CACHE_VERSION = 'cimientos-v47';
 
 const APP_SHELL = [
   './',
