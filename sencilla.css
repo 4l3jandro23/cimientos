@@ -267,3 +267,89 @@ html.dark .fr.on { color: #fff; }
 .row.pedido .tx small:last-child { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .donde { font-weight: 700; color: var(--accent) !important; text-transform: none; letter-spacing: .01em; }
 .nota .ic-v { width: 13px; height: 13px; vertical-align: -.15em; }
+
+/* ===== Diseño de familia (noviembre 2026) =====
+   Como Alimentación, Ejercicio y Estilo: página blanca, paneles en un tono
+   salvia, título del día en Instrument Serif, resto en Instrument Sans. El
+   verde oliva solo marca datos; el botón principal es casi negro. */
+@font-face { font-family: 'Instrument Sans'; src: url(fonts/instrument-sans.woff2) format('woff2'); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'Instrument Serif'; src: url(fonts/instrument-serif.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+:root {
+  --bg: #ffffff; --card: #f2f4ee; --raised: #ffffff; --active: #e4e7dd; --ink: #1f201d; --muted: #636361; --faint: #7c7b76;
+  --border: #e3e6dc; --control: #c3c7b9;
+  --accent: #55732a; --accent-soft: #e6eed8; --hero: #f2f4ee;
+  --primary: #1f201d; --on-primary: #ffffff; --ok: #2e7d32; --gold: #b7791f; --gold-soft: #fbf1d8;
+  --font-display: 'Instrument Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; --font-body: var(--font-display);
+  --font-serif: 'Instrument Serif', 'New York', ui-serif, Georgia, serif;
+  --r-sm: 12px; --r-md: 16px; --r-lg: 22px;
+}
+html.dark {
+  --bg: #0e0e0d; --card: #1b1b19; --raised: #262624; --active: #2f2f2c; --ink: #f3f2ee; --muted: #a9a8a2; --faint: #8f8e88;
+  --border: #2a2a27; --control: #55554f; --accent: #b5d484; --accent-soft: #232c17; --hero: #1b1b19;
+  --primary: #f3f2ee; --on-primary: #151513; --ok: #7ed39d; --gold: #e0b25a; --gold-soft: #2c2513;
+}
+h1, h2, h3, .disp { font-weight: 600; letter-spacing: -.015em; }
+h2 { font-size: 1.25rem; }
+main { padding: 8px 18px 32px; }
+header { border-bottom: 0; padding: calc(8px + env(safe-area-inset-top)) 18px 6px; }
+header h1 { font-size: 1rem; font-weight: 600; letter-spacing: -.01em; }
+header p { display: none; }
+.hbtn, .ibtn { border: 0; background: none; border-radius: 50%; width: 44px; height: 44px; }
+.hbtn:active, .ibtn:active { background: var(--card); }
+
+/* El bloque de Hoy: título en serif sobre la página, el reto en un panel */
+.hero { background: none; color: var(--ink); padding: 6px 0 0; border-radius: 0; display: flex; flex-direction: column; }
+.hero .que { order: -1; font-family: var(--font-serif); font-weight: 400; font-size: 2.375rem; line-height: 1.04; letter-spacing: -.012em; margin: 4px 0 6px; text-wrap: balance; }
+.hero .fecha { color: var(--muted); font-weight: 400; }
+.hero .sub { color: var(--ink); margin-top: 8px; }
+.hero .dentro { background: var(--card); border-radius: var(--r-lg); padding: 18px; }
+.hero .dentro small { color: var(--accent); font-weight: 600; font-size: var(--t-sm); }
+.hero .dentro b { font-weight: 600; font-size: 1.375rem; letter-spacing: -.02em; line-height: 1.2; margin-top: 4px; }
+.hero .btn { background: var(--primary); color: var(--on-primary); border: 0; }
+.hero .btn.sec, .hero .fila .btn.sec { background: var(--active); color: var(--ink); border: 0; }
+.hero .lnk { color: var(--muted); }
+.tira i { background: var(--active); height: 6px; border-radius: 3px; }
+.tira i.on { background: var(--accent); }
+.tira-t { color: var(--muted); }
+
+/* Botones, paneles y filas: sin filo, un escalón de tono */
+.btn { border: 0; background: var(--active); border-radius: 999px; padding: 11px 18px; min-height: 44px; }
+.btn.prim { background: var(--primary); color: var(--on-primary); }
+.card .btn:not(.prim), .hist .btn:not(.prim), .aviso .btn:not(.prim) { background: var(--raised); }
+.card, .opt, .lista, .aviso, .stats, .hist, .dilo, .metodo, .lect .tarjeta { background: var(--card); border: 0; border-radius: var(--r-lg); }
+.card, .aviso, .hist, .dilo { padding: 18px; }
+.aviso { border-left: 0; }
+.aviso > b { font-weight: 600; }
+.opt { border-radius: var(--r-md); }
+.row { padding: 14px 16px; min-height: 60px; }
+.row .ico, .met-p > b, .paso b { background: none; color: var(--muted); width: auto; height: auto; flex: none; border-radius: 0; }
+.met-p > b, .paso b { font-weight: 500; font-size: var(--t-base); min-width: 18px; }
+.eti { font-size: 1.0625rem; font-weight: 600; color: var(--ink); letter-spacing: -.015em; margin: 30px 2px 10px; }
+.stat b { font-weight: 400; font-size: 1.625rem; }
+.semanas i { border-radius: 4px 4px 0 0; }
+.chips button { border: 0; background: var(--active); border-radius: 999px; padding: 9px 14px; }
+.chips button.on { background: var(--primary); color: var(--on-primary); }
+textarea, input[type=text], input[type=search] { background: var(--raised); border-radius: var(--r-md); }
+textarea:focus, input:focus { outline: 2px solid var(--ink); }
+:focus-visible { outline-color: var(--ink); }
+.una { background: var(--card); color: var(--ink); border-radius: var(--r-lg); font-family: var(--font-serif); font-weight: 400; font-size: 1.75rem; line-height: 1.15; letter-spacing: -.01em; }
+.una small { color: var(--accent); font-weight: 600; font-family: var(--font-body); }
+.grande { font-family: var(--font-serif); font-weight: 400; font-size: 1.75rem; line-height: 1.15; letter-spacing: -.01em; }
+.capa-in > h2:first-child { font-family: var(--font-serif); font-weight: 400; font-size: 2.25rem; line-height: 1.05; letter-spacing: -.012em; }
+.capa-top { border-bottom: 0; }
+.capa-top .volver { border: 0; background: var(--card); border-radius: 999px; padding: 9px 16px 9px 12px; }
+.tel { border: 0; background: var(--primary); color: var(--on-primary); border-radius: 999px; }
+.respira b { color: var(--ink); }
+.lock-pad button { border: 0; border-radius: 50%; height: 72px; background: var(--card); }
+.pl-vel, .pl-mini { border: 0; background: var(--active); border-radius: 999px; }
+.player { box-shadow: 0 -8px 30px rgba(20, 20, 15, .12); border-top: 0; }
+.toast { border-radius: 999px; }
+
+/* Barra de abajo: pastilla gris detrás del icono activo */
+.bottomnav { padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
+.bottomnav button { gap: 2px; }
+.bottomnav .ic-v { width: 56px; height: 30px; padding: 4px 17px; border-radius: 15px; box-sizing: border-box; }
+.bottomnav button.active { font-weight: 600; }
+.bottomnav button.active::before { display: none; }
+.bottomnav button.active .ic-v { background: var(--active); }
+* { text-transform: none !important; }

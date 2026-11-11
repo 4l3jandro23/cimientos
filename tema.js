@@ -4,6 +4,6 @@
   var oscuro = t === 'dark' || (t === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   if (oscuro) {
     document.documentElement.classList.add('dark');
-    var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', '#12100f');
+    var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', '#0e0e0d');
   }
 })();
