@@ -353,3 +353,7 @@ textarea:focus, input:focus { outline: 2px solid var(--ink); }
 .bottomnav button.active::before { display: none; }
 .bottomnav button.active .ic-v { background: var(--active); }
 * { text-transform: none !important; }
+
+.marca-ico{ width:26px !important; height:26px !important; flex:none; }
+
+header h1 .marca-ico{ width:26px; height:26px; }
