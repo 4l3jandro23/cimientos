@@ -1,5 +1,5 @@
 /* Al cambiar el contenido de la app, sube este número: la app se actualiza sola al abrirla. */
-const CACHE_VERSION = 'cimientos-v45';
+const CACHE_VERSION = 'cimientos-v46';
 
 const APP_SHELL = [
   './',
@@ -11,6 +11,7 @@ const APP_SHELL = [
   './tema.js',
   './fonts/instrument-sans.woff2',
   './fonts/instrument-serif.woff2',
+  './fonts/fraunces-600.woff2',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
